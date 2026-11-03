@@ -1,0 +1,24 @@
+{
+  "knowledge_base_version": "1.0.0",
+  "rules": [
+    {
+      "rule_id": "test-only.western.placement.example",
+      "rule_version": "1.0.0",
+      "knowledge_base_version": "1.0.0",
+      "system": "western",
+      "language": "en",
+      "topics": ["planet"],
+      "required_entities": [{"kind": "planet", "name": "Moon"}],
+      "conditions": [{"field": "Moon.sign", "equals": "Taurus"}],
+      "text": "TEST FIXTURE ONLY — not an astrology interpretation.",
+      "confidence": "editorial_low",
+      "provenance": {
+        "source_name": "AstroAI schema fixture",
+        "attribution": "AstroAI test authors",
+        "reference": "tests/fixtures/knowledge-base",
+        "editorial_status": "test_only",
+        "classification": "traditional_interpretation"
+      }
+    }
+  ]
+}

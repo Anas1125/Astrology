@@ -1,0 +1,24 @@
+{
+  "knowledge_base_version": "1.0.0",
+  "rules": [
+    {
+      "rule_id": "test-only.locale.example",
+      "rule_version": "1.0.0",
+      "knowledge_base_version": "1.0.0",
+      "system": "vedic",
+      "language": "ta",
+      "topics": ["nakshatra"],
+      "required_entities": [{"kind": "planet", "name": "Moon"}],
+      "conditions": [{"field": "Moon.nakshatra.name", "equals": "Rohini"}],
+      "text": "சோதனைக்கான உரை மட்டும் — ஜோதிட விளக்கம் அல்ல.",
+      "confidence": "editorial_low",
+      "provenance": {
+        "source_name": "AstroAI schema fixture",
+        "attribution": "AstroAI test authors",
+        "reference": "tests/fixtures/knowledge-base",
+        "editorial_status": "test_only",
+        "classification": "traditional_interpretation"
+      }
+    }
+  ]
+}
