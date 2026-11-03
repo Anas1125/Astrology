@@ -19,6 +19,7 @@ from app.services.astrology.sweph import ENGINE_VERSION, InvalidBirthData
 
 router = APIRouter()
 oauth = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+CALCULATION_UNAVAILABLE_DETAIL = "Astrology calculation is unavailable under current server settings. No result was saved."
 
 
 def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> User:
@@ -27,7 +28,7 @@ def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> 
         user = db.get(User, UUID(uid))
     except (jwt.PyJWTError, ValueError, KeyError):
         user = None
-    if user is None:
+    if user is None or not user.is_active:
         raise HTTPException(status_code=401, detail="Invalid or expired access token", headers={"WWW-Authenticate": "Bearer"})
     return user
 
@@ -46,7 +47,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/auth/login", response_model=TokenResponse)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.scalar(select(User).where(User.email == form_data.username))
-    if not user or not verify_password(form_data.password, user.password_hash):
+    if not user or not user.is_active or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect")
     return TokenResponse(access_token=create_access_token(str(user.id)))
 
@@ -156,7 +157,7 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
     try:
         provider = engine.get_provider()
     except EngineUnavailable as exc:
-        raise HTTPException(503, str(exc)) from exc
+        raise HTTPException(503, CALCULATION_UNAVAILABLE_DETAIL) from exc
     calculation_config = {"house_system": payload.house_system}
     if system == "vedic":
         calculation_config.update({"zodiac": "sidereal", "ayanamsa": "lahiri", "division": payload.division,
@@ -187,7 +188,7 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
     except InvalidBirthData as exc:
         raise HTTPException(422, str(exc)) from exc
     except EngineUnavailable as exc:
-        raise HTTPException(503, str(exc)) from exc
+        raise HTTPException(503, CALCULATION_UNAVAILABLE_DETAIL) from exc
     calculated_at = datetime.now(timezone.utc)
     result["calculated_at"] = calculated_at.isoformat()
     config_snapshot = {

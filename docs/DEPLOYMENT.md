@@ -84,6 +84,7 @@ Store backups outside the application host with encryption, retention, and acces
 
 - Swiss Ephemeris and `swisseph-ffi` commercial/network-use licensing requires professional review. Calculation flags stay off until approval and independent reference testing are signed off.
 - There are 81 research topics in the catalogue but zero source-verified substantive rules and zero approved production interpretation rules. Chat can return saved calculated facts but cannot provide sourced traditional interpretations.
+- Daily horoscope, Panchang, compatibility, report generation, and administrative knowledge management have no production-ready API workflow; the frontend presents explicit unavailable states where linked.
 - Authentication has short-lived access JWTs but no refresh-token rotation, revocation, email verification, or password reset flow. Reauthentication is required at expiry.
 - Login/registration have no distributed IP-based rate limiter. Add a trusted gateway/WAF policy before public exposure; do not rely on a per-process counter in a multi-worker deployment.
 - Human legal review, privacy/data-retention decisions, production Postgres exercise, staging release sign-off, restore rehearsal, monitoring thresholds, and support ownership remain outstanding.

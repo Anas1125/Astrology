@@ -14,3 +14,12 @@ test('astrology data is explicitly marked unavailable until verified', async () 
   assert.match(source, /Astrology calculations are disabled until licensing\/runtime verification is completed/);
   assert.match(source, /Swiss Ephemeris licensing has not been confirmed; public calculations remain disabled/);
 });
+
+test('dashboard avoids fake controls and static dates, and explains unavailable modules in both languages', async () => {
+  const source = await readFile(new URL('../src/pages/App.tsx', import.meta.url), 'utf8');
+  assert.match(source, /Intl\.DateTimeFormat\(tamil \? 'ta-IN' : 'en-US'/);
+  assert.doesNotMatch(source, /November 3, 2026|நவம்பர் 3, 2026|Visit our guide|<Bell/);
+  assert.match(source, /No date-specific horoscope content has passed source and editorial review/);
+  assert.match(source, /பொது கணக்கீடுகள் தற்போது முடக்கப்பட்டுள்ளன/);
+  assert.match(source, /No score is generated/);
+});

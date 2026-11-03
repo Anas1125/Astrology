@@ -5,8 +5,8 @@ This is an engineering review of implemented controls and remaining release work
 ## Controls present in the current code
 
 - Passwords are hashed with Argon2id through `pwdlib`; authentication uses the existing short-lived HS256 access JWT and does not store passwords in the browser.
-- Authenticated API routes use the existing bearer dependency. Profile, chart history, chart retrieval, AI conversations, and selected saved-chart context apply owner filters. AI context only loads a completed chart and its completed run.
-- SQLAlchemy expressions use bound parameters. Request models constrain fields and lengths; uploaded files are not currently accepted by the API.
+- Authenticated API routes use the existing bearer dependency. Profile, chart history, chart retrieval, AI conversations, and selected saved-chart context apply owner filters. AI context only loads a completed chart and its completed run. Deactivated accounts are rejected at login and existing bearer tokens stop working on the next authenticated request.
+- SQLAlchemy expressions use bound parameters. Request models constrain fields and lengths; uploaded files are not currently accepted by the API. Calculation runtime/native errors are converted to a generic unavailable response so server paths and native diagnostics are not returned to clients.
 - AI responses use only validated saved-chart facts and production-eligible sourced rules. Birth date/time, place, coordinates, and profile snapshots are not sent into response facts. There are no external inference calls in the active deterministic chat path.
 - Daily AI abuse quota reservation is an atomic database operation and is isolated by user/day. Idempotency keys are user-scoped and bound to message hashes.
 - Production configuration rejects the development secret, secrets shorter than 32 characters, SQLite, wildcard CORS, and non-HTTPS origins. Responses include content-type, framing, referrer and permissions headers; HSTS is added in production mode.

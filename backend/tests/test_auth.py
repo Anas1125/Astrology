@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from datetime import date
 from uuid import UUID
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -67,6 +67,32 @@ def test_login_rejects_unknown_email():
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Email or password is incorrect"
+
+
+def test_inactive_user_cannot_login():
+    with TestSession() as session:
+        session.add(User(
+            email="inactive@example.com",
+            password_hash=hash_password("correct-password"),
+            is_active=False,
+        ))
+        session.commit()
+    response = client.post(
+        "/api/v1/auth/login",
+        data={"username": "inactive@example.com", "password": "correct-password"},
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Email or password is incorrect"
+
+
+def test_deactivated_user_access_token_is_rejected():
+    token = login_token()
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        user.is_active = False
+        session.commit()
+    response = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 401
 
 
 def test_openapi_oauth_authorize_uses_login_endpoint():
@@ -283,6 +309,27 @@ def test_western_chart_api_persists_configuration_and_enforces_ownership(monkeyp
     other_token = login_token("other@example.com", "other-password")
     assert client.post("/api/v1/astrology/charts/western", json={"profile_id": profile["id"]}, headers={"Authorization": f"Bearer {other_token}"}).status_code == 404
     assert client.get(f"/api/v1/astrology/charts/{body['chart_id']}", headers={"Authorization": f"Bearer {other_token}"}).status_code == 404
+
+
+def test_calculation_failures_do_not_expose_runtime_paths_or_native_errors(monkeypatch):
+    import app.api.routes as api_routes
+    from app.services.astrology.base import EngineUnavailable
+
+    class BrokenEngine:
+        def get_provider(self):
+            raise EngineUnavailable("native failure at /private/ephemeris/sepl_18.se1")
+
+    monkeypatch.setattr(api_routes, "VedicAstrologyEngine", BrokenEngine)
+    token = login_token()
+    profile = create_profile(token=token).json()
+    response = client.post(
+        "/api/v1/astrology/charts/vedic",
+        json={"profile_id": profile["id"]},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"] == api_routes.CALCULATION_UNAVAILABLE_DETAIL
+    assert "/private/ephemeris" not in response.text and "sepl_18.se1" not in response.text
 
 
 def test_chart_history_is_paginated_filtered_private_and_owner_scoped():

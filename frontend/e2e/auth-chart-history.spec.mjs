@@ -39,6 +39,14 @@ test('signup, create profile, chart gates and history persist across logout/logi
   const profile = await (await profileResponse).json();
   await expect(page.getByText('E2E profile', { exact: true })).toBeVisible();
 
+  await page.getByRole('link', { name: 'Horoscope' }).click();
+  await expect(page.getByRole('heading', { name: 'Not available yet' })).toBeVisible();
+  await expect(page.getByText(/No date-specific horoscope content has passed source and editorial review/)).toBeVisible();
+  await page.getByRole('link', { name: 'Panchang' }).click();
+  await expect(page.getByText(/Public calculations remain disabled/)).toBeVisible();
+  await page.getByRole('link', { name: 'Compatibility' }).click();
+  await expect(page.getByText(/No score is generated/)).toBeVisible();
+
   await page.getByRole('link', { name: 'Birth chart' }).click();
   await expect(page.getByLabel('Birth profile')).toHaveValue(profile.id);
   await expect(page.getByLabel('Chart division')).toHaveValue('D1');
@@ -66,7 +74,7 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await page.locator('.chart-history-item').first().click();
   await expect(page.getByRole('alert')).toContainText('Chart calculation unavailable');
 
-  await page.getByRole('link', { name: 'AI astrologer' }).click();
+  await page.getByRole('link', { name: 'Astrologer chat' }).click();
   await expect(page.getByRole('heading', { name: 'AI astrologer' })).toBeVisible();
   await page.getByLabel('Birth profile').selectOption(profile.id);
   await page.getByLabel('Astrology system').selectOption('western');
@@ -92,7 +100,7 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await expect(page.getByRole('heading', { name: 'Saved chart history' })).toBeVisible();
   await expect(page.locator('.chart-history-item')).toContainText('E2E profile');
 
-  await page.getByRole('link', { name: 'AI astrologer' }).click();
+  await page.getByRole('link', { name: 'Astrologer chat' }).click();
   await expect(page.locator('.ai-conversation-select')).toContainText('In my Western natal chart, where is my Moon?');
   await page.locator('.ai-conversation-select').click();
   await expect(page.getByText('A completed saved chart for this profile and system is not available.', { exact: false })).toBeVisible();
