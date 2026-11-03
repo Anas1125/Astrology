@@ -16,30 +16,42 @@ export const aiChatText = {
     noProfiles: 'Add a birth profile before starting a conversation.', create: 'New conversation', history: 'Conversations', send: 'Send', placeholder: 'Ask about your chart…', loading: 'Loading…', empty: 'Choose a conversation or start a new one.',
     noContext: 'No completed saved chart is selected. Personal chart questions will be told when chart information is unavailable; placements are never inferred.', disclaimer: 'Astrology is a traditional belief system, not scientific certainty. Do not rely on it for medical, legal, or financial decisions.',
     unavailable: 'The response engine is temporarily unavailable. Your message may be retried.', failed: 'Could not load conversations.', delete: 'Delete conversation', remaining: 'messages remaining today', providerError: 'The response could not be prepared. Your message may be retried.',
-    facts: 'Calculated chart facts', interpretation: 'Traditional interpretation', limitation: 'Limitation', sources: 'Sources',
+    facts: 'Calculated chart facts', interpretation: 'Traditional interpretation', limitation: 'Limitation', sources: 'Source and edition', factSources: 'Saved chart facts used', chartFact: 'Calculated from this saved chart',
   },
   ta: {
     title: 'AI ஜோதிடர்', intro: 'சேமித்த ஜாதகத் தரவை அடிப்படையாகக் கொண்டு சிந்தனைக்கான கேள்விகளைக் கேளுங்கள்.', profile: 'பிறப்பு விவரம்', system: 'ஜோதிட முறை', chart: 'சேமித்த கணக்கிடப்பட்ட ஜாதகம்', noChart: 'முடிக்கப்பட்ட ஜாதகம் இல்லை (பொதுக் கேள்விகள் மட்டும்)',
     noProfiles: 'உரையாடலைத் தொடங்க முதலில் பிறப்பு விவரத்தைச் சேர்க்கவும்.', create: 'புதிய உரையாடல்', history: 'உரையாடல்கள்', send: 'அனுப்பு', placeholder: 'உங்கள் ஜாதகத்தைப் பற்றி கேளுங்கள்…', loading: 'ஏற்றப்படுகிறது…', empty: 'உரையாடலைத் தேர்ந்தெடுக்கவும் அல்லது புதியதைத் தொடங்கவும்.',
     noContext: 'முடிக்கப்பட்ட சேமித்த ஜாதகம் தேர்ந்தெடுக்கப்படவில்லை. தனிப்பட்ட ஜாதகக் கேள்விகளுக்கு தகவல் இல்லையெனில் தெளிவாகச் சொல்லப்படும்; கிரக நிலைகள் ஊகிக்கப்படாது.', disclaimer: 'ஜோதிடம் ஒரு பாரம்பரிய நம்பிக்கை முறை; அறிவியல் உறுதி அல்ல. மருத்துவ, சட்ட அல்லது நிதி முடிவுகளுக்கு இதை மட்டும் நம்ப வேண்டாம்.',
     unavailable: 'பதில் இயந்திரம் தற்காலிகமாக கிடைக்கவில்லை. செய்தியை மீண்டும் முயற்சிக்கலாம்.', failed: 'உரையாடல்களை ஏற்ற முடியவில்லை.', delete: 'உரையாடலை நீக்கு', remaining: 'இன்றைய மீதமுள்ள செய்திகள்', providerError: 'பதிலைத் தயாரிக்க முடியவில்லை. செய்தியை மீண்டும் முயற்சிக்கலாம்.',
-    facts: 'கணக்கிடப்பட்ட ஜாதகத் தகவல்கள்', interpretation: 'பாரம்பரிய விளக்கம்', limitation: 'வரம்பு', sources: 'ஆதாரங்கள்',
+    facts: 'கணக்கிடப்பட்ட ஜாதகத் தகவல்கள்', interpretation: 'பாரம்பரிய விளக்கம்', limitation: 'வரம்பு', sources: 'ஆதாரம் மற்றும் பதிப்பு', factSources: 'பயன்படுத்திய சேமித்த ஜாதகத் தகவல்கள்', chartFact: 'இந்தச் சேமித்த ஜாதகத்திலிருந்து கணக்கிடப்பட்டது',
   },
 } as const;
 
-function StructuredMessage({ response, language }: { response: IntelligenceResponse; language: Language }) {
+export function StructuredMessage({ response, language }: { response: IntelligenceResponse; language: Language }) {
   const t = aiChatText[language];
   const headings = {
     calculated_fact: t.facts,
     traditional_interpretation: t.interpretation,
     limitation: t.limitation,
   };
+  const locator = (source: IntelligenceResponse['sections'][number]['rule_references'][number]) => {
+    const labels = language === 'ta'
+      ? { chapter: 'அத்தியாயம்', verse: 'சுலோகம்', page: 'பக்கம்' }
+      : { chapter: 'Chapter', verse: 'verse', page: 'p.' };
+    return [
+      source.chapter && `${labels.chapter} ${source.chapter}`,
+      source.verse && `${labels.verse} ${source.verse}`,
+      source.page && `${labels.page} ${source.page}`,
+      source.section,
+    ].filter(Boolean).join(' · ') || source.reference;
+  };
   return <div className="ai-structured-response">
     <p>{response.answer}</p>
     {response.sections.filter(section => section.text !== response.answer).map((section, index) => <section className={`ai-response-section ${section.section_type}`} key={`${section.section_type}-${index}`}>
       <small>{headings[section.section_type]}</small>
       <p>{section.text}</p>
-      {section.rule_references.length > 0 && <div className="ai-response-sources"><small>{t.sources}</small>{section.rule_references.map((source, sourceIndex) => <p key={`${source.rule_id}-${sourceIndex}`}>{source.source_name} · {source.attribution} · {source.reference}</p>)}</div>}
+      {section.section_type === 'calculated_fact' && section.fact_references.length > 0 && <details className="ai-response-sources"><summary>{t.factSources} · {section.fact_references.length}</summary><p>{t.chartFact}</p>{section.fact_references.map((fact, factIndex) => <p key={`${fact.fact_id}-${factIndex}`}><b>{fact.subject}</b> · {fact.predicate}: {String(fact.value)} <small>({fact.system}{fact.division ? ` · ${fact.division}` : ''})</small></p>)}</details>}
+      {section.rule_references.length > 0 && <div className="ai-response-sources"><small>{t.sources}</small>{section.rule_references.map((source, sourceIndex) => <p key={`${source.rule_id}-${sourceIndex}`}><b>{source.source_name}</b>{source.edition ? ` · ${source.edition}` : ''}{source.attribution ? ` · ${source.attribution}` : ''}<br/>{locator(source)}</p>)}</div>}
     </section>)}
   </div>;
 }

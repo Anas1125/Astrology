@@ -24,7 +24,7 @@ from app.schemas.api import (
     AIMessageResponse,
     AIUsageResponse,
 )
-from app.services.ai.contracts import IntelligenceResponse
+from app.services.ai.contracts import ConversationTurn, IntelligenceResponse
 from app.services.ai.engine import engine_version, get_intelligence_engine
 from app.services.ai.usage import daily_request_count, reserve_daily_request
 from app.api.routes import current_user
@@ -46,7 +46,10 @@ def _owned_conversation(db: Session, conversation_id: UUID, user: User) -> ChatS
 def _conversation_response(db: Session, chat: ChatSession) -> AIConversationResponse:
     profile_name = None
     if chat.profile_id:
-        profile_name = db.scalar(select(BirthProfile.display_name).where(BirthProfile.id == chat.profile_id))
+        profile_name = db.scalar(select(BirthProfile.display_name).where(
+            BirthProfile.id == chat.profile_id,
+            BirthProfile.owner_id == chat.user_id,
+        ))
     return AIConversationResponse(
         id=chat.id, profile_id=chat.profile_id, profile_name=profile_name, chart_id=chat.chart_id,
         astrology_system=chat.astrology_system, language=chat.language, title=chat.title,
@@ -251,8 +254,25 @@ def _prepare_request(conversation_id: UUID, payload: AIMessageCreate, user: User
     return chat, usage_row, day_key, replay_message
 
 
-def _build_response(db: Session, chat: ChatSession, user: User, content: str) -> IntelligenceResponse:
-    return get_intelligence_engine().answer_for_session(db, chat, user, content)
+def _build_response(
+    db: Session,
+    chat: ChatSession,
+    user: User,
+    content: str,
+    *,
+    current_user_message_id: UUID | None = None,
+) -> IntelligenceResponse:
+    rows = db.scalars(
+        select(ChatMessage)
+        .where(ChatMessage.session_id == chat.id)
+        .order_by(ChatMessage.created_at, ChatMessage.id)
+    ).all()
+    history = tuple(
+        ConversationTurn(role=row.role, content=row.content, created_at=row.created_at)
+        for row in rows
+        if row.id != current_user_message_id and row.role in {"user", "assistant"}
+    )[-20:]
+    return get_intelligence_engine().answer_for_session(db, chat, user, content, history=history)
 
 
 def _stream_response_events(response: IntelligenceResponse):
@@ -287,7 +307,7 @@ async def send_message(
         today = datetime.now(timezone.utc).date().isoformat()
         return AIChatResponse(message=_message_response(replay_message), usage=_usage_snapshot(db, user.id, today))
     try:
-        response = _build_response(db, chat, user, payload.content)
+        response = _build_response(db, chat, user, payload.content, current_user_message_id=usage_row.message_id)
     except Exception as exc:
         _mark_failed(db, usage_row)
         raise HTTPException(503, "The deterministic astrology response engine is unavailable") from exc
@@ -320,7 +340,7 @@ async def stream_message(
         return StreamingResponse(replay_events(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
     try:
-        response = _build_response(db, chat, user, payload.content)
+        response = _build_response(db, chat, user, payload.content, current_user_message_id=usage_row.message_id)
     except Exception as exc:
         _mark_failed(db, usage_row)
         raise HTTPException(503, "The deterministic astrology response engine is unavailable") from exc

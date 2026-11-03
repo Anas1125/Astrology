@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime, timezone
 
 from app.services.ai.classifier import classify_question
 from app.services.ai.contracts import (
@@ -11,6 +12,8 @@ from app.services.ai.contracts import (
     ResponseSectionType,
     ResponseStatus,
     RuleProvenance,
+    RuleReviewEvent,
+    RuleReviewStatus,
     SupportedLanguage,
 )
 from app.services.ai.response_composer import (
@@ -58,7 +61,41 @@ def _rule(rule_id, field, value, *, system="vedic", division="D1", language="en"
             source_name="Reviewed test source", attribution="AstroAI editorial team",
             reference="https://example.test/reference/source", editorial_status=status,
             classification="traditional_interpretation",
+            **({
+                "source_id": ("vedic.phaladeepika.sastri.1950-en" if system == "vedic" else "western.christian-astrology.lilly.1647"),
+                "source_registry_version": "1.0.0",
+                "edition_id": ("phaladeepika-sastri-2e-1950" if system == "vedic" else "christian-astrology-lilly-original-1647"),
+                "edition": ("Second edition, revised and enlarged; Sanskrit text with English translation, chapters I–XXVIII."
+                            if system == "vedic" else
+                            "Original 1647 edition in three books; book III has a separate title page. Wellcome's digitized copy is missing its last leaf."),
+                "chapter": "fixture chapter",
+                "editorial_explanation": "Test fixture only; no claim is asserted.",
+                "editorial_reviewer": "Test reviewer",
+                "translation_reviewer": "Test translator reviewer",
+                "reviewed_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+                "translation_review_status": "reviewed",
+                "source_verifier": "Fixture source reviewer (test only)",
+                "source_verified_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+            } if status == "approved" else {}),
         ),
+        translations=({"en": text, "ta": "சோதனை உரை மட்டும் — ஜோதிட விளக்கம் அல்ல."} if status == "approved" else {}),
+        review_status=RuleReviewStatus.APPROVED if status == "approved" else RuleReviewStatus.RESEARCH_CANDIDATE,
+        review_events=(tuple(RuleReviewEvent(
+            status=step,
+            reviewer={
+                RuleReviewStatus.SOURCE_VERIFIED: "Fixture source reviewer (test only)",
+                RuleReviewStatus.EDITORIAL_REVIEW_PENDING: "Test reviewer",
+                RuleReviewStatus.TRANSLATION_REVIEW_PENDING: "Test translator reviewer",
+                RuleReviewStatus.APPROVED: "Fixture approver (test only)",
+            }[step],
+            occurred_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            note="Test fixture only; no real review occurred.",
+        ) for step in (
+            RuleReviewStatus.SOURCE_VERIFIED,
+            RuleReviewStatus.EDITORIAL_REVIEW_PENDING,
+            RuleReviewStatus.TRANSLATION_REVIEW_PENDING,
+            RuleReviewStatus.APPROVED,
+        )) if status == "approved" else ()),
     )
 
 

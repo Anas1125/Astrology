@@ -1,0 +1,1341 @@
+{
+  "catalogue_version": "2.0.0",
+  "topics": [
+    {
+      "topic_id": "vedic.graha.sun-significations",
+      "system": "vedic",
+      "label": "Sun significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.moon-significations",
+      "system": "vedic",
+      "label": "Moon significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.mars-significations",
+      "system": "vedic",
+      "label": "Mars significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.mercury-significations",
+      "system": "vedic",
+      "label": "Mercury significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.jupiter-significations",
+      "system": "vedic",
+      "label": "Jupiter significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.venus-significations",
+      "system": "vedic",
+      "label": "Venus significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.saturn-significations",
+      "system": "vedic",
+      "label": "Saturn significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.rahu-significations",
+      "system": "vedic",
+      "label": "Rahu significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.graha.ketu-significations",
+      "system": "vedic",
+      "label": "Ketu significations",
+      "scope": "Research edition-specific passages and qualifications for this graha; do not treat summaries as source text.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.aries",
+      "system": "vedic",
+      "label": "Aries (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.taurus",
+      "system": "vedic",
+      "label": "Taurus (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.gemini",
+      "system": "vedic",
+      "label": "Gemini (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.cancer",
+      "system": "vedic",
+      "label": "Cancer (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.leo",
+      "system": "vedic",
+      "label": "Leo (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.virgo",
+      "system": "vedic",
+      "label": "Virgo (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.libra",
+      "system": "vedic",
+      "label": "Libra (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.scorpio",
+      "system": "vedic",
+      "label": "Scorpio (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.sagittarius",
+      "system": "vedic",
+      "label": "Sagittarius (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.capricorn",
+      "system": "vedic",
+      "label": "Capricorn (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.aquarius",
+      "system": "vedic",
+      "label": "Aquarius (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.rashi.pisces",
+      "system": "vedic",
+      "label": "Pisces (rāśi)",
+      "scope": "Research descriptions and contextual qualifications in the registered Vedic editions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.1",
+      "system": "vedic",
+      "label": "Bhāva 1",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.2",
+      "system": "vedic",
+      "label": "Bhāva 2",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.3",
+      "system": "vedic",
+      "label": "Bhāva 3",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.4",
+      "system": "vedic",
+      "label": "Bhāva 4",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.5",
+      "system": "vedic",
+      "label": "Bhāva 5",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.6",
+      "system": "vedic",
+      "label": "Bhāva 6",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.7",
+      "system": "vedic",
+      "label": "Bhāva 7",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.8",
+      "system": "vedic",
+      "label": "Bhāva 8",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.9",
+      "system": "vedic",
+      "label": "Bhāva 9",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.10",
+      "system": "vedic",
+      "label": "Bhāva 10",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.11",
+      "system": "vedic",
+      "label": "Bhāva 11",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.bhava.12",
+      "system": "vedic",
+      "label": "Bhāva 12",
+      "scope": "Research this bhāva only with its stated conditions, lords, occupants, aspects, and exceptions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.lagna",
+      "system": "vedic",
+      "label": "Ascendant (lagna)",
+      "scope": "Distinguish lagna, lagna lord, and related factors exactly as each text does.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.nakshatra-pada",
+      "system": "vedic",
+      "label": "Nakṣatra and pāda",
+      "scope": "Research lunar-mansion and quarter passages, including recension and numbering.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.planetary-dignity",
+      "system": "vedic",
+      "label": "Planetary dignity and condition",
+      "scope": "Keep exaltation, debility, domicile, mūlatrikoṇa, friendship, and strength schemes distinct.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.vimshottari-dasha",
+      "system": "vedic",
+      "label": "Vimśottarī mahādaśā and antardaśā",
+      "scope": "Separate period calculations from conditional textual interpretations and record year conventions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.yogas",
+      "system": "vedic",
+      "label": "Classical yogas",
+      "scope": "Index each named yoga only after verifying formation, cancellation, and contextual conditions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.d1-d9",
+      "system": "vedic",
+      "label": "D1 and D9 principles",
+      "scope": "Research source-supported divisional-chart rules and do not infer a doctrine from calculation conventions.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "vedic.factor-relationships",
+      "system": "vedic",
+      "label": "Chart-factor relationships",
+      "scope": "Record multi-factor combinations only when all relevant factors are explicit in the cited passage.",
+      "candidate_source_ids": [
+        "vedic.bphs.ranjan.english-translation",
+        "vedic.phaladeepika.sastri.1950-en",
+        "vedic.saravali.santhanam.1983-en"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.sun",
+      "system": "western",
+      "label": "Sun (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.moon",
+      "system": "western",
+      "label": "Moon (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.mercury",
+      "system": "western",
+      "label": "Mercury (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.venus",
+      "system": "western",
+      "label": "Venus (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.mars",
+      "system": "western",
+      "label": "Mars (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.jupiter",
+      "system": "western",
+      "label": "Jupiter (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-planet.saturn",
+      "system": "western",
+      "label": "Saturn (traditional planet)",
+      "scope": "Research treatment in the named historical source and preserve its methodology and context.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.aries",
+      "system": "western",
+      "label": "Aries",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.taurus",
+      "system": "western",
+      "label": "Taurus",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.gemini",
+      "system": "western",
+      "label": "Gemini",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.cancer",
+      "system": "western",
+      "label": "Cancer",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.leo",
+      "system": "western",
+      "label": "Leo",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.virgo",
+      "system": "western",
+      "label": "Virgo",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.libra",
+      "system": "western",
+      "label": "Libra",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.scorpio",
+      "system": "western",
+      "label": "Scorpio",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.sagittarius",
+      "system": "western",
+      "label": "Sagittarius",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.capricorn",
+      "system": "western",
+      "label": "Capricorn",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.aquarius",
+      "system": "western",
+      "label": "Aquarius",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.sign.pisces",
+      "system": "western",
+      "label": "Pisces",
+      "scope": "Research sign qualities and qualifications without importing modern doctrine.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.1",
+      "system": "western",
+      "label": "House 1",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.2",
+      "system": "western",
+      "label": "House 2",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.3",
+      "system": "western",
+      "label": "House 3",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.4",
+      "system": "western",
+      "label": "House 4",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.5",
+      "system": "western",
+      "label": "House 5",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.6",
+      "system": "western",
+      "label": "House 6",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.7",
+      "system": "western",
+      "label": "House 7",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.8",
+      "system": "western",
+      "label": "House 8",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.9",
+      "system": "western",
+      "label": "House 9",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.10",
+      "system": "western",
+      "label": "House 10",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.11",
+      "system": "western",
+      "label": "House 11",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.house.12",
+      "system": "western",
+      "label": "House 12",
+      "scope": "Research house topics within the source’s natal or horary context; keep those contexts distinct.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.rulership-dignity",
+      "system": "western",
+      "label": "Rulership and dignity",
+      "scope": "Research the exact dignity scheme, reception terminology, and source-specific conditions.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.aspect.conjunction",
+      "system": "western",
+      "label": "Conjunction",
+      "scope": "Research source definitions and conditions; do not conflate geometry with interpretation.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.aspect.sextile",
+      "system": "western",
+      "label": "Sextile",
+      "scope": "Research source definitions and conditions; retain source-specific geometry.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.aspect.square",
+      "system": "western",
+      "label": "Square",
+      "scope": "Research source definitions and conditions; retain source-specific geometry.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.aspect.trine",
+      "system": "western",
+      "label": "Trine",
+      "scope": "Research source definitions and conditions; retain source-specific geometry.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.aspect.opposition",
+      "system": "western",
+      "label": "Opposition",
+      "scope": "Research source definitions and conditions; retain source-specific geometry.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.retrograde",
+      "system": "western",
+      "label": "Retrograde motion",
+      "scope": "Separate observed apparent motion from traditional judgments and record required conditions.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.traditional-condition",
+      "system": "western",
+      "label": "Traditional planetary condition",
+      "scope": "Research sect, speed, visibility, combustion, reception, and related terms without combining schemes.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.planetary-combinations",
+      "system": "western",
+      "label": "Traditional planetary combinations",
+      "scope": "Index relationships only when the source defines the configuration and its conditions.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    },
+    {
+      "topic_id": "western.natal-interpretation",
+      "system": "western",
+      "label": "Natal chart interpretation",
+      "scope": "Record methodology and contextual boundaries for natal judgments in the exact source.",
+      "candidate_source_ids": [
+        "western.tetrabiblos.robbins.1940",
+        "western.christian-astrology.lilly.1647"
+      ],
+      "research_questions": [
+        "Which exact passage in the registered edition supports this topic, and what locator can be independently checked?",
+        "What conditions, contextual qualifications, variant readings, or limitations are stated in that passage?"
+      ],
+      "status": "research_only",
+      "rule_approval": "not_approved"
+    }
+  ]
+}

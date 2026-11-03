@@ -15,14 +15,22 @@ from app.services.ai.contracts import (
     MatchedFactReference,
     MatchedInterpretationRule,
     QuestionClassification,
+    RuleReviewStatus,
     RuleConflict,
     RuleMatchResult,
     RuleSkip,
     SupportedLanguage,
     UserIntent,
 )
+from app.services.ai.source_registry import (
+    SourceRegistryError,
+    get_default_source_registry,
+    validate_approved_rule_metadata,
+    validate_rule_source_link,
+)
 
 _PLANETS = {"Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto", "Rahu", "Ketu"}
+_OUTER_PLANETS = {"Uranus", "Neptune", "Pluto"}
 _LORDS = {"Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"}
 _PLANET_FIELDS = {
     "longitude", "sign", "house", "retrograde", "nakshatra.name", "nakshatra.lord",
@@ -107,19 +115,34 @@ def validate_rule_conditions(rule: InterpretationRule) -> None:
             raise ValueError(f"Rule {rule.rule_id} uses a Vedic-only fact in a Western rule")
         if rule.system is AstrologySystem.VEDIC and is_western_only:
             raise ValueError(f"Rule {rule.rule_id} uses a Western-only fact in a Vedic rule")
-        if rule.system is AstrologySystem.VEDIC and predicate.startswith("d9.") and rule.division not in {"D9", None}:
-            raise ValueError(f"Rule {rule.rule_id} uses a D9 fact outside D9")
-        if rule.system is AstrologySystem.VEDIC and predicate.startswith("nakshatra.") and rule.division == "D9":
-            raise ValueError(f"Rule {rule.rule_id} uses a D1 Nakshatra fact in a D9 rule")
+        if rule.system is AstrologySystem.VEDIC and subject in _OUTER_PLANETS:
+            raise ValueError(f"Rule {rule.rule_id} uses a non-traditional outer planet in a Vedic rule")
+        if rule.system is AstrologySystem.WESTERN and subject in _OUTER_PLANETS:
+            raise ValueError(f"Rule {rule.rule_id} uses an outer planet unsupported by the registered traditional sources")
+        fixture_without_division = rule.provenance.editorial_status == "test_only" and rule.division is None
+        if rule.system is AstrologySystem.VEDIC and predicate.startswith("d9.") and rule.division != "D9" and not fixture_without_division:
+            raise ValueError(f"Rule {rule.rule_id} uses a D9 fact outside the explicit D9 division")
+        if rule.system is AstrologySystem.VEDIC and (
+            predicate.startswith("nakshatra.") or subject in {"Vimshottari"} or subject.startswith(("Dasha:", "Antardasha:"))
+        ) and rule.division != "D1" and not fixture_without_division:
+            raise ValueError(f"Rule {rule.rule_id} uses a D1-only fact outside the explicit D1 division")
 
 
 def _adequate_provenance(rule: InterpretationRule) -> bool:
     provenance = rule.provenance
     values = (provenance.source_name.strip(), provenance.attribution.strip(), provenance.reference.strip())
-    return (
+    basic = (
         all(value and value.casefold() not in _PLACEHOLDERS for value in values)
         and len(values[0]) >= 3 and len(values[1]) >= 3 and len(values[2]) >= 12
     )
+    if not basic:
+        return False
+    try:
+        validate_approved_rule_metadata(rule)
+        validate_rule_source_link(rule, get_default_source_registry())
+    except SourceRegistryError:
+        return False
+    return True
 
 
 def _rule_question_relevant(rule: InterpretationRule, classification: QuestionClassification) -> bool:
@@ -278,7 +301,7 @@ def match_interpretation_rules(
         if rule.system is not classification.system or rule.system is not chart.system:
             skipped.append(RuleSkip(rule_id=rule.rule_id, reason="astrology_system_mismatch"))
             continue
-        if rule.language is not language:
+        if rule.language is not language and language not in rule.translations:
             skipped.append(RuleSkip(rule_id=rule.rule_id, reason="language_mismatch"))
             continue
         if rule.division is not None and not _same_division(chart.system, chart.division, rule.division):
@@ -291,6 +314,9 @@ def match_interpretation_rules(
             pass
         elif rule.provenance.editorial_status != "approved":
             skipped.append(RuleSkip(rule_id=rule.rule_id, reason=f"editorial_status_{rule.provenance.editorial_status}"))
+            continue
+        elif rule.review_status is not RuleReviewStatus.APPROVED:
+            skipped.append(RuleSkip(rule_id=rule.rule_id, reason=f"review_status_{rule.review_status.value}"))
             continue
         if not _adequate_provenance(rule):
             skipped.append(RuleSkip(rule_id=rule.rule_id, reason="inadequate_rule_provenance"))
@@ -317,8 +343,8 @@ def match_interpretation_rules(
                 knowledge_base_version=rule.knowledge_base_version,
                 system=rule.system,
                 division=rule.division or chart.division,
-                language=rule.language,
-                text=rule.text,
+                language=language,
+                text=rule.translations.get(language, rule.text),
                 confidence=rule.confidence,
                 provenance=rule.provenance,
                 chart_id=chart.chart_id,

@@ -1,0 +1,262 @@
+{
+  "registry_version": "1.0.0",
+  "sources": [
+    {
+      "source_id": "vedic.bphs.ranjan.english-translation",
+      "edition_id": "bphs-ranjan-en-volumes",
+      "original_title": "Bṛhat Parāśara Horā Śāstra (बृहत्पाराशरहोराशास्त्रम्)",
+      "author_or_traditional_attribution": "Traditionally attributed to Parāśara; authorship and textual history are not established as a single historical author's work.",
+      "system": "vedic",
+      "tradition": "Jyotiṣa / horā literature",
+      "historical_period": "Uncertain; do not assign a single date to the extant text or its layers.",
+      "historical_period_confidence": "uncertain_textual_history",
+      "original_language": "Sanskrit",
+      "edition": "Ranjan Publications English translation/commentary in multiple volumes; volume-specific translators, chapter coverage, printing years, and chapter numbering require title-page and preface verification before use. Reports conflict about the translator/editor of later chapters.",
+      "translator_editor": "R. Santhanam is credited in catalog records; other bibliographic accounts identify G. S. Kapoor for later chapters. Verify each volume directly; attribution is unresolved here.",
+      "publication": "Ranjan Publications, New Delhi, India",
+      "publication_date": "Volume 1 is commonly cataloged/prefaced 1984; records for later volumes/printings vary (1987, 1988, 1990–1991). Exact edition dates are unresolved.",
+      "accessible_locations": [
+        {
+          "url": "https://opac.duls.du.ac.in/cgi-bin/koha/opac-detail.pl?biblionumber=419431",
+          "location_type": "library_catalog",
+          "access_status": "verified_catalog_record",
+          "completeness": "catalog_only",
+          "terms_note": "Bibliographic record only; does not grant rights to reproduce the book."
+        },
+        {
+          "url": "https://search.worldcat.org/title/Brihat-Parasara-hora-sastra-of-Maharshi-Parasara-:-Maharsi-Parasara-krta-Brhatparasara-hora-sastram/oclc/1136165947",
+          "location_type": "library_catalog",
+          "access_status": "verified_catalog_record",
+          "completeness": "catalog_only",
+          "terms_note": "Catalog record for a Sanskrit edition; no full text or reuse license."
+        }
+      ],
+      "copyright": {
+        "original_text_status": "Underlying Sanskrit text is historically old; the extant recension and edited textual apparatus must be treated edition by edition.",
+        "translation_status": "Modern Ranjan translation/commentary rights are not verified; assume protected and do not quote, adapt, or reproduce without permission.",
+        "digital_edition_terms": "No licensed full-text digital edition verified for this registry entry; circulating scans are not treated as permission.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "No commercial adaptation permission verified.",
+        "commercial_reuse_status": "Not cleared; rights-holder and jurisdiction review required.",
+        "legal_review_required": true,
+        "notes": [
+          "BPHS copies differ in chapter count, verse numbering, and text; chapter references must name the exact volume and edition.",
+          "Some online bibliographies disagree about translators and volume publication dates. Verify against physical title pages and prefaces before citing a passage.",
+          "Do not assign an unquestioned ancient date to the work; textual stratification and date remain debated."
+        ]
+      },
+      "reliability_notes": [
+        "Use as a primary witness only for the specific named edition and its printed Sanskrit/translation; distinguish translator commentary from Sanskrit verses.",
+        "Do not treat an aggregator's summary or modern paraphrase as the source text."
+      ],
+      "verification_notes": [
+        "Delhi University Library catalog confirms a Sanskrit Ranjan record dated 1984, but not the specific English translation details.",
+        "WorldCat identifies a second-edition Sanskrit Ranjan record dated 1990–1991.",
+        "No verified, commercially licensed full-text location is linked. No stable chapter/verse references are approved until an exact edition is acquired and checked."
+      ],
+      "relevant_topics": ["planetary significations", "signs", "houses", "ascendant", "divisional charts", "Nakshatra", "dasha", "yoga", "dignity"],
+      "citation_format": "Parāśara (traditional attribution), Bṛhat Parāśara Horā Śāstra, [volume], trans./ed. as verified from that volume's title page (New Delhi: Ranjan Publications, [verified printing]), ch. [chapter], śloka [verse]. Cite Sanskrit and translator commentary separately."
+    },
+    {
+      "source_id": "vedic.phaladeepika.sastri.1950-en",
+      "edition_id": "phaladeepika-sastri-2e-1950",
+      "original_title": "Phaladīpikā (फलदीपिका)",
+      "author_or_traditional_attribution": "Traditionally attributed to Mantreśvara / Mantreswara.",
+      "system": "vedic",
+      "tradition": "Jyotiṣa / horā literature",
+      "historical_period": "V. Subrahmanya Sastri's first-edition preface estimates Mantreśvara may have flourished around the 16th century; this is an editor's estimate, not an established date.",
+      "historical_period_confidence": "attribution_and_date_uncertain",
+      "original_language": "Sanskrit",
+      "edition": "Second edition, revised and enlarged; Sanskrit text with English translation, chapters I–XXVIII.",
+      "translator_editor": "V. Subrahmanya Sastri; second-edition preface acknowledges M. Ramakrishna Bhat's suggestions.",
+      "publication": "Aruna Press, Bangalore; distributed by Munshi Ram Manohar Lal, New Delhi",
+      "publication_date": "1950 (second edition; preface dated 14 September 1950). The translator says the first edition appeared thirteen years earlier.",
+      "accessible_locations": [
+        {
+          "url": "https://ignca.gov.in/Asi_data/6945.pdf",
+          "location_type": "institutional_digital_scan",
+          "access_status": "verified_full_scan_accessible",
+          "completeness": "28_chapter_edition_claimed_complete_by_translator",
+          "terms_note": "The book itself says 'Copyright Registered'; no digital reuse license was located. Access is not permission to reproduce or adapt."
+        }
+      ],
+      "copyright": {
+        "original_text_status": "Underlying Sanskrit text is historically old; this does not clear a modern edited edition or translation.",
+        "translation_status": "The 1950 scan prints 'Copyright Registered'; term, current ownership, and any renewal/assignment status were not independently verified.",
+        "digital_edition_terms": "IGNCA hosts an accessible scan; no permission for commercial reuse was identified on the scanned work or access page.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "No commercial translation/adaptation permission verified.",
+        "commercial_reuse_status": "Not cleared; rights-holder and India/target-market legal review required.",
+        "legal_review_required": true,
+        "notes": [
+          "The translator states the revised edition restores missing ślokas and chapter XXVIII; treat completeness as the translator's claim and collate against an identified Sanskrit witness.",
+          "Do not copy the English translation or its explanatory notes into AstroAI."
+        ]
+      },
+      "reliability_notes": [
+        "The scan visibly contains Sanskrit and English; cite its chapter/śloka labels as printed, and independently verify the Sanskrit reading.",
+        "The translator's own additions, explanations, and notes must be distinguished from source verses."
+      ],
+      "verification_notes": [
+        "Title page confirms second revised/enlarged edition, translator, 1950, and copyright notice.",
+        "Translator's preface dated 1937 estimates a 16th-century period; historical dating remains unverified.",
+        "Full scan is accessible through IGNCA, but commercial text rights are unresolved."
+      ],
+      "relevant_topics": ["planets", "signs", "houses", "ascendant", "yoga", "dasha", "dignity", "Nakshatra", "transits"],
+      "citation_format": "Mantreśvara (traditional attribution), Phaladīpikā, trans. V. Subrahmanya Sastri, 2nd ed., rev. and enl. (Bangalore: Aruna Press, 1950), adhyāya [chapter], śloka [verse], p. [printed page]. Identify translation/commentary separately."
+    },
+    {
+      "source_id": "vedic.saravali.santhanam.1983-en",
+      "edition_id": "saravali-santhanam-1983",
+      "original_title": "Sārāvalī (सारावली)",
+      "author_or_traditional_attribution": "Traditionally attributed to Kalyāṇavarman / Kalyana Varma.",
+      "system": "vedic",
+      "tradition": "Jyotiṣa / horā literature",
+      "historical_period": "The work is historical, but a precise composition period was not established from the checked bibliographic records; leave undated pending specialist verification.",
+      "historical_period_confidence": "uncertain",
+      "original_language": "Sanskrit",
+      "edition": "English translation, commentary, annotation, and editing by R. Santhanam; WorldCat identifies a first edition. Volume structure and exact page/section collation require inspection of the physical volumes.",
+      "translator_editor": "R. Santhanam (English translation, commentary, annotation, and editing).",
+      "publication": "Ranjan Publications, New Delhi, India",
+      "publication_date": "1983 (cataloged first edition).",
+      "accessible_locations": [
+        {
+          "url": "https://search.worldcat.org/title/saravali-of-kalyana-varma/oclc/11524255",
+          "location_type": "library_catalog",
+          "access_status": "verified_catalog_record",
+          "completeness": "catalog_only",
+          "terms_note": "Bibliographic record only; no text reuse license."
+        },
+        {
+          "url": "https://wellcomecollection.org/concepts/svh364d6",
+          "location_type": "library_catalog",
+          "access_status": "verified_catalog_record",
+          "completeness": "catalog_only",
+          "terms_note": "Wellcome catalog identifies an English translation/commentary record; no commercial reuse permission implied."
+        }
+      ],
+      "copyright": {
+        "original_text_status": "Underlying Sanskrit text is historically old; edition-specific editorial apparatus may have separate rights.",
+        "translation_status": "The 1983 English translation/commentary is modern; rights and license were not verified. Assume protected.",
+        "digital_edition_terms": "No licensed full-text digital edition verified for this registry entry.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "No commercial adaptation permission verified.",
+        "commercial_reuse_status": "Not cleared; rights-holder and jurisdiction review required.",
+        "legal_review_required": true,
+        "notes": ["A scan hosted by a third party is not treated as a license; do not ingest it without rights review."]
+      },
+      "reliability_notes": [
+        "The WorldCat record identifies the 1983 first-edition English book and translator/editor.",
+        "No full text was independently checked for completeness or chapter/page concordance."
+      ],
+      "verification_notes": [
+        "WorldCat OCLC 11524255 records an English first edition published by Ranjan Publications in 1983.",
+        "Wellcome's catalog identifies the Santhanam English translation/commentary/annotation/editing record, also dated 1983.",
+        "No verified, licensed full-text location was found; exact edition pagination and volume structure remain to be checked."
+      ],
+      "relevant_topics": ["planets", "signs", "houses", "ascendant", "yoga", "dasha", "dignity", "aspects"],
+      "citation_format": "Kalyāṇavarman (traditional attribution), Sārāvalī, trans., comm., annot. and ed. R. Santhanam (New Delhi: Ranjan Publications, 1983), [verified volume], ch. [chapter], śloka [verse], p. [printed page]."
+    },
+    {
+      "source_id": "western.tetrabiblos.robbins.1940",
+      "edition_id": "tetrabiblos-loeb-435-robbins-1940",
+      "original_title": "Τετράβιβλος (Tetrabiblos; also transmitted under other Greek title forms)",
+      "author_or_traditional_attribution": "Claudius Ptolemy (Ptolemaios), author attribution established by the work's transmission.",
+      "system": "western",
+      "tradition": "Greco-Roman astrology",
+      "historical_period": "Second century CE (Ptolemy's period of activity).",
+      "historical_period_confidence": "established_broad_period",
+      "original_language": "Ancient Greek",
+      "edition": "Loeb Classical Library 435; Greek text with facing English translation.",
+      "translator_editor": "Frank Egleston Robbins, translator/editor.",
+      "publication": "Harvard University Press, Cambridge, Massachusetts (Loeb Classical Library 435)",
+      "publication_date": "1940",
+      "accessible_locations": [
+        {
+          "url": "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Ptolemy/Tetrabiblos/",
+          "location_type": "transcribed_digital_text",
+          "access_status": "verified_text_accessible",
+          "completeness": "host_reports_complete_robbins_translation",
+          "terms_note": "Host identifies the Robbins Loeb translation and says its transcription is complete; check host terms and do not infer a blanket commercial license."
+        },
+        {
+          "url": "https://doi.org/10.4159/dlcl.ptolemy-tetrabiblos.1940",
+          "location_type": "publisher_digital_edition",
+          "access_status": "publisher_record_verified_access_terms_to_check",
+          "completeness": "edition_record",
+          "terms_note": "Loeb Digital Library record; access and reuse subject to publisher terms."
+        }
+      ],
+      "copyright": {
+        "original_text_status": "Ancient Greek work is public domain as a historical text; a modern critical edition's apparatus may carry separate rights.",
+        "translation_status": "LacusCurtius asserts the 1940 Robbins translation is public domain in the United States because copyright was not renewed; this has not been independently confirmed by legal research.",
+        "digital_edition_terms": "Loeb/HUP digital edition is a hosted scholarly product; its access terms are separate from the underlying ancient work.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "Not cleared for commercial adaptation across jurisdictions; modern translations (for example Toomer) are separately copyrighted.",
+        "commercial_reuse_status": "Unresolved pending review of Robbins copyright history, site terms, edition apparatus, and target-market law.",
+        "legal_review_required": true,
+        "notes": [
+          "The Robbins translation's U.S. public-domain status is a secondary host's assertion, not a legal opinion.",
+          "Use chapter/book numbering from the named Loeb edition; compare Greek text where wording matters.",
+          "Do not substitute or quote a modern copyrighted translation without permission."
+        ]
+      },
+      "reliability_notes": [
+        "Loeb presents Greek with facing English; LacusCurtius identifies its transcription as Robbins 1940 and says complete.",
+        "Use as evidence of historical doctrine, not scientific fact or validation of astrological claims."
+      ],
+      "verification_notes": [
+        "Google Books bibliographic record identifies Loeb 435, Harvard University Press, 1940, edited/translated by Frank E. Robbins.",
+        "LacusCurtius says its English text is complete and states a U.S. public-domain rationale; independent rights verification remains required.",
+        "No rights-cleared commercial excerpt or translation reuse permission is recorded."
+      ],
+      "relevant_topics": ["traditional planets", "signs", "houses", "rulership", "dignity", "aspects", "planetary condition", "astrological method"],
+      "citation_format": "Ptolemy, Tetrabiblos, trans. F. E. Robbins, Loeb Classical Library 435 (Cambridge, MA: Harvard University Press, 1940), book [Roman numeral], chapter [number], [verified page if needed]. Identify Greek edition/translation separately when relevant."
+    },
+    {
+      "source_id": "western.christian-astrology.lilly.1647",
+      "edition_id": "christian-astrology-lilly-original-1647",
+      "original_title": "Christian Astrology Modestly Treated of in Three Books",
+      "author_or_traditional_attribution": "William Lilly (1602–1681), author.",
+      "system": "western",
+      "tradition": "Early modern English / traditional astrology",
+      "historical_period": "Seventeenth century; first published 1647.",
+      "historical_period_confidence": "established",
+      "original_language": "English",
+      "edition": "Original 1647 edition in three books; book III has a separate title page. Wellcome's digitized copy is missing its last leaf.",
+      "translator_editor": "No translator; original English text. William Lilly is named as author.",
+      "publication": "Printed by T. Brudenell for J. Partridge and H. Blunden, London",
+      "publication_date": "1647",
+      "accessible_locations": [
+        {
+          "url": "https://wellcomecollection.org/works/s7z7c46y",
+          "location_type": "institutional_digital_facsimile",
+          "access_status": "verified_full_scan_accessible",
+          "completeness": "894_images_catalog_notes_last_leaf_wanting",
+          "terms_note": "Wellcome applies a Public Domain Mark to this copy and states reuse without copyright restriction; preserve the required source credit and review jurisdiction-specific issues."
+        }
+      ],
+      "copyright": {
+        "original_text_status": "Wellcome Collection applies a Public Domain Mark to its 1647 copy and states it may be used without restriction under copyright law.",
+        "translation_status": "No translation in this record. Modern retyped/annotated editions are separate works; Skyscript expressly states its Houlding retype is copyrighted and limits use to personal study.",
+        "digital_edition_terms": "Wellcome Public Domain Mark; credit the Wellcome Collection source. The scan notes the final leaf is missing.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "Underlying 1647 text may be independently summarized; do not reuse later annotations, modern retypes, or illustrations without checking their rights.",
+        "commercial_reuse_status": "Underlying facsimile is marked public domain by Wellcome; commercial use still requires legal review for jurisdiction, scan/database terms, and any third-party added material.",
+        "legal_review_required": true,
+        "notes": ["No book text is copied into AstroAI. The public-domain mark applies to this historical work/copy and does not clear modern editions or added material."]
+      },
+      "reliability_notes": [
+        "Primary source for what Lilly's 1647 publication says; not evidence that its astrological propositions are scientifically true.",
+        "Wellcome's digitized copy is cataloged as 894 images, with its last leaf missing; cite book/chapter and inspect the scan directly."
+      ],
+      "verification_notes": [
+        "Wellcome catalog confirms title, publisher, 1647 publication, physical description, three-book scope, and Public Domain Mark.",
+        "Modern Deborah Houlding retyped/annotated material is not the 1647 facsimile and is separately copyrighted according to its host.",
+        "The archived copy is incomplete by one last leaf; do not claim the digital scan is wholly complete."
+      ],
+      "relevant_topics": ["seven traditional planets", "signs", "houses", "rulership", "dignity", "major aspects", "retrograde", "planetary condition", "horary", "natal astrology"],
+      "citation_format": "Lilly, William, Christian Astrology Modestly Treated of in Three Books (London: T. Brudenell for J. Partridge and H. Blunden, 1647), book [I–III], chapter [number/title], printed page [page]. Consult the Wellcome Collection digitized copy; note its missing last leaf."
+    }
+  ]
+}

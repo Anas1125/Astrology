@@ -22,6 +22,7 @@ from app.services.ai.contracts import (
 from app.services.ai.knowledge_loader import load_knowledge_base
 from app.services.ai.response_composer import ENGINE_VERSION, compose_response
 from app.services.ai.rule_matcher import match_interpretation_rules
+from app.services.ai.source_registry import DEFAULT_SOURCE_REGISTRY
 
 KNOWLEDGE_DIRECTORY = Path(__file__).parent / "knowledge" / "v1"
 
@@ -64,6 +65,61 @@ def _classify(
     return classification
 
 
+_FOLLOW_UP_MARKERS = (
+    "what about", "and what", "what does that", "what does it", "its house", "their house",
+    "tell me more", "இதன்", "அதன்", "அது", "மேலும் சொல்லுங்கள்", "அப்படியானால்",
+)
+
+
+def _resolve_follow_up(
+    question: str,
+    classification: QuestionClassification,
+    history: Sequence[ConversationTurn],
+    *,
+    selected_system: AstrologySystem,
+    chart: ChartFacts,
+) -> QuestionClassification:
+    """Resolve a narrow follow-up from the last user question only.
+
+    Assistant text is intentionally ignored. Current explicit entities remain
+    authoritative; only absent target entities are inherited.
+    """
+    if not chart.available or not any(marker in question.casefold() for marker in _FOLLOW_UP_MARKERS):
+        return classification
+    previous = next((turn for turn in reversed(history) if turn.role == "user"), None)
+    if previous is None:
+        return classification
+    prior = _classify(
+        previous.content,
+        language=detect_language(previous.content),
+        selected_system=selected_system,
+        chart=chart,
+    )
+    if prior.intent is not UserIntent.CHART_QUESTION or prior.system is not chart.system:
+        return classification
+    if classification.system is not None and classification.system is not prior.system:
+        return classification
+
+    target_kinds = {"planet", "sign", "house", "nakshatra", "dasha_lord", "aspect"}
+    inherited = [entity for entity in prior.entities if entity.kind in target_kinds]
+    explicit = [entity for entity in classification.entities if entity.kind in target_kinds]
+    if explicit:
+        inherited = [entity for entity in inherited if entity.kind not in {item.kind for item in explicit}]
+    entities = tuple((*explicit, *inherited))
+    if not entities and classification.intent is not UserIntent.CLARIFICATION:
+        return classification
+    return classification.model_copy(update={
+        "intent": UserIntent.CHART_QUESTION,
+        "system": classification.system or prior.system,
+        "division": classification.division or prior.division or chart.division,
+        "topic": classification.topic or prior.topic,
+        "entities": entities,
+        "needs_clarification": False,
+        "clarification_reason": None,
+        "confidence": min(classification.confidence, prior.confidence),
+    })
+
+
 class DeterministicAstrologyIntelligence(AstrologyIntelligence):
     """Load reviewed rules, match saved facts and return a validated response."""
 
@@ -79,10 +135,13 @@ class DeterministicAstrologyIntelligence(AstrologyIntelligence):
         chart: ChartFacts | None,
         history: Sequence[ConversationTurn] = (),
     ) -> IntelligenceResponse:
-        # History remains available and persisted, but is not used to infer facts
-        # or resolve ambiguous references in this version.
+        # History is not a source of chart facts. Narrow follow-up resolution
+        # happens in answer_for_session using the prior user question only.
         del question, history
-        knowledge_version, rules = load_knowledge_base(self.knowledge_directory)
+        knowledge_version, rules = load_knowledge_base(
+            self.knowledge_directory,
+            source_registry=DEFAULT_SOURCE_REGISTRY,
+        )
         matches = None
         if classification.intent is UserIntent.CHART_QUESTION and chart is not None and chart.available:
             matches = match_interpretation_rules(
@@ -114,6 +173,13 @@ class DeterministicAstrologyIntelligence(AstrologyIntelligence):
         classification = _classify(
             question,
             language=language,
+            selected_system=AstrologySystem(chat.astrology_system),
+            chart=chart,
+        )
+        classification = _resolve_follow_up(
+            question,
+            classification,
+            history,
             selected_system=AstrologySystem(chat.astrology_system),
             chart=chart,
         )

@@ -10,11 +10,15 @@ from app.services.ai.contracts import (
     MentionedEntity,
     QuestionClassification,
     RuleProvenance,
+    RuleCondition,
+    RuleReviewEvent,
+    RuleReviewStatus,
     SupportedLanguage,
     UserIntent,
 )
+from datetime import datetime, timezone
 from app.services.ai.knowledge_loader import KnowledgeBaseError, load_knowledge_base
-from app.services.ai.rule_matcher import DuplicateRuleID, match_interpretation_rules
+from app.services.ai.rule_matcher import DuplicateRuleID, match_interpretation_rules, validate_rule_conditions
 
 
 def _fact(subject, predicate, value, *, system="vedic", division="D1", chart_id="chart-1", profile_id="profile-1"):
@@ -86,7 +90,42 @@ def _rule(
             reference=reference,
             editorial_status=status,
             classification="traditional_interpretation",
+            **({
+                "source_id": ("vedic.phaladeepika.sastri.1950-en" if system == "vedic" else "western.christian-astrology.lilly.1647"),
+                "source_registry_version": "1.0.0",
+                "edition_id": ("phaladeepika-sastri-2e-1950" if system == "vedic" else "christian-astrology-lilly-original-1647"),
+                "edition": ("Second edition, revised and enlarged; Sanskrit text with English translation, chapters I–XXVIII."
+                            if system == "vedic" else
+                            "Original 1647 edition in three books; book III has a separate title page. Wellcome's digitized copy is missing its last leaf."),
+                "chapter": "fixture chapter",
+                "editorial_explanation": "Test fixture only; no claim is asserted.",
+                "editorial_reviewer": "Test reviewer",
+                "translation_reviewer": "Test translator reviewer",
+                "reviewed_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+                "translation_review_status": "reviewed",
+                "source_verifier": "Fixture source reviewer (test only)",
+                "source_verified_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+            } if status == "approved" else {}),
         ),
+        translations=({"en": "TEST FIXTURE ONLY — not an astrology interpretation.",
+                       "ta": "சோதனை உரை மட்டும் — ஜோதிட விளக்கம் அல்ல."} if status == "approved" else {}),
+        review_status=RuleReviewStatus.APPROVED if status == "approved" else RuleReviewStatus.RESEARCH_CANDIDATE,
+        review_events=(tuple(RuleReviewEvent(
+            status=step,
+            reviewer={
+                RuleReviewStatus.SOURCE_VERIFIED: "Fixture source reviewer (test only)",
+                RuleReviewStatus.EDITORIAL_REVIEW_PENDING: "Test reviewer",
+                RuleReviewStatus.TRANSLATION_REVIEW_PENDING: "Test translator reviewer",
+                RuleReviewStatus.APPROVED: "Fixture approver (test only)",
+            }[step],
+            occurred_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            note="Test fixture only; no real review occurred.",
+        ) for step in (
+            RuleReviewStatus.SOURCE_VERIFIED,
+            RuleReviewStatus.EDITORIAL_REVIEW_PENDING,
+            RuleReviewStatus.TRANSLATION_REVIEW_PENDING,
+            RuleReviewStatus.APPROVED,
+        )) if status == "approved" else ()),
     )
 
 
@@ -132,6 +171,47 @@ def test_matches_western_condition_when_system_and_natal_division_match():
     result = _match(question, chart, rule)
     assert [item.rule_id for item in result.matches] == [rule.rule_id]
     assert result.matches[0].fact_references[0].source_chart_id == "chart-1"
+
+
+def test_multi_factor_rule_requires_every_fact_and_retains_every_reference():
+    question = _question(entities=(MentionedEntity(kind="planet", name="Moon"),))
+    rule = _rule("test-only.vedic.moon.multi-factor", "Moon.sign", "Vrishabha", entity=("planet", "Moon"))
+    rule = rule.model_copy(update={"conditions": tuple(RuleCondition(field=field, equals=value) for field, value in (
+        ("Moon.sign", "Vrishabha"), ("Moon.house", 4), ("Moon.retrograde", False),
+    ))})
+    complete_chart = _chart([
+        _fact("Moon", "sign", "Vrishabha"),
+        _fact("Moon", "house", 4),
+        _fact("Moon", "retrograde", False),
+    ])
+    matched = _match(question, complete_chart, rule)
+    assert len(matched.matches) == 1
+    assert {(item.subject, item.predicate) for item in matched.matches[0].fact_references} == {
+        ("Moon", "sign"), ("Moon", "house"), ("Moon", "retrograde"),
+    }
+    partial = _chart([_fact("Moon", "sign", "Vrishabha"), _fact("Moon", "house", 4)])
+    rejected = _match(question, partial, rule)
+    assert rejected.matches == ()
+    assert any(item.reason == "required_fact_missing_or_condition_not_satisfied" for item in rejected.skipped)
+
+
+@pytest.mark.parametrize(
+    ("system", "division", "field"),
+    [
+        ("vedic", "D1", "Moon.d9.rashi"),
+        ("vedic", "D9", "Moon.nakshatra.name"),
+        ("vedic", "D9", "Vimshottari.starting_lord"),
+        ("vedic", "D1", "Uranus.sign"),
+        ("western", "W", "Pluto.house"),
+    ],
+)
+def test_rule_conditions_reject_cross_division_or_unregistered_traditional_systems(system, division, field):
+    rule = _rule(
+        "test-only.invalid-scope." + field.lower().replace(".", "-"),
+        field, "fixture", system=system, division=division,
+    )
+    with pytest.raises(ValueError):
+        validate_rule_conditions(rule)
 
 
 @pytest.mark.parametrize(

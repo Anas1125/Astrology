@@ -366,13 +366,14 @@ def _create_ai_conversation(token, profile_id, *, system="vedic", language="en",
 
 
 def test_deterministic_ai_stream_persists_structured_chart_facts_and_uses_no_provider(monkeypatch):
-    import app.services.ai.provider as legacy_provider
+    import socket
     from app.models.entities import AIUsageLog, ChatMessage
-    import pytest
 
-    monkeypatch.setattr(legacy_provider, "get_ai_provider", lambda: pytest.fail("legacy provider was called"))
-    for key in ("AI_PROVIDER", "AI_BASE_URL", "AI_API_KEY", "AI_MODEL"):
-        monkeypatch.delenv(key, raising=False)
+    def reject_network(*args, **kwargs):
+        raise AssertionError("deterministic chat attempted an outbound network call")
+
+    monkeypatch.setattr(socket.socket, "connect", reject_network)
+    monkeypatch.setattr(socket, "create_connection", reject_network)
     token = login_token()
     profile = create_profile(token=token).json()
     chart_id = _seed_saved_chart(profile["id"], "vedic", "D1", {
@@ -416,6 +417,32 @@ def test_greeting_works_without_chart_and_message_language_overrides_conversatio
     assert structured["metadata"]["language"] == "ta"
     assert "வணக்கம்" in structured["answer"]
     assert response.json()["usage"]["requests_used"] == 1
+
+
+def test_chat_route_supplies_only_prior_conversation_turns_to_followup_classifier(monkeypatch):
+    import app.api.ai_routes as ai_routes
+
+    token = login_token()
+    profile = create_profile(token=token).json()
+    conversation = _create_ai_conversation(token, profile["id"])
+    real_engine = ai_routes.get_intelligence_engine()
+    observed = []
+
+    class CapturingEngine:
+        def answer_for_session(self, db, chat, user, question, *, history=()):
+            observed.append((question, tuple((turn.role, turn.content) for turn in history)))
+            return real_engine.answer_for_session(db, chat, user, question, history=history)
+
+    monkeypatch.setattr(ai_routes, "get_intelligence_engine", lambda: CapturingEngine())
+    url = f"/api/v1/ai/conversations/{conversation['id']}/messages"
+    headers = {"Authorization": f"Bearer {token}"}
+    assert client.post(url, json={"content": "Where is my Moon in my Vedic chart?"}, headers=headers).status_code == 200
+    assert client.post(url, json={"content": "What about its house?"}, headers=headers).status_code == 200
+    assert observed[0] == ("Where is my Moon in my Vedic chart?", ())
+    assert observed[1][0] == "What about its house?"
+    assert len(observed[1][1]) == 2
+    assert observed[1][1][0] == ("user", "Where is my Moon in my Vedic chart?")
+    assert observed[1][1][1][0] == "assistant"
 
 
 def test_missing_chart_unsupported_and_general_knowledge_states_are_explicit():

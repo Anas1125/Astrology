@@ -10,6 +10,14 @@ from pydantic import ValidationError
 
 from app.services.ai.contracts import InterpretationRule
 from app.services.ai.rule_matcher import validate_rule_conditions
+from app.services.ai.source_registry import (
+    SourceRegistry,
+    SourceRegistryError,
+    load_source_registry,
+    validate_approved_rule_metadata,
+    validate_rule_source_link,
+)
+from app.services.ai.knowledge_workflow import RuleWorkflowError, validate_rule_lifecycle
 
 VERSION_PATTERN = re.compile(r"^\d+\.\d+\.\d+$")
 RULE_FILE_SUFFIXES = {".json", ".yaml", ".yml"}
@@ -50,9 +58,17 @@ def _validate_provenance(rule: InterpretationRule, path: Path) -> None:
         or len(provenance.reference.strip()) < 12
     ):
         raise KnowledgeBaseError(f"Rule {rule.rule_id} in {path} has inadequate source attribution")
+    try:
+        validate_approved_rule_metadata(rule)
+    except SourceRegistryError as exc:
+        raise KnowledgeBaseError(f"Rule {rule.rule_id} in {path}: {exc}") from exc
 
 
-def load_knowledge_base(source: str | Path) -> tuple[str, tuple[InterpretationRule, ...]]:
+def load_knowledge_base(
+    source: str | Path,
+    *,
+    source_registry: str | Path | SourceRegistry | None = None,
+) -> tuple[str, tuple[InterpretationRule, ...]]:
     """Load a file or a tree of JSON/YAML documents with globally unique IDs."""
     root = Path(source)
     if not root.exists():
@@ -62,6 +78,15 @@ def load_knowledge_base(source: str | Path) -> tuple[str, tuple[InterpretationRu
     )
     if not paths:
         raise KnowledgeBaseError(f"No JSON or YAML knowledge files found in {root}")
+
+    registry = None
+    if isinstance(source_registry, SourceRegistry):
+        registry = source_registry
+    elif source_registry is not None:
+        try:
+            registry = load_source_registry(source_registry)
+        except SourceRegistryError as exc:
+            raise KnowledgeBaseError(str(exc)) from exc
 
     all_rules: list[InterpretationRule] = []
     base_version: str | None = None
@@ -102,6 +127,15 @@ def load_knowledge_base(source: str | Path) -> tuple[str, tuple[InterpretationRu
                 raise KnowledgeBaseError(f"Duplicate rule ID: {rule.rule_id}")
             seen.add(rule.rule_id)
             _validate_provenance(rule, path)
+            try:
+                validate_rule_lifecycle(rule)
+            except RuleWorkflowError as exc:
+                raise KnowledgeBaseError(f"Rule {rule.rule_id} in {path} has invalid review history: {exc}") from exc
+            if registry is not None:
+                try:
+                    validate_rule_source_link(rule, registry)
+                except SourceRegistryError as exc:
+                    raise KnowledgeBaseError(f"Rule {rule.rule_id} in {path}: {exc}") from exc
             try:
                 validate_rule_conditions(rule)
             except ValueError as exc:

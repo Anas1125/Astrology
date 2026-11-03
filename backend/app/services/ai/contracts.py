@@ -107,6 +107,40 @@ class RuleProvenance(StrictModel):
     reference: str = Field(min_length=1)
     editorial_status: str = Field(pattern=r"^(test_only|draft|reviewed|approved)$")
     classification: str = Field(pattern=r"^traditional_interpretation$")
+    source_id: str | None = None
+    source_registry_version: str | None = None
+    edition_id: str | None = None
+    edition: str | None = None
+    chapter: str | None = None
+    verse: str | None = None
+    page: str | None = None
+    section: str | None = None
+    supporting_excerpt: str | None = None
+    citation_note: str | None = None
+    editorial_explanation: str | None = None
+    editorial_reviewer: str | None = None
+    translation_reviewer: str | None = None
+    reviewed_at: datetime | None = None
+    translation_review_status: str = Field(default="unreviewed", pattern=r"^(unreviewed|reviewed)$")
+    source_verifier: str | None = None
+    source_verified_at: datetime | None = None
+
+
+class RuleReviewStatus(StrEnum):
+    RESEARCH_CANDIDATE = "research_candidate"
+    SOURCE_VERIFIED = "source_verified"
+    EDITORIAL_REVIEW_PENDING = "editorial_review_pending"
+    TRANSLATION_REVIEW_PENDING = "translation_review_pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    RETIRED = "retired"
+
+
+class RuleReviewEvent(StrictModel):
+    status: RuleReviewStatus
+    reviewer: str = Field(min_length=2, max_length=120)
+    occurred_at: datetime
+    note: str = Field(min_length=1, max_length=1000)
 
 
 class InterpretationRule(StrictModel):
@@ -121,8 +155,11 @@ class InterpretationRule(StrictModel):
     required_entities: tuple[MentionedEntity, ...] = ()
     conflict_group: str | None = None
     text: str = Field(min_length=1)
+    translations: dict[SupportedLanguage, str] = Field(default_factory=dict)
     confidence: str = Field(pattern=r"^(editorial_low|editorial_medium|editorial_high)$")
     provenance: RuleProvenance
+    review_status: RuleReviewStatus = RuleReviewStatus.RESEARCH_CANDIDATE
+    review_events: tuple[RuleReviewEvent, ...] = ()
 
 
 class MatchedInterpretationRule(StrictModel):
@@ -191,6 +228,14 @@ class MatchedRuleReference(StrictModel):
     reference: str
     editorial_status: str = Field(pattern=r"^approved$")
     classification: str = Field(pattern=r"^traditional_interpretation$")
+    source_id: str | None = None
+    source_registry_version: str | None = None
+    edition_id: str | None = None
+    edition: str | None = None
+    chapter: str | None = None
+    verse: str | None = None
+    page: str | None = None
+    section: str | None = None
 
 
 class ResponseSection(StrictModel):

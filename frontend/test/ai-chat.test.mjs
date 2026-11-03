@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
 
 let vite;
@@ -84,4 +86,28 @@ test('interrupted SSE connection rejects instead of treating partial assistant t
     await assert.rejects(api.streamAIMessage('jwt', 'conv', 'question', value => partial.push(value), 'request-key-2'));
     assert.deepEqual(partial, ['partial']);
   } finally { globalThis.fetch = savedFetch; }
+});
+
+test('structured chat keeps calculated facts separate from sourced traditional interpretation', () => {
+  const { StructuredMessage } = chatModule;
+  const response = {
+    status: 'answered', answer: 'A chart fact is available.', answer_fact_ids: ['fact:chart-1:Moon.sign'], answer_rule_ids: ['rule.test'],
+    sections: [
+      { section_type: 'calculated_fact', text: 'Moon is recorded in Taurus.', fact_ids: ['fact:chart-1:Moon.sign'], rule_ids: [],
+        fact_references: [{ fact_id: 'fact:chart-1:Moon.sign', subject: 'Moon', predicate: 'sign', value: 'Taurus', source_chart_id: 'chart-1', profile_id: 'profile-1', system: 'western', division: 'W', provenance: 'saved_chart:chart-1:Moon.sign' }], rule_references: [] },
+      { section_type: 'traditional_interpretation', text: 'Traditional note.', fact_ids: [], rule_ids: ['rule.test'], fact_references: [],
+        rule_references: [{ rule_id: 'rule.test', rule_version: '1.0.0', knowledge_base_version: '1.0.0', chart_id: 'chart-1', profile_id: 'profile-1', system: 'western', division: 'W', source_name: 'Tetrabiblos', attribution: 'Ptolemy', reference: 'Book I', edition: 'Robbins 1940', chapter: '4', verse: '2', editorial_status: 'approved', classification: 'traditional_interpretation' }] },
+    ],
+    metadata: { engine_version: '1.0.0', knowledge_base_version: '1.0.0', system: 'western', division: 'W', language: 'en', matched_rule_ids: ['rule.test'] },
+  };
+  const markup = renderToStaticMarkup(React.createElement(StructuredMessage, { response, language: 'en' }));
+  assert.match(markup, /Calculated chart facts/);
+  assert.match(markup, /Saved chart facts used/);
+  assert.match(markup, /<b>Moon<\/b> · sign: Taurus/);
+  assert.match(markup, /Traditional interpretation/);
+  assert.match(markup, /Robbins 1940/);
+  assert.match(markup, /Chapter 4 · verse 2/);
+  const tamil = renderToStaticMarkup(React.createElement(StructuredMessage, { response, language: 'ta' }));
+  assert.match(tamil, /கணக்கிடப்பட்ட ஜாதகத் தகவல்கள்/);
+  assert.match(tamil, /ஆதாரம் மற்றும் பதிப்பு/);
 });

@@ -26,6 +26,11 @@ from app.services.ai.contracts import (
     UserIntent,
 )
 from app.services.ai.rule_matcher import _validate_chart_facts
+from app.services.ai.source_registry import (
+    SourceRegistryError,
+    get_default_source_registry,
+    validate_provenance_source_link,
+)
 
 ENGINE_VERSION = "1.0.0"
 DEFAULT_KNOWLEDGE_BASE_VERSION = "1.0.0"
@@ -258,6 +263,14 @@ def _rule_reference(rule: MatchedInterpretationRule) -> MatchedRuleReference:
         reference=rule.provenance.reference,
         editorial_status=rule.provenance.editorial_status,
         classification=rule.provenance.classification,
+        source_id=rule.provenance.source_id,
+        source_registry_version=rule.provenance.source_registry_version,
+        edition_id=rule.provenance.edition_id,
+        edition=rule.provenance.edition,
+        chapter=rule.provenance.chapter,
+        verse=rule.provenance.verse,
+        page=rule.provenance.page,
+        section=rule.provenance.section,
     )
 
 
@@ -299,6 +312,20 @@ def _validate_rule_matches(
             (provenance.source_name, 3), (provenance.attribution, 3), (provenance.reference, 12),
         )):
             raise InvalidIntelligenceResponse("Matched interpretation lacks adequate source attribution")
+        if not all((provenance.source_id, provenance.source_registry_version, provenance.edition_id, provenance.edition,
+                    provenance.editorial_explanation, provenance.editorial_reviewer,
+                    provenance.translation_reviewer, provenance.reviewed_at)):
+            raise InvalidIntelligenceResponse("Matched interpretation lacks source edition or review metadata")
+        if not any((provenance.chapter, provenance.verse, provenance.page, provenance.section)):
+            raise InvalidIntelligenceResponse("Matched interpretation lacks an exact source locator")
+        if provenance.translation_review_status != "reviewed":
+            raise InvalidIntelligenceResponse("Matched interpretation lacks bilingual review")
+        try:
+            validate_provenance_source_link(
+                provenance, get_default_source_registry(), rule_id=match.rule_id, system=match.system,
+            )
+        except SourceRegistryError as exc:
+            raise InvalidIntelligenceResponse(str(exc)) from exc
         if not re.fullmatch(r"[a-z0-9][a-z0-9_.-]+", match.rule_id) or not re.fullmatch(r"\d+\.\d+\.\d+", match.rule_version):
             raise InvalidIntelligenceResponse("Matched interpretation has an invalid identifier or version")
         if match.language is not language or match.system is not chart.system:
@@ -379,6 +406,21 @@ def validate_intelligence_response(
                 raise InvalidIntelligenceResponse("Response rule belongs to another chart or profile")
             if not source.source_name.strip() or not source.attribution.strip() or len(source.reference.strip()) < 12:
                 raise InvalidIntelligenceResponse("Response rule source attribution is incomplete")
+            if not all((source.source_id, source.source_registry_version, source.edition_id, source.edition)) or not any(
+                (source.chapter, source.verse, source.page, source.section)
+            ):
+                raise InvalidIntelligenceResponse("Response rule source locator is incomplete")
+            try:
+                registry_source = next(
+                    (item for item in get_default_source_registry().sources if item.source_id == source.source_id), None
+                )
+            except SourceRegistryError as exc:
+                raise InvalidIntelligenceResponse("Source registry is invalid") from exc
+            if (registry_source is None or registry_source.edition_id != source.edition_id
+                    or registry_source.edition != source.edition
+                    or registry_source.system is not source.system
+                    or get_default_source_registry().registry_version != source.source_registry_version):
+                raise InvalidIntelligenceResponse("Response rule source is not registered for this edition")
             rule_sources[source.rule_id] = source
     if not set(response.answer_fact_ids) <= fact_sources.keys() or not set(response.answer_rule_ids) <= rule_sources.keys():
         raise InvalidIntelligenceResponse("Answer summary cites facts or rules absent from response sections")

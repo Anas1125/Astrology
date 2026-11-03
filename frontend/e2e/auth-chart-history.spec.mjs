@@ -75,6 +75,12 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await page.getByRole('button', { name: 'Send' }).click();
   await expect(page.getByText('A completed saved chart for this profile and system is not available.', { exact: false })).toBeVisible();
   await expect(page.locator('.ai-message.user p')).toHaveText('In my Western natal chart, where is my Moon?');
+  const firstUserToken = await page.evaluate(() => sessionStorage.getItem('astroai_access_token'));
+  const firstConversations = await page.request.get('http://127.0.0.1:8000/api/v1/ai/conversations', {
+    headers: { Authorization: `Bearer ${firstUserToken}` },
+  });
+  const firstConversation = (await firstConversations.json()).items[0];
+  expect(firstConversation).toBeTruthy();
 
   await page.getByRole('button', { name: 'Log out' }).click();
   await expect(page).toHaveURL(/\/login$/);
@@ -92,6 +98,28 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await expect(page.getByText('A completed saved chart for this profile and system is not available.', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'தமிழுக்கு மாற்று' }).click();
   await expect(page.getByRole('heading', { name: 'AI ஜோதிடர்' })).toBeVisible();
+
+  const secondEmail = `astroai-e2e-isolation-${Date.now()}@example.com`;
+  const secondPassword = 'e2e-isolation-password-123';
+  const registration = await page.request.post('http://127.0.0.1:8000/api/v1/auth/register', {
+    data: { email: secondEmail, password: secondPassword },
+  });
+  expect(registration.status()).toBe(201);
+  const secondLogin = await page.request.post('http://127.0.0.1:8000/api/v1/auth/login', {
+    form: { username: secondEmail, password: secondPassword },
+  });
+  expect(secondLogin.status()).toBe(200);
+  const secondToken = (await secondLogin.json()).access_token;
+  const privateConversation = await page.request.get(`http://127.0.0.1:8000/api/v1/ai/conversations/${firstConversation.id}`, {
+    headers: { Authorization: `Bearer ${secondToken}` },
+  });
+  expect(privateConversation.status()).toBe(404);
+  const secondProfiles = await page.request.get('http://127.0.0.1:8000/api/v1/profiles', {
+    headers: { Authorization: `Bearer ${secondToken}` },
+  });
+  const secondProfilePayload = await secondProfiles.json();
+  const secondProfileRows = Array.isArray(secondProfilePayload) ? secondProfilePayload : secondProfilePayload.items;
+  expect(secondProfileRows.map(item => item.id)).not.toContain(profile.id);
   await page.getByRole('button', { name: /உரையாடலை நீக்கு/ }).click();
   await expect(page.locator('.ai-conversation-row')).toHaveCount(0);
 

@@ -137,8 +137,19 @@ export type IntelligenceResponseSection = {
   text: string;
   fact_ids: string[];
   rule_ids: string[];
-  fact_references: Array<Record<string, unknown>>;
+  fact_references: IntelligenceFactReference[];
   rule_references: IntelligenceRuleReference[];
+};
+export type IntelligenceFactReference = {
+  fact_id: string;
+  subject: string;
+  predicate: string;
+  value: string | number | boolean;
+  source_chart_id: string;
+  profile_id: string;
+  system: 'vedic' | 'western';
+  division: string | null;
+  provenance: string;
 };
 export type IntelligenceRuleReference = {
   rule_id: string;
@@ -153,6 +164,14 @@ export type IntelligenceRuleReference = {
   reference: string;
   editorial_status: 'approved';
   classification: 'traditional_interpretation';
+  source_id?: string | null;
+  source_registry_version?: string | null;
+  edition_id?: string | null;
+  edition?: string | null;
+  chapter?: string | null;
+  verse?: string | null;
+  page?: string | null;
+  section?: string | null;
 };
 export type IntelligenceResponse = {
   status: 'answered' | 'missing_chart' | 'unsupported' | 'needs_clarification';
