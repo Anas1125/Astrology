@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from app.services.astrology.sweph import EphemerisUnavailable, SwissEphemerisProvider
+from app.services.astrology.sweph import EphemerisUnavailable, SwissEphemerisProvider, local_birth_time_to_utc
 from app.services.astrology.vedic import VedicAstrologyEngine
 from app.services.astrology.western import WesternAstrologyEngine
 
@@ -171,6 +171,86 @@ def test_vedic_d1_and_d9_from_real_native_provider(ephemeris_path, monkeypatch):
     assert d9["division"] == "D9"
     assert d9["ascendant"]["division_rashi"] == d9["ascendant"]["d9"]["rashi"]
     assert len(d9["division_houses"]) == 12
+
+
+@pytest.mark.parametrize(("birth", "planet", "reference_longitude", "reference_latitude"), [
+    # Swiss Ephemeris manual, comparison with JPL Horizons: apparent geocentric
+    # ecliptic-of-date Mars at 2016-10-25 00:00 TT, §§ 4.2 / test cases.
+    ({"birth_date": "2016-10-24", "birth_time": "23:58:51.5", "timezone": "UTC",
+      "latitude": 51.4779, "longitude": 0.0, "time_accuracy": "exact"},
+     "Mars", 288.9700710, -2.0525051),
+    # Same published comparison table for 1800-10-25 00:00 TT. The birth input
+    # is UT midnight; its few-second TT difference is included in the tolerance.
+    ({"birth_date": "1800-10-25", "birth_time": "00:00:00", "timezone": "UTC",
+      "latitude": 40.7128, "longitude": -74.0060, "time_accuracy": "exact"},
+     "Mars", 51.5928231, -0.9812193),
+])
+def test_vedic_planet_position_against_swiss_manual_jpl_horizons_cases(
+    ephemeris_path, monkeypatch, birth, planet, reference_longitude, reference_latitude,
+):
+    """Independent tropical refs validate the shared position calculation beneath D1."""
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "astrology_calculations_enabled", True)
+    monkeypatch.setattr(settings, "swisseph_license_confirmed", True)
+    provider = SwissEphemerisProvider(ephemeris_path)
+    utc = local_birth_time_to_utc(
+        datetime.fromisoformat(birth["birth_date"]).date(),
+        datetime.fromisoformat(f"2000-01-01T{birth['birth_time']}").time(),
+        birth["timezone"],
+    )
+    # Compare the same common provider's tropical position directly, avoiding
+    # conflating its true-of-date longitude with a sidereal ayanamsa convention.
+    actual = provider.calculate(utc, birth["latitude"], birth["longitude"], "tropical", "P")
+    mars = next(row for row in actual["planets"] if row["name"] == planet)
+    assert mars["longitude"] == pytest.approx(reference_longitude, abs=0.001)
+    assert mars["latitude"] == pytest.approx(reference_latitude, abs=0.001)
+
+
+def test_vedic_full_planet_regression_has_all_d1_derived_fields(native_ffi, ephemeris_path, monkeypatch):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "astrology_calculations_enabled", True)
+    monkeypatch.setattr(settings, "swisseph_license_confirmed", True)
+    engine = VedicAstrologyEngine(SwissEphemerisProvider(ephemeris_path))
+    birth = {
+        "birth_date": "2000-01-01", "birth_time": "17:30:00", "timezone": "Asia/Kolkata",
+        "latitude": 13.0827, "longitude": 80.2707, "time_accuracy": "exact",
+    }
+    d1 = engine.calculate_chart(birth, {"house_system": "P", "division": "D1"})
+    d9 = engine.calculate_chart(birth, {"house_system": "P", "division": "D9"})
+    assert len(d1["planets"]) == 12
+    assert d1["calculation_flags"]["ephemeris"] == "SWIEPH"
+    assert d1["calculation_flags"]["requested"] & native_ffi.SEFLG_SWIEPH
+    assert not d1["calculation_flags"]["requested"] & native_ffi.SEFLG_MOSEPH
+    assert all(1 <= row["house"] <= 12 for row in d1["planets"])
+    assert all(row["rashi"] and row["nakshatra"]["name"] and 1 <= row["nakshatra"]["pada"] <= 4 for row in d1["planets"])
+    assert all(row["d9"]["rashi"] and 1 <= row["division_house"] <= 12 for row in d9["planets"])
+    assert d1["ascendant"]["longitude"] == pytest.approx(d9["ascendant"]["longitude"])
+    rahu = next(row for row in d1["planets"] if row["name"] == "Rahu")
+    ketu = next(row for row in d1["planets"] if row["name"] == "Ketu")
+    assert rahu["node_model"] == "mean"
+    assert ketu["node_model"] == "mean_opposite"
+    assert ketu["longitude"] == pytest.approx((rahu["longitude"] + 180.0) % 360.0)
+    dasha = d1["vimshottari_dasha"]
+    assert dasha["year_convention"] == "savana_360_day"
+    assert dasha["year_length_days"] == 360
+    assert len(dasha["mahadashas"]) == 9
+    assert dasha["mahadashas"][0]["balance_days_at_birth"] == pytest.approx(dasha["birth_balance_days"])
+    # The profile instant is 2000-01-01 12:00 UT. Convert the D1 Lahiri
+    # longitude back to tropical and compare it with the independent USNO
+    # approximate solar-coordinate algorithm (published ~1 arcminute accuracy).
+    solar_day = d1["julian_day_ut"] - 2451545.0
+    solar_mean_anomaly = math.radians(357.529 + 0.98560028 * solar_day)
+    solar_mean_longitude = 280.459 + 0.98564736 * solar_day
+    usno_sun = (solar_mean_longitude + 1.915 * math.sin(solar_mean_anomaly)
+                + 0.020 * math.sin(2 * solar_mean_anomaly)) % 360
+    d1_sun = next(row for row in d1["planets"] if row["name"] == "Sun")
+    assert (d1_sun["longitude"] + d1["ayanamsa"]) % 360 == pytest.approx(usno_sun, abs=1 / 60)
+    d1_planets = {row["name"]: row for row in d1["planets"]}
+    assert {row["name"]: row["longitude"] for row in d9["planets"]} == pytest.approx(
+        {name: row["longitude"] for name, row in d1_planets.items()}
+    )
 
 
 def test_western_tropical_reference_angles_and_whole_sign_houses(ephemeris_path, monkeypatch):

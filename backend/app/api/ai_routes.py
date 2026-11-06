@@ -3,6 +3,7 @@ import asyncio
 import hashlib
 from datetime import datetime, timezone
 import json
+import logging
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
@@ -22,15 +23,15 @@ from app.schemas.api import (
     AIConversationResponse,
     AIMessageCreate,
     AIMessageResponse,
-    AIUsageResponse,
 )
 from app.services.ai.contracts import ConversationTurn, IntelligenceResponse
 from app.services.ai.engine import engine_version, get_intelligence_engine
-from app.services.ai.usage import daily_request_count, reserve_daily_request
 from app.api.routes import current_user
+from app.services.security_limits import consume_rate_limit
 
 
 router = APIRouter(prefix="/ai", tags=["AI Astrologer"])
+logger = logging.getLogger(__name__)
 
 
 def _owned_conversation(db: Session, conversation_id: UUID, user: User) -> ChatSession:
@@ -67,12 +68,6 @@ def _message_response(message: ChatMessage) -> AIMessageResponse:
     )
 
 
-def _usage_snapshot(db: Session, user_id: UUID, day_key: str) -> AIUsageResponse:
-    used = daily_request_count(db, user_id, day_key)
-    limit = max(0, settings.ai_free_daily_limit)
-    return AIUsageResponse(daily_limit=limit, requests_used=used, remaining=max(0, limit - used))
-
-
 def _reserve_request(db: Session, user: User, chat: ChatSession, content: str, request_key: str):
     now = datetime.now(timezone.utc)
     day_key = now.date().isoformat()
@@ -99,6 +94,11 @@ def _reserve_request(db: Session, user: User, chat: ChatSession, content: str, r
         user_message = db.get(ChatMessage, usage_row.message_id) if usage_row.message_id else None
         if user_message is None or user_message.role != "user" or user_message.session_id != chat.id:
             raise HTTPException(409, "The failed request cannot be retried safely")
+        if not consume_rate_limit(
+            db, f"ai-chat:user:{user.id}", limit=settings.ai_chat_rate_limit_per_minute,
+            window_seconds=60, now=now,
+        ):
+            raise HTTPException(429, "You are sending messages too quickly. Please wait a moment and try again.")
         changed = db.execute(update(AIUsageLog).where(
             AIUsageLog.id == usage_row.id, AIUsageLog.status == "failed"
         ).values(status="pending")).rowcount
@@ -108,10 +108,12 @@ def _reserve_request(db: Session, user: User, chat: ChatSession, content: str, r
         db.commit()
         return usage_row, usage_row.period_key, None
 
-    limit = max(0, settings.ai_free_daily_limit)
-    if not reserve_daily_request(db, user.id, day_key, limit, now):
+    if not consume_rate_limit(
+        db, f"ai-chat:user:{user.id}", limit=settings.ai_chat_rate_limit_per_minute,
+        window_seconds=60, now=now,
+    ):
         db.rollback()
-        raise HTTPException(429, "Daily AI message limit reached. Try again tomorrow.")
+        raise HTTPException(429, "You are sending messages too quickly. Please wait a moment and try again.")
     user_message = ChatMessage(session_id=chat.id, role="user", content=content, created_at=now)
     db.add(user_message)
     db.flush()
@@ -304,15 +306,18 @@ async def send_message(
     request_key = request_key or str(uuid4())
     chat, usage_row, day_key, replay_message = _prepare_request(conversation_id, payload, user, db, request_key)
     if replay_message is not None:
-        today = datetime.now(timezone.utc).date().isoformat()
-        return AIChatResponse(message=_message_response(replay_message), usage=_usage_snapshot(db, user.id, today))
+        return AIChatResponse(message=_message_response(replay_message))
     try:
         response = _build_response(db, chat, user, payload.content, current_user_message_id=usage_row.message_id)
     except Exception as exc:
+        logger.exception(
+            "Deterministic astrology response engine failed",
+            extra={"conversation_id": str(chat.id), "user_id": str(user.id)},
+        )
         _mark_failed(db, usage_row)
         raise HTTPException(503, "The deterministic astrology response engine is unavailable") from exc
     assistant = _save_assistant_reply(db, chat, usage_row, response)
-    return AIChatResponse(message=_message_response(assistant), usage=_usage_snapshot(db, user.id, day_key))
+    return AIChatResponse(message=_message_response(assistant))
 
 
 @router.post("/conversations/{conversation_id}/messages/stream")
@@ -334,14 +339,17 @@ async def stream_message(
                     yield event
             else:
                 yield f"event: delta\ndata: {json.dumps({'content': replay_message.content}, ensure_ascii=False)}\n\n"
-            today = datetime.now(timezone.utc).date().isoformat()
-            data = AIChatResponse(message=_message_response(replay_message), usage=_usage_snapshot(db, user.id, today)).model_dump(mode="json")
+            data = AIChatResponse(message=_message_response(replay_message)).model_dump(mode="json")
             yield f"event: done\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
         return StreamingResponse(replay_events(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
     try:
         response = _build_response(db, chat, user, payload.content, current_user_message_id=usage_row.message_id)
     except Exception as exc:
+        logger.exception(
+            "Deterministic astrology response engine failed",
+            extra={"conversation_id": str(chat.id), "user_id": str(user.id)},
+        )
         _mark_failed(db, usage_row)
         raise HTTPException(503, "The deterministic astrology response engine is unavailable") from exc
 
@@ -350,7 +358,7 @@ async def stream_message(
             for event in _stream_response_events(response):
                 yield event
             assistant = _save_assistant_reply(db, chat, usage_row, response)
-            data = AIChatResponse(message=_message_response(assistant), usage=_usage_snapshot(db, user.id, day_key)).model_dump(mode="json")
+            data = AIChatResponse(message=_message_response(assistant)).model_dump(mode="json")
             yield f"event: done\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
         except (asyncio.CancelledError, GeneratorExit):
             _mark_failed(db, usage_row)

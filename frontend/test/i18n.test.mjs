@@ -6,7 +6,13 @@ test('dashboard includes Tamil and English labels and accessible language switch
   const source = await readFile(new URL('../src/pages/App.tsx', import.meta.url), 'utf8');
   assert.match(source, /உங்கள் வானம்/);
   assert.match(source, /Welcome to AstroAI/);
-  assert.match(source, /setLanguage\(tamil \? 'en' : 'ta'\)/);
+  assert.match(source, /aria-haspopup="menu"/);
+  assert.match(source, /aria-expanded={languageMenuOpen}/);
+  assert.match(source, /role="menuitemradio"/);
+  assert.match(source, /setLanguage\('en'\)/);
+  assert.match(source, /setLanguage\('ta'\)/);
+  assert.match(source, /More languages coming soon/);
+  assert.match(source, /event.key === 'Escape'/);
 });
 
 test('astrology data is explicitly marked unavailable until verified', async () => {

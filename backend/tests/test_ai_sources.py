@@ -95,8 +95,8 @@ def _approved_rule(*, translations=None, **provenance_overrides):
 def test_checked_in_source_registry_has_unique_complete_source_records():
     registry = load_source_registry()
     assert registry.registry_version == "1.0.0"
-    assert len(registry.sources) == 5
-    assert len({source.source_id for source in registry.sources}) == 5
+    assert len(registry.sources) == 7
+    assert len({source.source_id for source in registry.sources}) == 7
     assert {source.system for source in registry.sources} == {AstrologySystem.VEDIC, AstrologySystem.WESTERN}
     for source in registry.sources:
         assert source.original_title and source.author_or_traditional_attribution
@@ -126,7 +126,7 @@ def test_source_registry_rejects_duplicate_ids_and_missing_bibliographic_fields(
 
 def test_unverified_dates_access_and_rights_are_explicit_in_registry():
     registry = load_source_registry()
-    bphs = next(item for item in registry.sources if item.source_id.startswith("vedic.bphs."))
+    bphs = next(item for item in registry.sources if item.source_id == "vedic.bphs.ranjan.english-translation")
     phaladeepika = next(item for item in registry.sources if item.source_id.startswith("vedic.phaladeepika."))
     saravali = next(item for item in registry.sources if item.source_id.startswith("vedic.saravali."))
     lilly = next(item for item in registry.sources if item.source_id.startswith("western.christian-astrology."))
@@ -140,6 +140,18 @@ def test_unverified_dates_access_and_rights_are_explicit_in_registry():
     )
     assert lilly.accessible_locations[0].completeness.endswith("last_leaf_wanting")
     assert lilly.copyright.legal_review_required
+
+
+def test_vedic_dignity_web_witnesses_are_traceable_but_not_edition_verified_or_rights_cleared():
+    registry = load_source_registry()
+    dignity_sources = [registry_source for registry_source in registry.sources if registry_source.source_id in {
+        "vedic.bphs.vedicpupil.web-ch3", "vedic.bphs.parashara-net.web-ch3",
+    }]
+    assert len(dignity_sources) == 2
+    assert all("unverified" in source.edition_id for source in dignity_sources)
+    assert all(source.copyright.legal_review_required and not source.copyright.short_excerpt_reuse_allowed for source in dignity_sources)
+    assert all(any("edition" in note.casefold() and ("unverified" in note.casefold() or "not verified" in note.casefold())
+                   for note in source.verification_notes) for source in dignity_sources)
 
 
 def test_approved_rule_must_link_to_registered_source_and_exact_edition():

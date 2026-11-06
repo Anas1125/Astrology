@@ -23,6 +23,23 @@ class RegisterRequest(BaseModel):
     password: str = Field(min_length=12, max_length=128)
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetRequest(BaseModel):
+    token: str = Field(min_length=32, max_length=128)
+    new_password: str = Field(min_length=12, max_length=128)
+
+
+class PasswordResetRequestResponse(BaseModel):
+    message: str
+
+
+class PasswordResetResponse(BaseModel):
+    message: str
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
@@ -78,6 +95,17 @@ class ProfileCreate(BaseModel):
 class ProfileResponse(ProfileCreate):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
+
+
+class LocationSuggestion(BaseModel):
+    id: str
+    city: str
+    region: str | None = None
+    country: str
+    latitude: float
+    longitude: float
+    timezone: str | None = None
+    attribution: str
 
 
 class ProfilePatch(BaseModel):
@@ -169,6 +197,101 @@ class CalculationResultResponse(BaseModel):
     calculated_at: datetime
 
 
+class VedicDignityResponse(BaseModel):
+    status: Literal["provisional"]
+    chart_id: UUID
+    profile_id: UUID
+    astrology_system: Literal["vedic"]
+    division: Literal["D1"]
+    zodiac: Literal["sidereal"]
+    ayanamsa: str
+    ruleset_id: str
+    ruleset_version: str
+    source_id: str
+    source_ids: list[str]
+    source_references: list[dict]
+    source_status: str
+    source_locator: str
+    methodology_note: str
+    shadbala: dict
+    planets: list[dict]
+    excluded_planets: list[str]
+
+
+class PanchangRequest(BaseModel):
+    local_date: date
+    location_name: str = Field(min_length=1, max_length=160)
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    timezone: str = Field(min_length=1, max_length=80)
+
+    @field_validator("location_name")
+    @classmethod
+    def validate_location_name(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Location name cannot be blank")
+        return value.strip()
+
+    @field_validator("timezone")
+    @classmethod
+    def validate_panchang_timezone(cls, value: str) -> str:
+        normalized = validate_iana_timezone(value)
+        if normalized is None:
+            raise ValueError("An IANA timezone is required")
+        return normalized
+
+
+class HoroscopeRequest(BaseModel):
+    mode: Literal["general", "personalized"] = "general"
+    system: Literal["vedic", "western"]
+    local_date: date
+    period: Literal["daily", "weekly", "monthly"] = "daily"
+    category: Literal["overview", "career", "relationships", "finance", "personal_growth"] = "overview"
+    language: Literal["en", "ta"] = "en"
+    sign: str | None = Field(default=None, min_length=1, max_length=40)
+    profile_id: UUID | None = None
+    chart_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def mode_requirements(self):
+        if self.mode == "general" and not self.sign:
+            raise ValueError("Choose a sign for a general horoscope")
+        if self.mode == "personalized" and self.profile_id is None:
+            raise ValueError("Choose a birth profile for a personalized horoscope")
+        return self
+
+
+class HoroscopeAvailabilityResponse(BaseModel):
+    status: Literal["available", "unavailable", "missing_chart"]
+    mode: Literal["general", "personalized"]
+    system: Literal["vedic", "western"]
+    local_date: date
+    period: Literal["daily", "weekly", "monthly"]
+    category: Literal["overview", "career", "relationships", "finance", "personal_growth"]
+    sign: str | None
+    chart_id: str | None
+    content: str | None
+    source_references: list[dict | str]
+    reason: str
+    message: str
+
+
+class CompatibilityRequest(BaseModel):
+    profile_a_id: UUID
+    profile_b_id: UUID
+    system: Literal["vedic", "western"]
+    chart_a_id: UUID | None = None
+    chart_b_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def profiles_must_differ(self):
+        if self.profile_a_id == self.profile_b_id:
+            raise ValueError("Choose two different birth profiles")
+        if (self.chart_a_id is None) != (self.chart_b_id is None):
+            raise ValueError("Choose a saved chart for both profiles or neither")
+        return self
+
+
 class ChartHistoryItem(BaseModel):
     id: UUID
     profile_id: UUID
@@ -221,15 +344,8 @@ class AIMessageResponse(BaseModel):
     created_at: datetime
 
 
-class AIUsageResponse(BaseModel):
-    daily_limit: int
-    requests_used: int
-    remaining: int
-
-
 class AIChatResponse(BaseModel):
     message: AIMessageResponse
-    usage: AIUsageResponse
 
 
 class AIConversationResponse(BaseModel):

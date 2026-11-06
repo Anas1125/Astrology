@@ -4,7 +4,7 @@ import math
 from typing import Any
 
 from app.core.config import settings
-from app.services.astrology.base import AstrologyEngine, EngineUnavailable
+from app.services.astrology.base import AstrologyEngine, EngineUnavailable, ephemeris_failure_code
 from app.services.astrology.sweph import (
     EphemerisUnavailable,
     InvalidBirthData,
@@ -123,13 +123,17 @@ class WesternAstrologyEngine(AstrologyEngine):
 
     def _provider(self) -> SwissEphemerisProvider:
         if not settings.astrology_calculations_enabled:
-            raise EngineUnavailable("Astrology calculations are disabled until licensing/runtime verification is completed")
-        if not settings.swisseph_license_confirmed:
-            raise EngineUnavailable("Swiss Ephemeris licensing has not been confirmed; public calculations remain disabled")
+            local_agpl = settings.app_env == "development" and settings.astrology_local_agpl_development_enabled
+            if not local_agpl:
+                raise EngineUnavailable("Astrology calculations are disabled until licensing/runtime verification is completed", reason_code="feature_disabled")
+        if not settings.swisseph_license_confirmed and not (
+            settings.app_env == "development" and settings.astrology_local_agpl_development_enabled
+        ):
+            raise EngineUnavailable("Swiss Ephemeris licensing has not been confirmed; public calculations remain disabled", reason_code="license_unconfirmed")
         try:
             return self.provider or SwissEphemerisProvider(settings.swisseph_ephe_path, settings.swisseph_library_path)
         except EphemerisUnavailable as exc:
-            raise EngineUnavailable(str(exc)) from exc
+            raise EngineUnavailable(str(exc), reason_code=ephemeris_failure_code(str(exc))) from exc
 
     def get_provider(self) -> SwissEphemerisProvider:
         return self._provider()
@@ -165,7 +169,7 @@ class WesternAstrologyEngine(AstrologyEngine):
         except UnsupportedHouseSystem:
             raise
         except EphemerisUnavailable as exc:
-            raise EngineUnavailable(str(exc)) from exc
+            raise EngineUnavailable(str(exc), reason_code=ephemeris_failure_code(str(exc))) from exc
 
         planets = [dict(planet) for planet in result["planets"]]
         for planet in planets:

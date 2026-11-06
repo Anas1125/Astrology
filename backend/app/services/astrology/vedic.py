@@ -6,7 +6,7 @@ import math
 from typing import Any
 
 from app.core.config import settings
-from app.services.astrology.base import AstrologyEngine, EngineUnavailable
+from app.services.astrology.base import AstrologyEngine, EngineUnavailable, ephemeris_failure_code
 from app.services.astrology.sweph import (
     EphemerisUnavailable,
     InvalidBirthData,
@@ -87,6 +87,7 @@ def vimshottari_dasha(moon_longitude: float, birth_utc: datetime, year_conventio
     cursor = birth_utc
     mahadashas: list[dict[str, Any]] = []
     antardashas: list[dict[str, Any]] = []
+    pratyantardashas: list[dict[str, Any]] = []
     total_vimshottari_years = sum(NAKSHATRA_LORD_YEARS)
 
     for md_index, lord in enumerate(cycle):
@@ -122,6 +123,24 @@ def vimshottari_dasha(moon_longitude: float, birth_utc: datetime, year_conventio
                     "elapsed_days_at_birth": max(0.0, (birth_utc - ad_cursor).total_seconds() / 86400) if ad_cursor < birth_utc else 0.0,
                     "remaining_days_at_birth": max(0.0, (ad_end - birth_utc).total_seconds() / 86400) if ad_cursor < birth_utc else None,
                 })
+            pd_cycle = list(NAKSHATRA_LORDS[NAKSHATRA_LORDS.index(ad_lord):] + NAKSHATRA_LORDS[:NAKSHATRA_LORDS.index(ad_lord)])
+            pd_cursor = ad_cursor
+            for pd_lord in pd_cycle:
+                pd_days = ad_days * _LORD_YEARS[pd_lord] / total_vimshottari_years
+                pd_end = pd_cursor + timedelta(days=pd_days)
+                if pd_end > birth_utc:
+                    pratyantardashas.append({
+                        "mahadasha_lord": lord,
+                        "antardasha_lord": ad_lord,
+                        "lord": pd_lord,
+                        "start": max(pd_cursor, birth_utc).isoformat(),
+                        "nominal_start": pd_cursor.isoformat(),
+                        "end": pd_end.isoformat(),
+                        "full_duration_days": pd_days,
+                        "elapsed_days_at_birth": max(0.0, (birth_utc - pd_cursor).total_seconds() / 86400) if pd_cursor < birth_utc else 0.0,
+                        "remaining_days_at_birth": max(0.0, (pd_end - birth_utc).total_seconds() / 86400) if pd_cursor < birth_utc else None,
+                    })
+                pd_cursor = pd_end
             ad_cursor = ad_end
         cursor = nominal_end
 
@@ -135,6 +154,7 @@ def vimshottari_dasha(moon_longitude: float, birth_utc: datetime, year_conventio
         "birth_balance_days": mahadashas[0]["balance_days_at_birth"],
         "mahadashas": mahadashas,
         "antardashas": antardashas,
+        "pratyantardashas": pratyantardashas,
     }
 
 
@@ -146,13 +166,17 @@ class VedicAstrologyEngine(AstrologyEngine):
 
     def _provider(self) -> SwissEphemerisProvider:
         if not settings.astrology_calculations_enabled:
-            raise EngineUnavailable("Astrology calculations are disabled until licensing/runtime verification is completed")
-        if not settings.swisseph_license_confirmed:
-            raise EngineUnavailable("Swiss Ephemeris licensing has not been confirmed; public calculations remain disabled")
+            local_agpl = settings.app_env == "development" and settings.astrology_local_agpl_development_enabled
+            if not local_agpl:
+                raise EngineUnavailable("Astrology calculations are disabled until licensing/runtime verification is completed", reason_code="feature_disabled")
+        if not settings.swisseph_license_confirmed and not (
+            settings.app_env == "development" and settings.astrology_local_agpl_development_enabled
+        ):
+            raise EngineUnavailable("Swiss Ephemeris licensing has not been confirmed; public calculations remain disabled", reason_code="license_unconfirmed")
         try:
             return self.provider or SwissEphemerisProvider(settings.swisseph_ephe_path, settings.swisseph_library_path)
         except EphemerisUnavailable as exc:
-            raise EngineUnavailable(str(exc)) from exc
+            raise EngineUnavailable(str(exc), reason_code=ephemeris_failure_code(str(exc))) from exc
 
     def get_provider(self) -> SwissEphemerisProvider:
         return self._provider()
@@ -177,7 +201,7 @@ class VedicAstrologyEngine(AstrologyEngine):
         try:
             result = provider.calculate(utc, float(birth_data["latitude"]), float(birth_data["longitude"]), "sidereal", house_system, "lahiri")
         except EphemerisUnavailable as exc:
-            raise EngineUnavailable(str(exc)) from exc
+            raise EngineUnavailable(str(exc), reason_code=ephemeris_failure_code(str(exc))) from exc
         planets = [dict(planet) for planet in result["planets"]]
         # Mean lunar node is used consistently; Ketu is exactly opposite Rahu.
         ffi = getattr(provider, "ffi", None)

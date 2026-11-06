@@ -20,6 +20,7 @@ from app.services.ai.contracts import (
     UserIntent,
 )
 from app.services.ai.knowledge_loader import load_knowledge_base
+from app.services.ai.general_knowledge import general_overview
 from app.services.ai.response_composer import ENGINE_VERSION, compose_response
 from app.services.ai.rule_matcher import match_interpretation_rules
 from app.services.ai.source_registry import DEFAULT_SOURCE_REGISTRY
@@ -27,14 +28,19 @@ from app.services.ai.source_registry import DEFAULT_SOURCE_REGISTRY
 KNOWLEDGE_DIRECTORY = Path(__file__).parent / "knowledge" / "v1"
 
 
-def _general_concept_question(question: str) -> bool:
-    """Recognize explicit definition prompts that need general-source rules."""
-    text = question.strip().casefold()
-    if any(marker in text for marker in ("my ", "mine", "என்", "என்னுடைய", "எனது")):
-        return False
-    english_starts = ("what is ", "what are ", "define ", "explain the concept of ", "meaning of ")
-    tamil_patterns = ("என்றால் என்ன", "என்பது என்ன", "என்றால் எது")
-    return text.startswith(english_starts) or any(pattern in text for pattern in tamil_patterns)
+def _is_tamil_personal_moon_explanation(question: str) -> bool:
+    """Recognize common inflected Tamil forms in personal Moon questions."""
+    normalized = " ".join(question.casefold().split())
+    has_personal_reference = any(
+        marker in normalized for marker in ("எனது", "என்னுடைய", "என் ", "எனக்கான")
+    )
+    has_moon_reference = any(
+        marker in normalized for marker in ("சந்திரனை", "சந்திரனின்", "சந்திரனுக்கு", "சந்திரன்")
+    )
+    has_explanation_request = any(
+        marker in normalized for marker in ("விளக்கு", "விளக்க", "விவரி", "பற்றி", "சொல்லு", "கூறு", "எப்படி")
+    )
+    return has_personal_reference and has_moon_reference and has_explanation_request
 
 
 def _classify(
@@ -44,31 +50,93 @@ def _classify(
     selected_system: AstrologySystem,
     chart: ChartFacts,
 ) -> QuestionClassification:
+    # The classifier currently handles the English form "explain my Moon"
+    # but misses common Tamil inflections such as "சந்திரனை". Normalize only
+    # this narrow personal-chart request; answer language is still detected
+    # from the original Tamil message in answer_for_session.
+    classifier_question = question
+    classifier_language = language.value
+    if language.value == "ta" and _is_tamil_personal_moon_explanation(question):
+        classifier_question = "explain my Moon"
+        classifier_language = "en"
+
     classification = classify_question(
-        question,
-        account_language=language.value,
+        classifier_question,
+        account_language=classifier_language,
         selected_system=selected_system,
         selected_division=chart.division if chart.available else None,
         chart_available=chart.available,
     )
-    if _general_concept_question(question) and classification.intent in {
-        UserIntent.CHART_QUESTION,
-        UserIntent.MISSING_CHART,
-    }:
-        return classification.model_copy(update={
-            "intent": UserIntent.UNSUPPORTED,
-            "system": None,
-            "division": None,
-            "clarification_reason": "general_knowledge_not_approved",
-            "needs_clarification": False,
-        })
     return classification
-
 
 _FOLLOW_UP_MARKERS = (
     "what about", "and what", "what does that", "what does it", "its house", "their house",
     "tell me more", "இதன்", "அதன்", "அது", "மேலும் சொல்லுங்கள்", "அப்படியானால்",
 )
+_GENERAL_FOLLOW_UP_MARKERS = (
+    "what about", "tell me more", "explain more", "and this", "இதன்", "அது", "மேலும் சொல்லுங்கள்", "விரிவாக சொல்லுங்கள்",
+)
+
+
+def _resolve_general_education_follow_up(
+    question: str,
+    classification: QuestionClassification,
+    history: Sequence[ConversationTurn],
+    *,
+    selected_system: AstrologySystem,
+    chart: ChartFacts,
+) -> QuestionClassification:
+    """Resolve educational follow-ups from prior user-authored subjects only."""
+    normalized = question.casefold()
+    is_ruling_pronoun = any(marker in normalized for marker in (
+        "its ruling planet", "its ruling lord", "what is its", "அதன் அதிபதி", "அதற்கு உரிய கிரகம்",
+    ))
+    is_follow_up = is_ruling_pronoun or any(marker in normalized for marker in _GENERAL_FOLLOW_UP_MARKERS)
+    if not is_follow_up and classification.intent is not UserIntent.GENERAL_EDUCATION:
+        return classification
+
+    prior_subject: str | None = None
+    prior_general: QuestionClassification | None = None
+    for turn in reversed(history):
+        if turn.role != "user":
+            continue
+        candidate = _classify(
+            turn.content,
+            language=detect_language(turn.content),
+            selected_system=selected_system,
+            chart=chart,
+        )
+        if candidate.intent is UserIntent.GENERAL_EDUCATION:
+            if prior_general is None:
+                prior_general = candidate
+            if candidate.education_subject:
+                prior_subject = candidate.education_subject
+                break
+
+    if classification.intent is UserIntent.GENERAL_EDUCATION:
+        if classification.education_subject or not prior_subject:
+            return classification
+        # Carry a named educational subject into contextual methodology
+        # questions, while keeping the response unpersonalized.
+        return classification.model_copy(update={"education_subject": prior_subject})
+
+    if not is_ruling_pronoun and prior_general and classification.intent in {
+        UserIntent.CLARIFICATION, UserIntent.UNSUPPORTED,
+    }:
+        return prior_general.model_copy(update={"confidence": min(0.85, prior_general.confidence)})
+
+    if not is_ruling_pronoun or classification.intent not in {
+        UserIntent.CLARIFICATION, UserIntent.UNSUPPORTED, UserIntent.MISSING_CHART,
+    } or not prior_subject:
+        return classification
+
+    return QuestionClassification(
+        intent=UserIntent.GENERAL_EDUCATION,
+        topic=classification.topic,
+        education_topic="nakshatra_ruling_planet",
+        education_subject=prior_subject,
+        confidence=0.9,
+    )
 
 
 def _resolve_follow_up(
@@ -143,6 +211,14 @@ class DeterministicAstrologyIntelligence(AstrologyIntelligence):
             source_registry=DEFAULT_SOURCE_REGISTRY,
         )
         matches = None
+        education_text = None
+        if classification.intent is UserIntent.GENERAL_EDUCATION and classification.education_topic:
+            overview = general_overview(
+                classification.education_topic, language.value,
+                subject=classification.education_subject,
+            )
+            if overview is not None:
+                education_text, knowledge_version = overview
         if classification.intent is UserIntent.CHART_QUESTION and chart is not None and chart.available:
             matches = match_interpretation_rules(
                 classification, chart, rules, language=language, allow_test_only=False,
@@ -154,6 +230,7 @@ class DeterministicAstrologyIntelligence(AstrologyIntelligence):
             language=language,
             knowledge_base_version=knowledge_version,
             engine_version=ENGINE_VERSION,
+            general_education_text=education_text,
         )
 
     def answer_for_session(
@@ -173,6 +250,13 @@ class DeterministicAstrologyIntelligence(AstrologyIntelligence):
         classification = _classify(
             question,
             language=language,
+            selected_system=AstrologySystem(chat.astrology_system),
+            chart=chart,
+        )
+        classification = _resolve_general_education_follow_up(
+            question,
+            classification,
+            history,
             selected_system=AstrologySystem(chat.astrology_system),
             chart=chart,
         )

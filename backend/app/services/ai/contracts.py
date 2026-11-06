@@ -28,6 +28,7 @@ class SupportedLanguage(StrEnum):
 
 class UserIntent(StrEnum):
     GREETING = "greeting"
+    GENERAL_EDUCATION = "general_education"
     CHART_QUESTION = "chart_question"
     CLARIFICATION = "clarification"
     UNSUPPORTED = "unsupported"
@@ -57,6 +58,8 @@ class QuestionClassification(StrictModel):
     division: str | None = None
     topic: QuestionTopic | None = None
     entities: tuple[MentionedEntity, ...] = ()
+    education_topic: str | None = Field(default=None, pattern=r"^[a-z0-9_]+$")
+    education_subject: str | None = Field(default=None, pattern=r"^[A-Za-z][A-Za-z -]{0,40}$")
     confidence: float = Field(ge=0.0, le=1.0)
     needs_clarification: bool = False
     clarification_reason: str | None = None
@@ -210,6 +213,7 @@ class RuleMatchResult(StrictModel):
 
 
 class ResponseSectionType(StrEnum):
+    GENERAL_EDUCATION = "general_education"
     CALCULATED_FACT = "calculated_fact"
     TRADITIONAL_INTERPRETATION = "traditional_interpretation"
     LIMITATION = "limitation"
@@ -261,6 +265,9 @@ class IntelligenceResponseMetadata(StrictModel):
     language: SupportedLanguage
     matched_rule_ids: tuple[str, ...] = ()
     division: str | None = None
+    content_classification: str | None = Field(default=None, pattern=r"^(general_education|personal_chart_response)$")
+    source_verification_status: str = Field(default="not_applicable", pattern=r"^(not_applicable|not_independently_verified)$")
+    education_topic: str | None = Field(default=None, pattern=r"^[a-z0-9_]+$")
 
 
 class IntelligenceResponse(StrictModel):

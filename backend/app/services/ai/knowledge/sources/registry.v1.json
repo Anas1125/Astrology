@@ -2,6 +2,78 @@
   "registry_version": "1.0.0",
   "sources": [
     {
+      "source_id": "vedic.bphs.vedicpupil.web-ch3",
+      "edition_id": "vedicpupil-bphs-web-ch3-unverified",
+      "original_title": "Bṛhat Parāśara Horā Śāstra, Chapter 3",
+      "author_or_traditional_attribution": "Traditionally attributed to Parāśara; textual history is not established as a single-author work.",
+      "system": "vedic",
+      "tradition": "Jyotiṣa / horā literature",
+      "historical_period": "Uncertain; no single date assigned to the extant text.",
+      "historical_period_confidence": "uncertain_textual_history",
+      "original_language": "Sanskrit",
+      "edition": "Accessible web rendering of Chapter 3; print edition, recension, pagination and publication date not identified.",
+      "translator_editor": "The page describes its English as its own translation from Sanskrit; individual translator not identified.",
+      "publication": "VedicPupil website; publication details not stated.",
+      "publication_date": "Not stated.",
+      "accessible_locations": [{
+        "url": "https://vedicpupil.in/library/books/brihat-parashara-hora-shastra/chapter-3",
+        "location_type": "web_text_translation",
+        "access_status": "accessible_edition_unverified",
+        "completeness": "chapter_3_only",
+        "terms_note": "Accessibility is not permission to quote, adapt, or reuse; terms and rights require review."
+      }],
+      "copyright": {
+        "original_text_status": "Underlying Sanskrit work is historical; exact web witness and its editorial apparatus are not established.",
+        "translation_status": "Translator and rights status are not verified; treat English rendering as protected.",
+        "digital_edition_terms": "Website reuse terms not reviewed or verified for this text.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "Not cleared.",
+        "commercial_reuse_status": "Not cleared; legal review required.",
+        "legal_review_required": true,
+        "notes": ["Use only as a provisional witness for chapter/verse identification; do not represent it as a verified print edition."]
+      },
+      "reliability_notes": ["Page presents Sanskrit and English side by side and states the English is its translation from Sanskrit; no independent edition-level collation completed."],
+      "verification_notes": ["Chapter 3 verses 49-54 were inspected online on 2026-11-03; edition, translator identity, publication date, rights, and textual recension remain unverified."],
+      "relevant_topics": ["exaltation", "debilitation", "Moolatrikona", "own signs"],
+      "citation_format": "Bṛhat Parāśara Horā Śāstra, traditionally attributed to Parāśara, ch. 3, ślokas 49-54, VedicPupil web rendering (accessed 2026-11-03; print edition and translator unverified)."
+    },
+    {
+      "source_id": "vedic.bphs.parashara-net.web-ch3",
+      "edition_id": "parashara-net-bphs-web-ch3-unverified",
+      "original_title": "Bṛhat Parāśara Horā Śāstra, Chapter 3",
+      "author_or_traditional_attribution": "Traditionally attributed to Parāśara; textual history is not established as a single-author work.",
+      "system": "vedic",
+      "tradition": "Jyotiṣa / horā literature",
+      "historical_period": "Uncertain; no single date assigned to the extant text.",
+      "historical_period_confidence": "uncertain_textual_history",
+      "original_language": "Sanskrit",
+      "edition": "Accessible web rendering of Chapter 3 with translation and commentary; print edition, pagination and publication date not identified.",
+      "translator_editor": "The web page identifies translation/commentary but edition-level translator attribution is unverified.",
+      "publication": "Parashara.net website; publication details not stated.",
+      "publication_date": "Not stated.",
+      "accessible_locations": [{
+        "url": "https://parashara.net/index.php?page=chapter3",
+        "location_type": "web_text_translation_commentary",
+        "access_status": "accessible_edition_unverified",
+        "completeness": "chapter_3_only",
+        "terms_note": "The page states copyright 2010; no commercial adaptation or reuse license verified."
+      }],
+      "copyright": {
+        "original_text_status": "Underlying Sanskrit work is historical; exact web witness and its editorial apparatus are not established.",
+        "translation_status": "The web page states copyright 2010; translator rights and permissions require review.",
+        "digital_edition_terms": "Page copyright notice is present; exact usage terms and commercial reuse permissions are not cleared.",
+        "short_excerpt_reuse_allowed": false,
+        "adaptation_reuse_status": "Not cleared.",
+        "commercial_reuse_status": "Not cleared; legal review required.",
+        "legal_review_required": true,
+        "notes": ["The page includes translation and explanatory commentary; do not conflate commentary with the Sanskrit verse."]
+      },
+      "reliability_notes": ["Sanskrit, translation and explanatory notes are distinguishable on the page; no independent edition-level collation completed."],
+      "verification_notes": ["Chapter 3 verses 55-58 were inspected online on 2026-11-03; edition, translator, publication details, rights and textual recension remain unverified."],
+      "relevant_topics": ["natural planetary relationships", "temporary planetary relationships"],
+      "citation_format": "Bṛhat Parāśara Horā Śāstra, traditionally attributed to Parāśara, ch. 3, ślokas 55-58, Parashara.net web rendering/commentary (accessed 2026-11-03; print edition unverified)."
+    },
+    {
       "source_id": "vedic.bphs.ranjan.english-translation",
       "edition_id": "bphs-ranjan-en-volumes",
       "original_title": "Bṛhat Parāśara Horā Śāstra (बृहत्पाराशरहोराशास्त्रम्)",

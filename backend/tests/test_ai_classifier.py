@@ -67,8 +67,26 @@ def test_selected_chart_resolves_system_only_when_chart_is_available():
     assert selected.division == "natal"
     no_chart = classify_question("What is my chart overview?", selected_system="western", chart_available=False)
     assert no_chart.intent is UserIntent.MISSING_CHART
-    assert no_chart.needs_clarification
+    assert not no_chart.needs_clarification
     assert no_chart.system is None
+
+
+@pytest.mark.parametrize(("question", "system", "division"), [
+    ("What can you tell me about my birth chart?", None, None),
+    ("Tell me about my horoscope.", None, None),
+    ("What does my Lagna mean?", AstrologySystem.VEDIC, None),
+    ("Explain my Navamsa.", AstrologySystem.VEDIC, "D9"),
+    ("என் ஜாதகத்தைப் பற்றி என்ன சொல்ல முடியும்?", None, None),
+    ("என் ஜாதகத்தைப் பற்றி சொல்லுங்கள்.", None, None),
+    ("என் லக்னம் பற்றி சொல்லுங்கள்.", AstrologySystem.VEDIC, None),
+    ("என் நவாம்சத்தை விளக்குங்கள்.", AstrologySystem.VEDIC, "D9"),
+])
+def test_personal_chart_questions_without_chart_report_missing_chart(question, system, division):
+    result = classify_question(question, chart_available=False)
+    assert result.intent is UserIntent.MISSING_CHART
+    assert not result.needs_clarification
+    assert result.system is system
+    assert result.division == division
 
 
 def test_tamil_dasha_lord_is_only_classified_when_tied_to_the_dasha_phrase():

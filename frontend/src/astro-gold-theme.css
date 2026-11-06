@@ -1,0 +1,261 @@
+/* AstroAI warm ivory + champagne gold theme. Presentation only; no app logic changed. */
+:root {
+  color-scheme: light;
+  --page: #f8f5ed;
+  --page-soft: #f2ecdf;
+  --surface: #fffdf8;
+  --surface-raised: #ffffff;
+  --surface-muted: #f6f0e4;
+  --line: #e5dccb;
+  --line-strong: #d6c7aa;
+  --text: #302b25;
+  --text-soft: #62594c;
+  --text-muted: #827867;
+  --gold: #b18b43;
+  --gold-strong: #98732f;
+  --gold-soft: #f1e5c9;
+  --gold-wash: #faf4e7;
+  --danger: #a64b43;
+  --success: #487653;
+  --shadow-soft: 0 8px 26px rgba(81, 61, 27, .07);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  background: var(--page);
+}
+
+html, body, #root { min-height: 100%; }
+html { background: var(--page); }
+body {
+  color: var(--text);
+  background: radial-gradient(ellipse at 75% 0%, #fffdf8 0%, var(--page) 58%, #f1eadc 100%) !important;
+}
+button, input, select, textarea { font-family: inherit; }
+::selection { color: #302b25; background: #ead8ad; }
+
+.app-shell { color: var(--text); background: transparent; }
+.sidebar {
+  background: #f3eddf !important;
+  border-right: 1px solid var(--line) !important;
+  box-shadow: 5px 0 24px rgba(74, 56, 27, .035);
+}
+.brand { color: #342d22 !important; }
+.brand-mark, .card-icon, .notice-icon, .auth-symbol, .profile-avatar, .profiles-empty .empty-icon {
+  color: var(--gold-strong) !important;
+  background: var(--gold-wash) !important;
+  border-color: #dfcda5 !important;
+}
+.gold, .gold-text { color: var(--gold-strong) !important; }
+.workspace-label, .eyebrow, .crumb, .muted, footer { color: var(--text-muted) !important; }
+.sidebar nav a { color: #6e6558 !important; }
+.sidebar nav a:hover { background: #ebe1cf !important; color: #473b29 !important; }
+.sidebar nav a.active {
+  color: #785b25 !important;
+  background: linear-gradient(90deg, #eadab7, #f8f3e8) !important;
+  border: 1px solid #e3d1a9 !important;
+}
+.nav-count { color: #745b2e !important; background: #eadfc9 !important; }
+.help { color: var(--text-soft) !important; border-color: var(--line) !important; background: #f8f4eb; }
+.help b, .account b { color: var(--text) !important; }
+.help small, .account small { color: var(--text-muted) !important; }
+.account { border-color: var(--line) !important; }
+.avatar { color: #72551f !important; background: #eadbb9 !important; }
+
+.main-content { color: var(--text); }
+.topbar { border-color: var(--line) !important; }
+.crumb b { color: #463d31 !important; }
+.icon-btn, .lang-btn, .date-chip, .logout-button, .cancel-btn, .secondary-action,
+.chart-history-pagination button, .chart-alert button:not(.text-button),
+.profile-card-actions button, .ai-side-heading button {
+  color: #5f523e !important;
+  background: #fffdf8 !important;
+  border-color: var(--line-strong) !important;
+}
+.icon-btn:hover, .lang-btn:hover, .date-chip:hover, .secondary-action:hover,
+.chart-history-pagination button:hover, .profile-card-actions button:hover {
+  background: var(--gold-wash) !important;
+  border-color: #c9ad73 !important;
+}
+.welcome-row h1, .charts-heading h1, .ai-chat-heading h1, .profiles-heading h1,
+.module-page h1, .module-heading h1, .auth-card h1, .section-heading h2,
+.hero-card h2 { color: #302b25 !important; }
+.welcome-row p, .section-heading p, .charts-heading p, .ai-chat-heading p,
+.profiles-heading p, .module-page > p { color: var(--text-soft) !important; }
+.live-dot, .status-dot { background: var(--gold) !important; box-shadow: 0 0 9px #b18b4350 !important; }
+
+.hero-card {
+  border: 1px solid #dfd0b2 !important;
+  background: linear-gradient(112deg, #fffdf8 0%, #f8f0df 58%, #efe1c4 100%) !important;
+  box-shadow: var(--shadow-soft);
+}
+.hero-card h2 { color: #342c20 !important; }
+.hero-card p { color: #675d4d !important; }
+.hero-glow { background: #c9a85c35 !important; }
+.orbit { border-color: #b18b4350 !important; }
+.planet, .landing-star {
+  color: #8f6c2e !important;
+  background: radial-gradient(circle at 35% 28%, #fffdf3, #e8d6ad 72%) !important;
+  border-color: #c7a65f !important;
+  box-shadow: 0 0 55px #b18b4328 !important;
+}
+.star, .landing-orbit > span, .landing-orbit > i { color: #a7823e !important; }
+.primary-btn, .auth-submit {
+  color: #fffdf8 !important;
+  background: linear-gradient(135deg, #b9934e, #9d7838) !important;
+  box-shadow: 0 3px 10px #94723822;
+}
+.primary-btn:hover, .auth-submit:hover { background: linear-gradient(135deg, #a9823d, #89652e) !important; }
+.primary-btn:disabled, .auth-submit:disabled { opacity: .58; }
+
+.system-card, .notice-card, .chart-history, .chart-history-item, .chart-request-panel,
+.chart-result, .chart-alert, .chart-empty, .chart-loading, .chart-data-section,
+.dasha-panel, .vedic-chart-summary > div, .western-angle-cards > div,
+.birth-profile-card, .birth-profile-form, .profiles-state, .profiles-empty,
+.module-empty, .content-module-form, .ai-chat-layout, .chart-history-heading,
+.ai-conversation-sidebar, .ai-conversation-row, .ai-response-section,
+.content-module-notice, .auth-card {
+  color: var(--text) !important;
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 4px 18px rgba(81, 61, 27, .045);
+}
+.system-card.vedic, .system-card.western, .module-empty, .birth-profile-card,
+.birth-profile-form, .profiles-state, .profiles-empty, .chart-result,
+.chart-empty, .chart-loading, .chart-alert, .content-module-form {
+  background: linear-gradient(145deg, #fffefa, #f8f3e9) !important;
+}
+.system-card h3, .notice-card h3, .module-empty h2, .chart-empty h2,
+.chart-data-section h3, .dasha-panel h3, .chart-history-heading h2,
+.ai-side-heading h2, .birth-card-head h2 { color: #373027 !important; }
+.system-card p, .notice-card p, .module-empty p, .chart-empty p,
+.chart-muted, .chart-result-meta, .chart-history-item small, .profile-detail,
+.ai-conversation-select small { color: var(--text-soft) !important; }
+.card-foot, .notice-foot, .round-arrow, .chart-history-open { color: var(--gold-strong) !important; }
+.card-foot, .notice-foot, .chart-result-meta, .profile-meta { border-color: var(--line) !important; }
+.chart-version-pill, .ai-status-pill { color: #80632d !important; border-color: #dfcda5 !important; background: var(--gold-wash); }
+
+input, select, textarea, .profile-form input, .profile-fields input, .profile-fields select,
+.chart-select-field select, .ai-chat-controls select, .ai-chat-compose textarea,
+.content-module-form input, .content-module-form select, .auth-input {
+  color: #342e25 !important;
+  background: #fffefa !important;
+  border-color: #d9cfbd !important;
+}
+input::placeholder, textarea::placeholder, .auth-input input::placeholder { color: #a09582 !important; }
+.profile-form label, .profile-fields label, .chart-select-field, .ai-chat-controls label,
+.content-module-form label, .auth-form > label { color: #655b4d !important; }
+.auth-input input { color: #342e25 !important; background: transparent !important; }
+.auth-input:focus-within, input:focus, select:focus, textarea:focus {
+  border-color: #b18b43 !important;
+  box-shadow: 0 0 0 3px #b18b431c !important;
+  outline-color: #b18b43 !important;
+}
+
+.segmented-control { background: #f2ecdf !important; border-color: var(--line-strong) !important; }
+.segmented-control button { color: #6f6658 !important; }
+.segmented-control button[aria-pressed="true"] { color: #fffdf8 !important; background: var(--gold-strong) !important; }
+.chart-table-wrap { border-color: var(--line) !important; }
+.chart-table { background: #fffefa !important; }
+.chart-table th { color: #715725 !important; background: #f1e7d3 !important; }
+.chart-table td { color: #4e473d !important; }
+.chart-table th, .chart-table td { border-color: #e9e1d3 !important; }
+.vedic-chart-summary > div, .western-angle-cards > div, .dasha-panel { background: #fffefa !important; }
+.vedic-chart-summary small, .western-angle-cards small, .dasha-panel li > span,
+.dasha-panel li > small, .savana-note { color: var(--text-muted) !important; }
+.vedic-chart-summary b, .western-angle-cards b { color: #85652d !important; }
+.dasha-panel li { border-color: var(--line) !important; }
+.dasha-panel li > b { color: #4a4031 !important; }
+
+.south-chart { background: #fffdf7 !important; border-color: #b89553 !important; }
+.south-chart-cell { border-color: #d8c8a7 !important; }
+.south-chart-cell > small, .south-chart-cell > i { color: #80632d !important; }
+.south-chart-center { background: radial-gradient(ellipse, #fff9e9, #f4ead5) !important; border-color: #d7c393 !important; color: #6e604b !important; }
+.south-chart-center span, .south-chart-center b { color: #8d6a2e !important; }
+.chart-planet-chip { color: #54452d !important; background: #f4ead5 !important; border-color: #d9c69c !important; }
+.north-chart { background: #fffdf7 !important; border-color: #c7a66a !important; }
+.north-chart-house text { fill: #645744 !important; }
+.north-chart-house .north-house-number, .north-chart-house .north-house-sign { fill: #8a682f !important; }
+.north-chart-house .north-house-planets { fill: #40382d !important; }
+.western-wheel .wheel-outer { fill: #fffaf0 !important; stroke: #b89553 !important; }
+.western-wheel .wheel-zodiac-ring, .western-wheel .wheel-inner { stroke: #d6c49f !important; }
+.western-wheel .wheel-house-line { stroke: #d7cebd !important; }
+.western-wheel .wheel-house-label { fill: #766b59 !important; }
+.western-wheel .wheel-house-number { fill: #8a682f !important; }
+.western-wheel .wheel-planet circle { fill: #fffdf8 !important; stroke: #b89553 !important; }
+.western-wheel .wheel-planet text, .western-wheel .wheel-angle text { fill: #715525 !important; }
+.western-wheel .wheel-angle line { stroke: #ad843d !important; }
+
+.ai-chat-layout { background: #fffdf8 !important; }
+.ai-conversation-sidebar { background: #f6f0e4 !important; border-color: var(--line) !important; }
+.ai-conversation-row { background: #fffdf8 !important; }
+.ai-conversation-row.active { background: #f4ead5 !important; border-color: #d7c393 !important; }
+.ai-conversation-select { color: #3d352a !important; }
+.ai-side-heading button { color: #86642c !important; }
+.ai-chat-controls { border-color: var(--line) !important; }
+.ai-message { color: #40392f !important; background: #f4f0e7 !important; border-color: #e4dbc9 !important; }
+.ai-message.user { background: #f1e5c9 !important; border-color: #ddc895 !important; }
+.ai-message small { color: #87652c !important; }
+.ai-message p { color: #40392f !important; }
+.ai-chat-compose { border-color: var(--line) !important; }
+.ai-response-section { background: #f8f4eb !important; border-color: #d7c6a4 !important; }
+.ai-response-section.calculated_fact { border-color: #b7a178 !important; }
+.ai-response-section.traditional_interpretation { border-color: #b18b43 !important; }
+.ai-response-section.limitation { border-color: #c89b91 !important; }
+.ai-response-section > small, .ai-response-sources > small { color: #685d4c !important; }
+.ai-response-sources { border-color: var(--line) !important; }
+.ai-response-sources p, .ai-response-sources summary { color: #655b4d !important; }
+.ai-context-notice { color: #78602f !important; background: #faf4e7 !important; border-color: #e2d2ae !important; }
+.ai-usage-note { color: #487653 !important; }
+.ai-disclaimer { color: #796f5f !important; }
+
+.chart-alert.error, .profile-error, .auth-error, .content-module-notice.error {
+  color: #963f39 !important; background: #fff1ee !important; border-color: #e8c4bd !important;
+}
+.chart-alert.unavailable { color: #765b2b !important; background: #faf3e5 !important; border-color: #e5d3ae !important; }
+.profile-notice, .auth-success { color: #426a49 !important; background: #eff7ee !important; border-color: #c8dec6 !important; }
+.chart-history-status.complete { color: #426a49 !important; background: #e9f3e8 !important; }
+.chart-history-status.unavailable { color: #765b2b !important; background: #f5ecd9 !important; }
+.text-button, .auth-label-row a, .auth-switch a, .auth-form .auth-label-row a { color: #8c682e !important; }
+
+.auth-page { color: var(--text) !important; background: radial-gradient(ellipse at 72% 12%, #fffdf7 0%, #f7f1e5 48%, #eee5d4 100%) !important; }
+.auth-header > a, .landing-nav nav > a:not(.primary-btn), .secondary-link { color: #6d6252 !important; }
+.landing-copy h1 { color: #302b25 !important; }
+.landing-copy h1 em { color: #9d7838 !important; }
+.landing-copy > p, .trust-row { color: #665d50 !important; }
+.landing-orbit { opacity: .75; }
+.auth-card { background: linear-gradient(145deg, #fffefa, #f8f2e6) !important; border-color: #e2d6c2 !important; }
+.auth-card h1 { color: #302b25 !important; }
+.auth-subtitle, .auth-switch, .auth-note, .auth-privacy, .field-hint { color: #766d5f !important; }
+.auth-input { color: #7e6d4f !important; }
+.auth-input .password-toggle { color: #7c6a4b !important; }
+.auth-privacy { border-color: var(--line) !important; }
+.auth-loading { color: #8c682e !important; background: var(--page) !important; }
+.auth-language { color: #715525 !important; background: #fffdf8 !important; border-color: var(--line-strong) !important; }
+.remember-me { color: #655b4d !important; }
+
+/* Feature stylesheets are loaded by their pages; normalise their common surfaces too. */
+[class*="panchang"], [class*="horoscope-admin"] { --feature-text: #3d352b; }
+[class*="panchang"] :is(h1,h2,h3,h4,label,strong),
+[class*="horoscope-admin"] :is(h1,h2,h3,h4,label,strong) { color: #3d352b; }
+[class*="panchang"] :is(p,small,span), [class*="horoscope-admin"] :is(p,small,span) { color: inherit; }
+[class*="panchang"] :is(input,select,textarea),
+[class*="horoscope-admin"] :is(input,select,textarea) {
+  color: #342e25 !important; background: #fffefa !important; border-color: #d9cfbd !important;
+}
+[class*="panchang"] :is(button:not(.primary-btn)),
+[class*="horoscope-admin"] :is(button:not(.primary-btn)) {
+  border-color: #d9cfbd;
+}
+[class*="panchang"] :is([class*="card"],[class*="panel"],[class*="empty"],[class*="result"],[class*="form"]),
+[class*="horoscope-admin"] :is([class*="card"],[class*="panel"],[class*="empty"],[class*="result"],[class*="form"]) {
+  background-color: #fffdf8;
+  border-color: #e5dccb;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid #b18b43 !important;
+  outline-offset: 2px;
+}
+@media (max-width: 700px) {
+  .sidebar { background: #f3eddf !important; border-bottom: 1px solid var(--line); }
+  .sidebar nav a.active { background: #eadab7 !important; }
+}

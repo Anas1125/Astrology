@@ -7,7 +7,7 @@ const read = path => readFile(new URL(path, import.meta.url), 'utf8');
 test('auth API follows backend JSON registration and OAuth form login contracts', async () => {
   const source = await read('../src/auth/api.ts');
   assert.match(source, /JSON\.stringify\(\{ email, password \}\)/);
-  assert.match(source, /URLSearchParams\(\{ username: email, password \}\)/);
+  assert.match(source, /URLSearchParams\(\{ username: email, password, remember_me: String\(rememberMe\) \}\)/);
   assert.match(source, /application\/x-www-form-urlencoded/);
   assert.match(source, /access_token/);
 });

@@ -39,7 +39,7 @@ test('AI conversation API uses owned endpoints and bearer authentication', async
 test('streaming API sends authenticated message and parses fragmented SSE deltas and completion', async () => {
   let call;
   const structured = { status: 'missing_chart', answer: 'No completed chart is available.', answer_fact_ids: [], answer_rule_ids: [], sections: [], metadata: { engine_version: '1.0.0', knowledge_base_version: '1.0.0', system: 'vedic', division: 'D1', language: 'en', matched_rule_ids: [] } };
-  const sse = 'event: metadata\ndata: {"status":"missing_chart","language":"en"}\n\nevent: delta\ndata: {"content":"வணக்கம் "}\n\nevent: delta\ndata: {"content":"there"}\n\nevent: done\ndata: ' + JSON.stringify({ message: { id: 'm1', role: 'assistant', content: 'வணக்கம் there', structured_response: structured }, usage: { daily_limit: 20, requests_used: 1, remaining: 19 } }) + '\n\n';
+  const sse = 'event: metadata\ndata: {"status":"missing_chart","language":"en"}\n\nevent: delta\ndata: {"content":"வணக்கம் "}\n\nevent: delta\ndata: {"content":"there"}\n\nevent: done\ndata: ' + JSON.stringify({ message: { id: 'm1', role: 'assistant', content: 'வணக்கம் there', structured_response: structured } }) + '\n\n';
   globalThis.fetch = async (url, init) => {
     call = { url: String(url), init };
     const encoder = new TextEncoder();
@@ -54,7 +54,7 @@ test('streaming API sends authenticated message and parses fragmented SSE deltas
     assert.equal(call.init.headers['Idempotency-Key'], 'request-key-1');
     assert.deepEqual(JSON.parse(call.init.body), { content: 'question' });
     assert.deepEqual(deltas, ['வணக்கம் ', 'there']);
-    assert.equal(result.usage.remaining, 19);
+    assert.equal(result.message.id, 'm1');
     assert.equal(result.message.structured_response.status, 'missing_chart');
   } finally { globalThis.fetch = savedFetch; }
 });
@@ -69,6 +69,14 @@ test('SSE error events produce useful errors and EN/Tamil chat strings have matc
   for (const [key, value] of Object.entries(aiChatText.ta)) assert.ok(value.trim(), `Tamil text is empty: ${key}`);
   assert.match(aiChatText.en.disclaimer, /not scientific certainty/);
   assert.match(aiChatText.ta.disclaimer, /அறிவியல் உறுதி/);
+});
+
+test('chat Return submits while Shift+Return and IME composition do not', () => {
+  const { shouldSubmitChatOnEnter } = chatModule;
+  assert.equal(shouldSubmitChatOnEnter('Enter', false, false), true);
+  assert.equal(shouldSubmitChatOnEnter('Enter', true, false), false);
+  assert.equal(shouldSubmitChatOnEnter('Enter', false, true), false);
+  assert.equal(shouldSubmitChatOnEnter('a', false, false), false);
 });
 
 test('interrupted SSE connection rejects instead of treating partial assistant text as complete', async () => {
@@ -110,4 +118,24 @@ test('structured chat keeps calculated facts separate from sourced traditional i
   const tamil = renderToStaticMarkup(React.createElement(StructuredMessage, { response, language: 'ta' }));
   assert.match(tamil, /கணக்கிடப்பட்ட ஜாதகத் தகவல்கள்/);
   assert.match(tamil, /ஆதாரம் மற்றும் பதிப்பு/);
+});
+
+test('structured chat renders general educational content in English and Tamil without invented citations', () => {
+  const { StructuredMessage } = chatModule;
+  const response = {
+    status: 'answered', answer: 'General educational overview:', answer_fact_ids: [], answer_rule_ids: [],
+    sections: [
+      { section_type: 'general_education', text: 'The zodiac is commonly divided into twelve signs.', fact_ids: [], rule_ids: [], fact_references: [], rule_references: [] },
+      { section_type: 'limitation', text: 'This editorial overview has not been independently source-verified. Astrology is not scientifically established.', fact_ids: [], rule_ids: [], fact_references: [], rule_references: [] },
+    ],
+    metadata: { engine_version: '1.0.0', knowledge_base_version: '1.0.0', system: null, division: null, language: 'en', matched_rule_ids: [], content_classification: 'general_education', source_verification_status: 'not_independently_verified', education_topic: 'zodiac_signs' },
+  };
+  const english = renderToStaticMarkup(React.createElement(StructuredMessage, { response, language: 'en' }));
+  assert.match(english, /General educational overview/);
+  assert.match(english, /twelve signs/);
+  assert.match(english, /not been independently source-verified|not been independently/);
+  assert.doesNotMatch(english, /Chapter|Source and edition/);
+  const tamil = renderToStaticMarkup(React.createElement(StructuredMessage, { response, language: 'ta' }));
+  assert.match(tamil, /பொதுக் கல்வி விளக்கம்/);
+  assert.match(tamil, /வரம்பு/);
 });

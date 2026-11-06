@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Index, Integer, JSON, Numeric, String, Text, Time, Uuid, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Index, Integer, JSON, Numeric, String, Text, Time, Uuid, UniqueConstraint, false
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.base import Base
 
@@ -16,6 +16,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(32), default="USER")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    auth_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     preferred_language: Mapped[str] = mapped_column(String(5), default="en")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
@@ -137,6 +138,39 @@ class AIUsageDailyCounter(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, onupdate=now_utc)
 
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    __table_args__ = (Index("ix_password_reset_user_created", "user_id", "created_at"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
+class SecurityAuditEvent(Base):
+    __tablename__ = "security_audit_events"
+    __table_args__ = (Index("ix_security_audit_user_created", "user_id", "created_at"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    event_type: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
+class SecurityRateLimitBucket(Base):
+    __tablename__ = "security_rate_limit_buckets"
+    __table_args__ = (
+        UniqueConstraint("key_hash", "window_start", name="uq_security_rate_limit_key_window"),
+        Index("ix_security_rate_limit_window", "window_start"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    key_hash: Mapped[str] = mapped_column(String(64))
+    window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    request_count: Mapped[int] = mapped_column(Integer, default=0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
 class AIPromptVersion(Base):
     __tablename__ = "ai_prompt_versions"
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
@@ -232,15 +266,34 @@ class CompatibilityReport(Base):
 
 class HoroscopeContent(Base):
     __tablename__ = "horoscope_contents"
-    __table_args__ = (UniqueConstraint("period", "sign", "language", "starts_on", name="uq_horoscope_period_sign_lang_date"),)
+    __table_args__ = (UniqueConstraint("system", "period", "sign", "category", "language", "starts_on", name="uq_horoscope_scope_lang_date"),)
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    system: Mapped[str | None] = mapped_column(String(16), nullable=True)
     period: Mapped[str] = mapped_column(String(12))
     sign: Mapped[str] = mapped_column(String(32), index=True)
+    category: Mapped[str | None] = mapped_column(String(32), nullable=True)
     language: Mapped[str] = mapped_column(String(5))
     starts_on: Mapped[object] = mapped_column(Date)
     ends_on: Mapped[object] = mapped_column(Date)
     content: Mapped[str] = mapped_column(Text)
     approved: Mapped[bool] = mapped_column(Boolean, default=False)
+    source_references: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    source_verified: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    editorial_reviewed: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
+    reviewed_by: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class HoroscopeReviewEvent(Base):
+    """Auditable, independent review events for one bilingual horoscope scope."""
+    __tablename__ = "horoscope_review_events"
+    __table_args__ = (UniqueConstraint("scope_key", "stage", name="uq_horoscope_review_scope_stage"),)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    scope_key: Mapped[str] = mapped_column(String(64), index=True)
+    stage: Mapped[str] = mapped_column(String(32))
+    reviewer_email: Mapped[str] = mapped_column(String(320))
+    note: Mapped[str] = mapped_column(Text)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 
 class PanchangEntry(Base):
@@ -258,7 +311,12 @@ class PanchangEntry(Base):
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
-    __table_args__ = (Index("ix_audit_actor_created", "actor_user_id", "created_at"),)
+    # Keep the original migration's single-column index as well as the newer
+    # composite lookup index; Alembic must reflect the existing schema history.
+    __table_args__ = (
+        Index("ix_audit_logs_actor_user_id", "actor_user_id"),
+        Index("ix_audit_actor_created", "actor_user_id", "created_at"),
+    )
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     actor_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     action: Mapped[str] = mapped_column(String(100))

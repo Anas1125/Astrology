@@ -1,0 +1,458 @@
+{
+  "knowledge_base_version": "1.0.0",
+  "entries": [
+    {
+      "topic_id": "vedic_vs_western",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "Vedic (Jyotisha) and Western astrology are distinct historical traditions, each with multiple schools. Many contemporary Vedic chart systems use a sidereal zodiac, Nakshatras, and timing systems such as Vimshottari Dasha; many contemporary Western natal systems use a tropical zodiac and emphasize chart aspects. These are common tendencies, not rules followed by every practitioner. Astrology is a cultural and traditional belief system, not a scientifically established way to predict events or personality.",
+        "ta": "வேத (ஜோதிட) மற்றும் மேற்கத்திய ஜோதிடம் தனித்த வரலாற்றுப் பாரம்பரியங்கள்; ஒவ்வொன்றிலும் பல பள்ளிகள் உள்ளன. பல சமகால வேத ஜாதக முறைகள் நிராயண ராசிச்சக்கரம், நட்சத்திரங்கள், விம்சோத்தரி தசை போன்ற காலமுறைகளைப் பயன்படுத்துகின்றன; பல சமகால மேற்கத்திய பிறப்பு ஜாதக முறைகள் சாயன ராசிச்சக்கரத்தையும் கிரகப் பார்வைகளையும் வலியுறுத்துகின்றன. இவை பொதுவான நடைமுறைகள் மட்டுமே; எல்லா ஜோதிடர்களும் ஒரே முறையைப் பின்பற்றுவதில்லை. ஜோதிடம் பண்பாட்டு மற்றும் பாரம்பரிய நம்பிக்கை முறை; நிகழ்வுகள் அல்லது குணநலன்களை முன்கூட்டியே நிரூபிக்கப்பட்ட முறையில் கணிக்கும் அறிவியல் முறை அல்ல."
+      }
+    },
+    {
+      "topic_id": "zodiac_signs",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "The zodiac is commonly divided into twelve 30-degree signs: Aries (Mesha), Taurus (Vrishabha), Gemini (Mithuna), Cancer (Karka), Leo (Simha), Virgo (Kanya), Libra (Tula), Scorpio (Vrischika), Sagittarius (Dhanu), Capricorn (Makara), Aquarius (Kumbha), and Pisces (Meena). Vedic and Western systems can use different zodiac reference frames, so a sign placement may differ between them. Sign names and traditional meanings are part of astrological conventions, not scientific personality categories.",
+        "ta": "ராசிச்சக்கரம் பொதுவாக தலா 30 பாகை கொண்ட பன்னிரண்டு ராசிகளாகப் பிரிக்கப்படுகிறது: மேஷம், ரிஷபம், மிதுனம், கடகம், சிம்மம், கன்னி, துலாம், விருச்சிகம், தனுசு, மகரம், கும்பம், மீனம். வேத மற்றும் மேற்கத்திய முறைகள் வெவ்வேறு ராசிச்சக்கரக் குறிப்பு அடிப்படைகளைப் பயன்படுத்தக்கூடும்; அதனால் ஒரே கிரகத்தின் ராசி இரு முறைகளில் மாறலாம். ராசிப் பெயர்களும் அவற்றுடன் இணைக்கப்படும் பாரம்பரிய அர்த்தங்களும் ஜோதிட மரபைச் சேர்ந்தவை; அறிவியல் குணநலன் வகைப்பாடுகள் அல்ல."
+      }
+    },
+    {
+      "topic_id": "houses",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "Astrological houses are twelve numbered sectors of a chart, calculated with a chosen house system and the time and location used for that chart. Common traditional themes are: 1 self and body; 2 resources and speech; 3 communication and effort; 4 home and roots; 5 learning and creativity; 6 service and difficulties; 7 partnership; 8 shared matters and change; 9 belief and higher learning; 10 public role and work; 11 groups and gains; 12 retreat and release. These associations vary by school and are beliefs, not established facts. House boundaries depend on the house system and accuracy of the time input. Personal placements require a completed chart and must not be guessed.",
+        "ta": "ஜோதிடப் பாவங்கள் என்பது ஜாதகத்தில் கணக்கிடப்படும் பன்னிரண்டு எண் கொண்ட பகுதிகள். அவை தேர்ந்தெடுக்கப்பட்ட பாவ முறையையும் அந்த ஜாதகத்திற்குப் பயன்படுத்தப்படும் நேரம், இடத்தையும் சார்ந்தவை. பொதுவான பாரம்பரியத் தலைப்புகள்: 1 சுயம், உடல்; 2 வளங்கள், பேச்சு; 3 தொடர்பு, முயற்சி; 4 வீடு, வேர்கள்; 5 கற்றல், படைப்பாற்றல்; 6 சேவை, சவால்கள்; 7 கூட்டுறவு; 8 பகிரப்பட்ட விடயங்கள், மாற்றம்; 9 நம்பிக்கை, உயர்கல்வி; 10 பொதுப் பங்கு, தொழில்; 11 குழுக்கள், ஆதாயங்கள்; 12 ஓய்வு, விடுவித்தல். இவ்விணைப்புகள் பள்ளிக்கு ஏற்ப மாறுபடும்; அவை நிரூபிக்கப்பட்ட உண்மைகள் அல்ல. பாவ எல்லைகள் பாவ முறையையும் உள்ளீட்டு நேரத் துல்லியத்தையும் சாரும். தனிப்பட்ட நிலைகளுக்கு முடிக்கப்பட்ட ஜாதகம் தேவை; அவற்றை ஊகிக்கக் கூடாது."
+      }
+    },
+    {
+      "topic_id": "nine_vedic_planets",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "Navagraha means the nine grahas used in many Vedic astrology frameworks: Surya (Sun), Chandra (Moon), Mangala (Mars), Budha (Mercury), Brihaspati or Guru (Jupiter), Shukra (Venus), Shani (Saturn), Rahu, and Ketu. Here graha is a traditional astrological category, not a claim that all nine are physical planets. Rahu and Ketu refer to the ascending and descending lunar nodes; the Sun and Moon are a star and a natural satellite in astronomy.",
+        "ta": "பல வேத ஜோதிட முறைகளில் பயன்படுத்தப்படும் ஒன்பது கிரகக் கூறுகளை நவக்கிரகம் என்கிறார்கள்: சூரியன், சந்திரன், செவ்வாய், புதன், குரு, சுக்கிரன், சனி, ராகு, கேது. இங்கு ‘கிரகம்’ என்பது பாரம்பரிய ஜோதிட வகைப்பாடு; ஒன்பதும் வானியலில் இயற்பியல் கோள்கள் என்ற கூற்று அல்ல. ராகு, கேது சந்திரனின் ஏறுமுக மற்றும் இறங்குமுக முனைகளை குறிக்கின்றன; வானியலில் சூரியன் ஒரு நட்சத்திரம், சந்திரன் இயற்கைத் துணைக்கோள்."
+      }
+    },
+    {
+      "topic_id": "nakshatras",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "Many Vedic astrology systems divide the sidereal zodiac into 27 Nakshatras, lunar mansions, each spanning 13 degrees 20 minutes; each is commonly divided into four Padas. The names in one common sequence are Ashwini, Bharani, Krittika, Rohini, Mrigashirsha, Ardra, Punarvasu, Pushya, Ashlesha, Magha, Purva Phalguni, Uttara Phalguni, Hasta, Chitra, Swati, Vishakha, Anuradha, Jyeshtha, Mula, Purva Ashadha, Uttara Ashadha, Shravana, Dhanishta, Shatabhisha, Purva Bhadrapada, Uttara Bhadrapada, and Revati. Traditions and spellings vary.",
+        "ta": "பல வேத ஜோதிட முறைகள் நிராயண ராசிச்சக்கரத்தை 27 நட்சத்திரங்களாகப் பிரிக்கின்றன; ஒவ்வொன்றும் 13 பாகை 20 கலை அளவு கொண்டதாகவும், நான்கு பாதங்களாகப் பிரிக்கப்படுவதாகவும் பொதுவாகக் கூறப்படுகிறது. ஒரு பொதுவான வரிசை: அசுவினி, பரணி, கார்த்திகை, ரோகிணி, மிருகசீரிடம், திருவாதிரை, புனர்பூசம், பூசம், ஆயில்யம், மகம், பூரம், உத்திரம், ஹஸ்தம், சித்திரை, சுவாதி, விசாகம், அனுஷம், கேட்டை, மூலம், பூராடம், உத்திராடம், திருவோணம், அவிட்டம், சதயம், பூரட்டாதி, உத்திரட்டாதி, ரேவதி. மரபுகளிலும் எழுத்தாக்கங்களிலும் வேறுபாடுகள் இருக்கலாம்."
+      }
+    },
+    {
+      "topic_id": "rahu_ketu",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "In Vedic astrology, Rahu and Ketu are treated as grahas and are associated with the two lunar nodes, where the Moon's orbit crosses the ecliptic. They are opposite points, not physical planets or bodies. Astrological schools attach traditional meanings to them, but those meanings are not scientific findings and differ among traditions.",
+        "ta": "வேத ஜோதிடத்தில் ராகு, கேது கிரகங்களாகக் கருதப்படுகின்றன; அவை சந்திரப் பாதையும் கிராந்திவட்டமும் சந்திக்கும் இரண்டு முனைகளைக் குறிக்கின்றன. அவை ஒன்றுக்கொன்று எதிரான கணிதப் புள்ளிகள்; இயற்பியல் கோள்களோ வான்பொருட்களோ அல்ல. ஜோதிடப் பள்ளிகள் அவற்றுக்கு பாரம்பரிய அர்த்தங்களை வழங்குகின்றன; அவை அறிவியல் கண்டுபிடிப்புகள் அல்ல, மரபுகளுக்கு இடையே மாறுபடும்."
+      }
+    },
+    {
+      "topic_id": "elements_modalities",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "In common Western astrology, signs are grouped into four elements—fire, earth, air, and water—and three modalities—cardinal, fixed, and mutable. Each modality appears once in each element group across the zodiac. These are symbolic classification schemes within astrology; they do not describe the physical composition or scientifically measured personality of a person. Other astrological traditions use different frameworks.",
+        "ta": "பொதுவான மேற்கத்திய ஜோதிடத்தில் ராசிகள் நான்கு தன்மைகளாக—நெருப்பு, நிலம், காற்று, நீர்—மற்றும் மூன்று இயக்க வகைகளாக—தொடக்க, நிலை, மாறும்—வகைப்படுத்தப்படுகின்றன. ராசிச்சக்கரத்தில் ஒவ்வொரு தன்மைக் குழுவிலும் ஒவ்வொரு இயக்க வகையும் இடம்பெறும். இவை ஜோதிடத்தின் குறியீட்டு வகைப்பாடுகள்; மனிதரின் உடல் அமைப்பையோ அறிவியலால் அளவிடப்பட்ட குணநலனையோ விவரிப்பதில்லை. பிற ஜோதிட மரபுகள் வேறு கட்டமைப்புகளைப் பயன்படுத்தலாம்."
+      }
+    },
+    {
+      "topic_id": "d1_d9",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "In Vedic chart notation, D1 usually means the Rashi or main birth chart. D9 usually means Navamsa, a divisional chart formed by dividing each sign into nine parts under a specified traditional mapping. Their role and interpretation vary across schools. D9 is derived from the same chart inputs and is especially sensitive to time-input accuracy; it is not an independently observed astronomical chart or a substitute for verified calculation.",
+        "ta": "வேத ஜாதகக் குறியீட்டில் D1 பொதுவாக ராசி அல்லது முதன்மைப் பிறப்பு ஜாதகத்தைக் குறிக்கும். D9 என்பது பொதுவாக நவாம்சம்; ஒவ்வொரு ராசியையும் ஒன்பது பகுதிகளாகப் பிரிக்கும் குறிப்பிட்ட பாரம்பரிய முறையால் உருவாகும் துணை ஜாதகம். அவற்றின் பங்கும் விளக்கமும் பள்ளிக்கு ஏற்ப மாறுபடும். D9 அதே ஜாதக உள்ளீடுகளிலிருந்து பெறப்படுகிறது; உள்ளீட்டு நேரத் துல்லியத்திற்கு மிகவும் உணர்வானது. அது தனியாகக் கண்காணிக்கப்பட்ட வானியல் ஜாதகமோ சரிபார்க்கப்பட்ட கணக்கீட்டுக்குப் பதிலோ அல்ல."
+      }
+    },
+    {
+      "topic_id": "vimshottari_dasha",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "Vimshottari Dasha is a timing framework used in many Vedic astrology traditions. It assigns sequential major periods (Mahadashas) to nine lords in a 120-year cycle, with shorter subperiods (Antardashas) nested within them. A chart-based starting period and its balance depend on the Moon's calculated Nakshatra and birth time. Year-length conventions can differ; AstroAI's chart engine records its configured convention. This is a traditional astrological framework, not a scientifically validated forecast.",
+        "ta": "விம்சோத்தரி தசை பல வேத ஜோதிட மரபுகளில் பயன்படுத்தப்படும் காலக் கட்டமைப்பு. 120 ஆண்டு சுழற்சியில் ஒன்பது அதிபதிகளுக்கு வரிசையாக மகாதசைகள் வழங்கப்பட்டு, அவற்றுக்குள் குறுகிய அந்தர்தசைகள் அமைக்கப்படுகின்றன. தொடக்கத் தசையும் பிறப்பில் மீதமுள்ள காலமும் கணக்கிடப்பட்ட சந்திர நட்சத்திரத்தையும் பிறந்த நேரத்தையும் சாரும். ஆண்டு நீளக் கணிப்பு மரபுக்கு ஏற்ப மாறலாம்; AstroAI பயன்படுத்திய முறையை கணக்கீட்டுத் தகவலில் பதிவு செய்கிறது. இது பாரம்பரிய ஜோதிடக் கட்டமைப்பு; அறிவியல் ரீதியாகச் சரிபார்க்கப்பட்ட முன்னறிவிப்பு அல்ல."
+      }
+    },
+    {
+      "topic_id": "terminology",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "Astrology is a family of symbolic systems that interpret celestial positions through traditional frameworks; its predictive claims are not scientifically established. Terminology varies by tradition. A natal or birth chart is a diagram calculated for a time and place; a sign is a zodiac division; a house is a chart sector defined by a house system; an aspect is an angular relationship between chart positions; a transit compares current positions with a natal chart; and an Ascendant is the zodiac point rising on the eastern horizon at a specified time and location.",
+        "ta": "ஜோதிடம் என்பது வான்பொருட்களின் நிலைகளைப் பாரம்பரியக் குறியீட்டு கட்டமைப்புகளால் விளக்கும் பல முறைகளைக் கொண்டது; அதன் கணிப்பு கூற்றுகள் அறிவியல் ரீதியாக நிறுவப்படவில்லை. சொற்கள் மரபுக்கு ஏற்ப மாறலாம். பிறப்பு ஜாதகம் என்பது குறிப்பிட்ட நேரம், இடத்திற்காகக் கணக்கிடப்படும் வரைபடம்; ராசி என்பது ராசிச்சக்கரப் பிரிவு; பாவம் என்பது பாவ முறையால் வரையறுக்கப்படும் ஜாதகப் பகுதி; பார்வை என்பது ஜாதக நிலைகளுக்கிடையிலான கோண உறவு; கோச்சாரம் என்பது தற்போதைய நிலைகளைப் பிறப்பு ஜாதகத்துடன் ஒப்பிடுவது; லக்னம் என்பது குறிப்பிட்ட நேரம், இடத்தில் கிழக்கு அடிவானத்தில் எழும் ராசிப் புள்ளி."
+      }
+    },
+    {
+      "topic_id": "nakshatra_padas",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "In the common 27-Nakshatra framework, each Nakshatra is divided into four Padas (quarters), making 108 Padas in total. A Pada is a subdivision used in traditional chart systems; it is not by itself a personal placement. Traditions and calculation conventions can vary.",
+        "ta": "பொதுவான 27 நட்சத்திரக் கட்டமைப்பில் ஒவ்வொரு நட்சத்திரமும் நான்கு பாதங்களாகப் பிரிக்கப்படுகிறது; மொத்தம் 108 பாதங்கள். பாதம் என்பது பாரம்பரிய ஜாதக முறைகளில் பயன்படுத்தப்படும் உட்பிரிவு; அது தனியாக ஒருவரின் ஜாதக நிலை அல்ல. மரபுகளிலும் கணக்கீட்டு வழக்கங்களிலும் வேறுபாடுகள் இருக்கலாம்."
+      }
+    },
+    {
+      "topic_id": "nakshatra_detail",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "{name} is listed as Nakshatra number {ordinal} in one common 27-Nakshatra sequence. In that framework, each Nakshatra spans 13 degrees 20 minutes and has four Padas. Individual traditional characteristics differ by source and school; AstroAI does not currently have independently source-verified material for a detailed traditional profile of this Nakshatra.",
+        "ta": "ஒரு பொதுவான 27 நட்சத்திர வரிசையில் {name} {ordinal}-ஆவது நட்சத்திரமாகப் பட்டியலிடப்படுகிறது. அந்தக் கட்டமைப்பில் ஒவ்வொரு நட்சத்திரமும் 13 பாகை 20 கலை அளவு கொண்டது; நான்கு பாதங்களாகப் பிரிக்கப்படுகிறது. தனிப்பட்ட பாரம்பரிய குணவிளக்கங்கள் நூலுக்கும் பள்ளிக்கும் ஏற்ப மாறுபடும்; இந்த நட்சத்திரத்திற்கான விரிவான பாரம்பரிய விளக்கத்தை ஆதாரங்களுடன் AstroAI இன்னும் தனியாகச் சரிபார்க்கவில்லை."
+      }
+    },
+    {
+      "topic_id": "nakshatra_ruling_planet",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "In one common Vimshottari Nakshatra-lord sequence, {name} is assigned to {ruler}. This is a traditional classification used by that framework, not a scientific finding; conventions may vary. AstroAI has not independently source-verified this editorial mapping.",
+        "ta": "பொதுவாகப் பயன்படுத்தப்படும் ஒரு விம்சோத்தரி நட்சத்திர அதிபதி வரிசையில் {name}-க்கு {ruler} ஒதுக்கப்படுகிறது. இது அந்தக் கட்டமைப்பின் பாரம்பரிய வகைப்பாடு; அறிவியல் கண்டுபிடிப்பு அல்ல, வழக்கங்கள் மாறலாம். இந்தத் தொகுப்பாசிரியர் குறிப்பு AstroAI-யால் ஆதாரங்களுடன் தனியாகச் சரிபார்க்கப்படவில்லை."
+      }
+    },
+    {
+      "topic_id": "nakshatra_chart_method",
+      "classification": "general_education",
+      "editorial_status": "editorial_draft",
+      "source_verification_status": "not_independently_verified",
+      "source_references": [],
+      "overview": {
+        "en": "In general Vedic chart practice, a Nakshatra is identified from a calculated sidereal longitude using a chosen convention; its Pada is the quarter containing that position. Practitioners may consider this alongside the sign, house, relevant planetary relationships, and a timing framework such as Dasha, with methods differing among schools. This describes a general method only, not your chart; personal placements require a completed, verified chart. These are traditional practices, not scientifically established claims.",
+        "ta": "பொதுவான வேத ஜாதக நடைமுறையில், தேர்ந்தெடுக்கப்பட்ட கணக்கீட்டு மரபின்படி கணக்கிடப்பட்ட நிராயண நீளாங்கத்திலிருந்து நட்சத்திரம் அடையாளம் காணப்படுகிறது; அந்த நிலை உள்ள கால்பகுதியே பாதம். பள்ளிக்கு ஏற்ப, இதை ராசி, பாவம், தொடர்புடைய கிரக உறவுகள், தசை போன்ற காலமுறைகளுடன் இணைத்துப் பார்க்கலாம். இது பொதுவான முறையை மட்டும் விளக்குகிறது; உங்கள் ஜாதகத்தை அல்ல. தனிப்பட்ட நிலைகளுக்கு முடிக்கப்பட்டு சரிபார்க்கப்பட்ட ஜாதகம் தேவை. இவை பாரம்பரிய நடைமுறைகள்; அறிவியல் ரீதியாக நிறுவப்பட்ட கூற்றுகள் அல்ல."
+      }
+    }
+  ],
+  "nakshatra_subjects": {
+    "Ashwini": {
+      "name": {
+        "en": "Ashwini",
+        "ta": "அசுவினி"
+      },
+      "ordinal": 1,
+      "ruling_planet": {
+        "en": "Ketu",
+        "ta": "கேது"
+      }
+    },
+    "Bharani": {
+      "name": {
+        "en": "Bharani",
+        "ta": "பரணி"
+      },
+      "ordinal": 2,
+      "ruling_planet": {
+        "en": "Venus",
+        "ta": "சுக்கிரன்"
+      }
+    },
+    "Krittika": {
+      "name": {
+        "en": "Krittika",
+        "ta": "கார்த்திகை"
+      },
+      "ordinal": 3,
+      "ruling_planet": {
+        "en": "Sun",
+        "ta": "சூரியன்"
+      }
+    },
+    "Rohini": {
+      "name": {
+        "en": "Rohini",
+        "ta": "ரோகிணி"
+      },
+      "ordinal": 4,
+      "ruling_planet": {
+        "en": "Moon",
+        "ta": "சந்திரன்"
+      }
+    },
+    "Mrigashirsha": {
+      "name": {
+        "en": "Mrigashirsha",
+        "ta": "மிருகசீரிடம்"
+      },
+      "ordinal": 5,
+      "ruling_planet": {
+        "en": "Mars",
+        "ta": "செவ்வாய்"
+      }
+    },
+    "Ardra": {
+      "name": {
+        "en": "Ardra",
+        "ta": "திருவாதிரை"
+      },
+      "ordinal": 6,
+      "ruling_planet": {
+        "en": "Rahu",
+        "ta": "ராகு"
+      }
+    },
+    "Punarvasu": {
+      "name": {
+        "en": "Punarvasu",
+        "ta": "புனர்பூசம்"
+      },
+      "ordinal": 7,
+      "ruling_planet": {
+        "en": "Jupiter",
+        "ta": "குரு"
+      }
+    },
+    "Pushya": {
+      "name": {
+        "en": "Pushya",
+        "ta": "பூசம்"
+      },
+      "ordinal": 8,
+      "ruling_planet": {
+        "en": "Saturn",
+        "ta": "சனி"
+      }
+    },
+    "Ashlesha": {
+      "name": {
+        "en": "Ashlesha",
+        "ta": "ஆயில்யம்"
+      },
+      "ordinal": 9,
+      "ruling_planet": {
+        "en": "Mercury",
+        "ta": "புதன்"
+      }
+    },
+    "Magha": {
+      "name": {
+        "en": "Magha",
+        "ta": "மகம்"
+      },
+      "ordinal": 10,
+      "ruling_planet": {
+        "en": "Ketu",
+        "ta": "கேது"
+      }
+    },
+    "Purva Phalguni": {
+      "name": {
+        "en": "Purva Phalguni",
+        "ta": "பூரம்"
+      },
+      "ordinal": 11,
+      "ruling_planet": {
+        "en": "Venus",
+        "ta": "சுக்கிரன்"
+      }
+    },
+    "Uttara Phalguni": {
+      "name": {
+        "en": "Uttara Phalguni",
+        "ta": "உத்திரம்"
+      },
+      "ordinal": 12,
+      "ruling_planet": {
+        "en": "Sun",
+        "ta": "சூரியன்"
+      }
+    },
+    "Hasta": {
+      "name": {
+        "en": "Hasta",
+        "ta": "அஸ்தம்"
+      },
+      "ordinal": 13,
+      "ruling_planet": {
+        "en": "Moon",
+        "ta": "சந்திரன்"
+      }
+    },
+    "Chitra": {
+      "name": {
+        "en": "Chitra",
+        "ta": "சித்திரை"
+      },
+      "ordinal": 14,
+      "ruling_planet": {
+        "en": "Mars",
+        "ta": "செவ்வாய்"
+      }
+    },
+    "Swati": {
+      "name": {
+        "en": "Swati",
+        "ta": "சுவாதி"
+      },
+      "ordinal": 15,
+      "ruling_planet": {
+        "en": "Rahu",
+        "ta": "ராகு"
+      }
+    },
+    "Vishakha": {
+      "name": {
+        "en": "Vishakha",
+        "ta": "விசாகம்"
+      },
+      "ordinal": 16,
+      "ruling_planet": {
+        "en": "Jupiter",
+        "ta": "குரு"
+      }
+    },
+    "Anuradha": {
+      "name": {
+        "en": "Anuradha",
+        "ta": "அனுஷம்"
+      },
+      "ordinal": 17,
+      "ruling_planet": {
+        "en": "Saturn",
+        "ta": "சனி"
+      }
+    },
+    "Jyeshtha": {
+      "name": {
+        "en": "Jyeshtha",
+        "ta": "கேட்டை"
+      },
+      "ordinal": 18,
+      "ruling_planet": {
+        "en": "Mercury",
+        "ta": "புதன்"
+      }
+    },
+    "Mula": {
+      "name": {
+        "en": "Mula",
+        "ta": "மூலம்"
+      },
+      "ordinal": 19,
+      "ruling_planet": {
+        "en": "Ketu",
+        "ta": "கேது"
+      }
+    },
+    "Purva Ashadha": {
+      "name": {
+        "en": "Purva Ashadha",
+        "ta": "பூராடம்"
+      },
+      "ordinal": 20,
+      "ruling_planet": {
+        "en": "Venus",
+        "ta": "சுக்கிரன்"
+      }
+    },
+    "Uttara Ashadha": {
+      "name": {
+        "en": "Uttara Ashadha",
+        "ta": "உத்திராடம்"
+      },
+      "ordinal": 21,
+      "ruling_planet": {
+        "en": "Sun",
+        "ta": "சூரியன்"
+      }
+    },
+    "Shravana": {
+      "name": {
+        "en": "Shravana",
+        "ta": "திருவோணம்"
+      },
+      "ordinal": 22,
+      "ruling_planet": {
+        "en": "Moon",
+        "ta": "சந்திரன்"
+      }
+    },
+    "Dhanishta": {
+      "name": {
+        "en": "Dhanishta",
+        "ta": "அவிட்டம்"
+      },
+      "ordinal": 23,
+      "ruling_planet": {
+        "en": "Mars",
+        "ta": "செவ்வாய்"
+      }
+    },
+    "Shatabhisha": {
+      "name": {
+        "en": "Shatabhisha",
+        "ta": "சதயம்"
+      },
+      "ordinal": 24,
+      "ruling_planet": {
+        "en": "Rahu",
+        "ta": "ராகு"
+      }
+    },
+    "Purva Bhadrapada": {
+      "name": {
+        "en": "Purva Bhadrapada",
+        "ta": "பூரட்டாதி"
+      },
+      "ordinal": 25,
+      "ruling_planet": {
+        "en": "Jupiter",
+        "ta": "குரு"
+      }
+    },
+    "Uttara Bhadrapada": {
+      "name": {
+        "en": "Uttara Bhadrapada",
+        "ta": "உத்திரட்டாதி"
+      },
+      "ordinal": 26,
+      "ruling_planet": {
+        "en": "Saturn",
+        "ta": "சனி"
+      }
+    },
+    "Revati": {
+      "name": {
+        "en": "Revati",
+        "ta": "ரேவதி"
+      },
+      "ordinal": 27,
+      "ruling_planet": {
+        "en": "Mercury",
+        "ta": "புதன்"
+      }
+    }
+  }
+}

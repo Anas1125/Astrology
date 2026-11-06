@@ -1,0 +1,53 @@
+/* AstroAI Panchang — ivory and champagne-gold theme */
+.panchang-page{max-width:950px;padding:36px 0 42px;color:#302b25}
+.module-heading h1{font:700 30px Manrope,sans-serif;letter-spacing:-.7px;margin:10px 0 6px;color:#302b25}
+.module-heading>p{max-width:740px;margin:0;color:#706658;font-size:15px;line-height:1.65}
+.panchang-form{display:grid;gap:16px;margin-top:23px;padding:20px;border:1px solid #e7dcc8;border-radius:14px;background:#fffdf8;box-shadow:0 8px 26px rgba(75,58,31,.055)}
+.panchang-form label{display:grid;gap:7px;color:#554b3e;font-size:14px}
+.panchang-form input,.panchang-form select{width:100%;height:44px;min-width:0;border:1px solid #dfd2bd;background:#fff;color:#302b25;border-radius:8px;padding:0 12px;font:15px 'DM Sans',sans-serif;box-shadow:inset 0 1px 2px rgba(74,58,35,.025)}
+.panchang-form input::placeholder{color:#a69a87;opacity:1}
+.panchang-form input:focus,.panchang-form select:focus{outline:2px solid rgba(196,158,83,.38);outline-offset:1px;border-color:#c9a765}
+.panchang-form input:disabled,.panchang-form select:disabled{background:#f4f0e8;color:#8b806e}
+.panchang-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panchang-wide{grid-column:1/-1}
+.panchang-form .primary-btn{min-height:44px;justify-content:center;font-size:15px;box-shadow:0 3px 8px rgba(151,115,48,.12)}
+.panchang-form .primary-btn:disabled{opacity:.58;cursor:not-allowed}
+.panchang-hint{margin:0;color:#817563;font-size:14px;line-height:1.5}
+.panchang-error,.panchang-unavailable{border:1px solid #e7c9c2;border-radius:9px;background:#fff5f2;color:#8e443b;padding:14px 16px;font-size:14px;line-height:1.6}
+.panchang-unavailable{margin-top:15px}
+.panchang-unavailable p{margin:0}
+.panchang-result{margin-top:18px;padding:18px;border:1px solid #e7dcc8;border-radius:14px;background:#fffdf8;box-shadow:0 8px 26px rgba(75,58,31,.045);color:#302b25}
+.panchang-result-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid #eee5d7}
+.panchang-result-heading>div{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#a47c35}
+.panchang-result-heading strong{color:#302b25;font-size:16px}
+.panchang-result-heading span,.panchang-result-heading small{color:#786e60;font-size:13px}
+.panchang-time-grid,.panchang-element-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:14px}
+.panchang-time-grid>div,.panchang-element-grid>div{display:grid;gap:5px;padding:13px;border:1px solid #eee3d1;border-radius:10px;background:#faf6ee}
+.panchang-time-grid svg{color:#b18b45}
+.panchang-time-grid small,.panchang-element-grid small{font-size:13px;color:#827665}
+.panchang-time-grid strong,.panchang-element-grid strong{font-size:16px;color:#554329}
+.panchang-element-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.panchang-method{margin-top:16px;border-top:1px solid #eee5d7;padding-top:14px;color:#625849}
+.panchang-method summary{font-size:14px;cursor:pointer;color:#9b742f}
+.panchang-method p{font-size:14px;line-height:1.65;color:#625849}
+.panchang-method>small{font-size:12px;color:#817665}
+.panchang-window-section{margin-top:18px}
+.panchang-window-section h2{margin:0 0 10px;color:#98712f;font-size:15px;font-weight:600}
+.panchang-window-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.panchang-window-grid>div{display:grid;gap:6px;padding:12px;border:1px solid #eee3d1;border-radius:10px;background:#faf6ee}
+.panchang-window-grid small{color:#827665;font-size:12px}
+.panchang-window-grid strong{color:#554329;font-size:14px}
+.panchang-empty-state{margin-top:18px;padding:15px 18px;border:1px solid #e7dcc8;border-radius:12px;background:#fffdf8;color:#786e60}
+.panchang-empty-state p{margin:0;line-height:1.6}
+@media(max-width:850px){.panchang-element-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){.panchang-page{padding-top:25px}.panchang-form{padding:14px}.panchang-form-grid,.panchang-time-grid,.panchang-element-grid{grid-template-columns:1fr}.panchang-wide{grid-column:auto}.panchang-result{padding:13px}.panchang-result-heading{align-items:flex-start;flex-direction:column}.panchang-window-grid{grid-template-columns:1fr}}
+
+
+/* PANCHANG_LOCATION_SEARCH_V1 */
+.panchang-place-field { position: relative; min-width: 0; display: grid; gap: 7px; }
+.panchang-place-field > label { display: block; }
+.panchang-place-suggestions { position: relative; z-index: 5; display: grid; gap: 4px; max-height: 240px; overflow-y: auto; padding: 6px; border: 1px solid var(--border, #e7dcc6); border-radius: 12px; background: var(--surface, #fffdf8); box-shadow: 0 10px 28px rgba(45, 35, 20, .12); }
+.panchang-place-suggestions button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.panchang-place-suggestions button:hover, .panchang-place-suggestions button:focus-visible { background: rgba(212, 175, 99, .14); outline: none; }
+.panchang-place-suggestions button > span { display: grid; gap: 2px; min-width: 0; }
+.panchang-place-suggestions small { opacity: .72; font-size: 11px; }

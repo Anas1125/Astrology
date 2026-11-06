@@ -12,5 +12,5 @@ export function ChartEmptyState({ language, onManageProfiles, noProfiles = false
 }
 
 export function ChartErrorState({ language, message, unavailable = false, onRetry }: { language: AstroLanguage; message: string; unavailable?: boolean; onRetry?: () => void }) {
-  return <div className={`chart-alert ${unavailable ? 'unavailable' : 'error'}`} role="alert"><div><b>{astroLabel(language, unavailable ? 'unavailableTitle' : 'errorTitle')}</b><p>{unavailable ? astroLabel(language, 'unavailableDescription') : message}</p>{unavailable && <small>{message}</small>}</div>{onRetry && <button onClick={onRetry}>{astroLabel(language, 'retry')}</button>}</div>;
+  return <div className={`chart-alert ${unavailable ? 'unavailable' : 'error'}`} role="alert"><div><b>{astroLabel(language, unavailable ? 'unavailableTitle' : 'errorTitle')}</b><p>{unavailable ? astroLabel(language, 'unavailableDescription') : message}</p>{unavailable && !/disabled intentionally|licensing approval/i.test(message) && <small>{message}</small>}</div>{onRetry && !unavailable && <button onClick={onRetry}>{astroLabel(language, 'retry')}</button>}</div>;
 }

@@ -11,6 +11,7 @@ let utils;
 let vedicModule;
 let westernModule;
 let feedbackModule;
+let dignityModule;
 
 before(async () => {
   vite = await createServer({
@@ -20,13 +21,14 @@ before(async () => {
     logLevel: 'silent',
     server: { middlewareMode: true },
   });
-  [api, i18n, utils, vedicModule, westernModule, feedbackModule] = await Promise.all([
+  [api, i18n, utils, vedicModule, westernModule, feedbackModule, dignityModule] = await Promise.all([
     vite.ssrLoadModule('/src/auth/api.ts'),
     vite.ssrLoadModule('/src/astrology/i18n.ts'),
     vite.ssrLoadModule('/src/astrology/chartUtils.ts'),
     vite.ssrLoadModule('/src/astrology/VedicChartView.tsx'),
     vite.ssrLoadModule('/src/astrology/WesternChartView.tsx'),
     vite.ssrLoadModule('/src/astrology/ChartFeedback.tsx'),
+    vite.ssrLoadModule('/src/astrology/VedicDignitySection.tsx'),
   ]);
 });
 
@@ -61,6 +63,38 @@ test('chart API sends exact authenticated requests, history filters and saved re
   } finally { globalThis.fetch = savedFetch; }
 });
 
+test('Vedic dignity API uses authenticated saved-chart endpoint', async () => {
+  let request;
+  globalThis.fetch = async (url, init) => {
+    request = { url: String(url), init };
+    return new Response(JSON.stringify({ status: 'provisional', planets: [] }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    await api.getVedicDignity('session-jwt', 'chart-123');
+    assert.equal(request.url, 'http://localhost:8000/api/v1/astrology/charts/chart-123/vedic-dignity');
+    assert.equal(request.init.method, 'GET');
+    assert.equal(request.init.headers.Authorization, 'Bearer session-jwt');
+  } finally { globalThis.fetch = savedFetch; }
+});
+
+test('Vedic dignity section renders classifications and limitations in English and Tamil', () => {
+  const analysis = { status: 'provisional', source_locator: 'Chapter 3, verses 49-55', ruleset_id: 'provisional-v1', source_references: [{ source_id: 'vedic.bphs.web', url: 'https://example.test', edition_id: 'edition-unverified' }], planets: [
+    { planet: 'Sun', rashi: 'Mesha', degree_in_rashi: 10.25, dignity: 'exalted', sign_lord: 'Mars', relationship_to_sign_lord: 'friend' },
+  ] };
+  const render = language => renderToStaticMarkup(React.createElement(dignityModule.VedicDignitySection, { analysis, loading: false, error: '', language }));
+  const english = render('en');
+  const tamil = render('ta');
+  assert.match(english, /Planetary dignity/);
+  assert.match(english, /Exalted sign/);
+  assert.match(english, /Within the exaltation range/);
+  assert.match(english, /edition unverified/);
+  assert.match(english, /not scientifically established/);
+  assert.match(tamil, /கிரக கண்ணியம்/);
+  assert.match(tamil, /உச்ச ராசி/);
+  assert.match(tamil, /தற்காலிக விதிமுறையில்/);
+  assert.match(tamil, /அறிவியல் முறைகள் அல்ல/);
+});
+
 test('chart API retains backend gate status and error detail', async () => {
   globalThis.fetch = async () => new Response(JSON.stringify({ detail: 'Calculation disabled by server configuration' }), { status: 503 });
   try {
@@ -75,7 +109,7 @@ const vedic = {
     { name: 'Moon', longitude: 44, retrograde: false, house: 2, nakshatra: { index: 3, name: 'Rohini', lord: 'Moon', pada: 1, remaining_fraction: 0.6, degrees_remaining: 8, rashi: 'Vrishabha', degrees_in_rashi: 14 }, division_rashi: 'Karka', division_rashi_index: 3, division_longitude: 104, division_house: 4 },
   ], houses: houseSet, division_houses: houseSet,
   ascendant: { longitude: 5, rashi: 'Mesha', rashi_index: 0, house: 1, division_longitude: 95, division_rashi: 'Karka', division_rashi_index: 3, division_house: 1 },
-  vimshottari_dasha: { year_convention: 'savana_360_day', year_length_days: 360, starting_nakshatra: 'Ashwini', starting_lord: 'Ketu', birth_balance_days: 100, mahadashas: [{ lord: 'Ketu', start: '2020-01-01T00:00:00Z', end: '2027-01-01T00:00:00Z', full_duration_days: 2520, balance_days_at_birth: 100 }], antardashas: [{ lord: 'Venus', mahadasha_lord: 'Ketu', start: '2021-01-01T00:00:00Z', end: '2022-01-01T00:00:00Z', full_duration_days: 360 }] },
+  vimshottari_dasha: { year_convention: 'savana_360_day', year_length_days: 360, starting_nakshatra: 'Ashwini', starting_lord: 'Ketu', birth_balance_days: 100, mahadashas: [{ lord: 'Ketu', start: '2020-01-01T00:00:00Z', end: '2027-01-01T00:00:00Z', full_duration_days: 2520, balance_days_at_birth: 100 }], antardashas: [{ lord: 'Venus', mahadasha_lord: 'Ketu', start: '2021-01-01T00:00:00Z', end: '2022-01-01T00:00:00Z', full_duration_days: 360 }], pratyantardashas: [{ lord: 'Sun', mahadasha_lord: 'Ketu', antardasha_lord: 'Venus', start: '2021-02-01T00:00:00Z', end: '2021-03-01T00:00:00Z', full_duration_days: 28 }] },
 };
 const western = {
   calculation_system: 'western', planets: [
@@ -103,6 +137,7 @@ test('Vedic view renders response placements, Nakshatra, dasha and D1/D9 layouts
   assert.match(d1, /Ashwini/);
   assert.match(d1, /Pada/);
   assert.match(d1, /Vimshottari Mahadasha/);
+  assert.match(d1, /Pratyantardasha/);
   assert.match(d1, /360-day Savana/);
   assert.match(d9, /Karka/);
   assert.match(north, /வடஇந்திய பாவக் கட்டம்/);
@@ -124,7 +159,15 @@ test('chart feedback covers loading, empty, unavailable and error states in Engl
   const { ChartLoadingState, ChartEmptyState, ChartErrorState } = feedbackModule;
   assert.match(renderToStaticMarkup(React.createElement(ChartLoadingState, { language: 'en' })), /Calculating/);
   assert.match(renderToStaticMarkup(React.createElement(ChartEmptyState, { language: 'ta', noProfiles: true })), /பிறப்பு விவரத்தைச் சேர்க்கவும்/);
-  assert.match(renderToStaticMarkup(React.createElement(ChartErrorState, { language: 'en', message: 'Server disabled', unavailable: true })), /Chart calculation unavailable/);
+  const unavailableEn = renderToStaticMarkup(React.createElement(ChartErrorState, { language: 'en', message: 'Calculations disabled intentionally', unavailable: true, onRetry: () => {} }));
+  assert.match(unavailableEn, /Chart calculation unavailable/);
+  assert.match(unavailableEn, /No chart was calculated or saved/);
+  assert.match(unavailableEn, /licensing approval/);
+  assert.doesNotMatch(unavailableEn, /Try again/);
+  const unavailableTa = renderToStaticMarkup(React.createElement(ChartErrorState, { language: 'ta', message: 'கணக்கீடு முடக்கப்பட்டது', unavailable: true, onRetry: () => {} }));
+  assert.match(unavailableTa, /முடக்கப்பட்டுள்ளது/);
+  assert.match(unavailableTa, /கணக்கிடப்படவோ சேமிக்கப்படவோ இல்லை/);
+  assert.doesNotMatch(unavailableTa, /மீண்டும் முயற்சி/);
   assert.match(renderToStaticMarkup(React.createElement(ChartErrorState, { language: 'ta', message: 'பிழை' })), /ஜாதகத்தை ஏற்ற முடியவில்லை/);
 });
 

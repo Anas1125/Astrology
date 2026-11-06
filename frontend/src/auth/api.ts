@@ -29,8 +29,8 @@ export function register(email: string, password: string) {
   return request<TokenResponse>('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) });
 }
 
-export function login(email: string, password: string) {
-  const form = new URLSearchParams({ username: email, password });
+export function login(email: string, password: string, rememberMe = false) {
+  const form = new URLSearchParams({ username: email, password, remember_me: String(rememberMe) });
   return request<TokenResponse>('/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -60,6 +60,106 @@ export type BirthProfileInput = Omit<BirthProfile, 'id'>;
 
 export function listBirthProfiles(token: string) {
   return request<BirthProfile[]>('/profiles', { method: 'GET' }, token);
+}
+
+export type LocationSuggestion = {
+  id: string; city: string; region: string | null; country: string; latitude: number;
+  longitude: number; timezone: string | null; attribution: string;
+};
+
+export function searchBirthplaces(token: string, query: string, language: 'en' | 'ta', signal?: AbortSignal) {
+  const params = new URLSearchParams({ q: query, language });
+  return request<LocationSuggestion[]>(`/profiles/location-search?${params}`, { method: 'GET', signal }, token);
+}
+
+export type PanchangResult = {
+  local_date: string;
+  calculated_at: string;
+  location_name: string;
+  timezone: string;
+  sunrise: string;
+  sunset: string;
+  elements_at: 'sunrise';
+  tithi: { index: number; name: string; paksha: string };
+  vara: { index: number; name: string };
+  nakshatra: { index: number; name: string; longitude: number };
+  yoga: { index: number; name: string };
+  karana: { index: number; name: string };
+  daytime_windows: Record<'rahu_kalam' | 'yamagandam' | 'gulika_kalam' | 'abhijit_muhurta', {
+    part: number; parts_in_daylight: number; start: string; end: string;
+  }>;
+  transitions: Record<'tithi' | 'nakshatra' | 'yoga' | 'karana', { at: string; next_index: number; next_name: string; next_paksha?: string }>;
+  calculation: Record<string, string>;
+};
+
+export function calculateDailyPanchang(token: string, input: {
+  local_date: string; location_name: string; latitude: number; longitude: number; timezone: string;
+}) {
+  return request<PanchangResult>('/panchang/daily', { method: 'POST', body: JSON.stringify(input) }, token);
+}
+
+export type HoroscopeAvailability = {
+  status: 'available' | 'missing_chart' | 'unavailable'; mode: 'general' | 'personalized'; system: 'vedic' | 'western';
+  local_date: string; period: 'daily' | 'weekly' | 'monthly'; category: 'overview' | 'career' | 'relationships' | 'finance' | 'personal_growth';
+  sign: string | null; chart_id: string | null; content: string | null;
+  source_references: Array<string | Record<string, unknown>>; reason: string; message: string;
+};
+
+export function checkDailyHoroscope(token: string, input: {
+  mode: 'general' | 'personalized'; system: 'vedic' | 'western'; local_date: string;
+  period?: 'daily' | 'weekly' | 'monthly'; category?: 'overview' | 'career' | 'relationships' | 'finance' | 'personal_growth';
+  language: 'en' | 'ta'; sign?: string; profile_id?: string; chart_id?: string;
+}) {
+  return request<HoroscopeAvailability>('/horoscope/daily', { method: 'POST', body: JSON.stringify(input) }, token);
+}
+
+export type CompatibilityFactor = {
+  koota: string;
+  score: number;
+  maximum: number;
+  convention?: string;
+  [key: string]: unknown;
+};
+
+export type CompatibilityAvailability = {
+  status: 'missing_charts' | 'unavailable' | 'available';
+  system: 'vedic' | 'western';
+  profiles_checked: 2;
+  completed_chart_count: number;
+  chart_ids: [string | null, string | null];
+  score: number | null;
+  maximum_score?: number;
+  factors: CompatibilityFactor[];
+  reason: string;
+  message: string;
+  report_id?: string;
+  result?: {
+    bhakoot_cancellation?: {
+      dosha_detected?: boolean;
+      evaluated?: boolean;
+      status?: string;
+    };
+    role_mapping?: {
+      profile_a?: string;
+      profile_b?: string;
+      note?: string;
+    };
+    [key: string]: unknown;
+  };
+};
+
+export function checkCompatibility(token: string, input: {
+  profile_a_id: string;
+  profile_b_id: string;
+  system: 'vedic' | 'western';
+  chart_a_id?: string;
+  chart_b_id?: string;
+}) {
+  return request<CompatibilityAvailability>(
+    '/compatibility/check',
+    { method: 'POST', body: JSON.stringify(input) },
+    token,
+  );
 }
 
 export function createBirthProfile(token: string, profile: BirthProfileInput) {
@@ -123,6 +223,30 @@ export type ChartHistoryItem = {
 
 export type ChartHistoryPage = { items: ChartHistoryItem[]; total: number; limit: number; offset: number };
 
+export type VedicDignityPlanet = {
+  planet: string; sidereal_longitude: number; rashi: string; degree_in_rashi: number;
+  sign_lord: string; relationship_to_sign_lord: 'self' | 'friend' | 'neutral' | 'enemy';
+  dignity: 'exalted' | 'debilitated' | 'moolatrikona' | 'own_sign' | 'friend_sign' | 'neutral_sign' | 'enemy_sign';
+  is_exalted_sign: boolean; is_in_exaltation_range: boolean; is_debilitated_sign: boolean; is_at_deep_exaltation_degree: boolean;
+  is_at_deep_debilitation_degree: boolean; is_moolatrikona: boolean;
+  exaltation_reference: { sign: string; deep_degree: number };
+  debilitation_reference: { sign: string; deep_degree: number };
+  moolatrikona_range: { sign: string; start_degrees: number; end_degrees_exclusive: number };
+  source_rule_set: string; source_id: string; source_locator: string;
+};
+
+export type VedicDignityAnalysis = {
+  status: 'provisional'; chart_id: string; profile_id: string; astrology_system: 'vedic'; division: 'D1';
+  zodiac: 'sidereal'; ayanamsa: string; ruleset_id: string; ruleset_version: string;
+  source_id: string; source_ids: string[]; source_references: Array<{ source_id: string; edition_id: string; title: string; edition: string; url: string | null; verification_status: string; commercial_reuse_status: string }>;
+  source_status: string; source_locator: string; methodology_note: string;
+  shadbala: { status: 'unavailable'; reason: string }; planets: VedicDignityPlanet[]; excluded_planets: string[];
+};
+
+export function getVedicDignity(token: string, chartId: string) {
+  return request<VedicDignityAnalysis>(`/astrology/charts/${encodeURIComponent(chartId)}/vedic-dignity`, { method: 'GET' }, token);
+}
+
 export function listChartHistory(token: string, filters: { profileId?: string; system?: 'vedic' | 'western'; limit?: number; offset?: number } = {}) {
   const query = new URLSearchParams();
   if (filters.profileId) query.set('profile_id', filters.profileId);
@@ -133,7 +257,7 @@ export function listChartHistory(token: string, filters: { profileId?: string; s
 }
 
 export type IntelligenceResponseSection = {
-  section_type: 'calculated_fact' | 'traditional_interpretation' | 'limitation';
+  section_type: 'general_education' | 'calculated_fact' | 'traditional_interpretation' | 'limitation';
   text: string;
   fact_ids: string[];
   rule_ids: string[];
@@ -186,6 +310,9 @@ export type IntelligenceResponse = {
     division: string | null;
     language: 'en' | 'ta';
     matched_rule_ids: string[];
+    content_classification?: 'general_education' | 'personal_chart_response' | null;
+    source_verification_status?: 'not_applicable' | 'not_independently_verified';
+    education_topic?: string | null;
   };
 };
 
@@ -201,7 +328,6 @@ export type AIMessage = {
   output_tokens: number;
   created_at: string;
 };
-export type AIUsage = { daily_limit: number; requests_used: number; remaining: number };
 export type AIConversation = {
   id: string;
   profile_id: string | null;
@@ -215,7 +341,19 @@ export type AIConversation = {
 };
 export type AIConversationHistory = AIConversation & { messages: AIMessage[] };
 export type AIConversationList = { items: AIConversation[]; total: number };
-export type AIChatResponse = { message: AIMessage; usage: AIUsage };
+export type AIChatResponse = { message: AIMessage };
+
+export function requestPasswordReset(email: string) {
+  return request<{ message: string }>('/auth/forgot-password', {
+    method: 'POST', body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(token: string, newPassword: string) {
+  return request<{ message: string }>('/auth/reset-password', {
+    method: 'POST', body: JSON.stringify({ token, new_password: newPassword }),
+  });
+}
 
 export function createAIConversation(token: string, payload: { profile_id: string; chart_id?: string | null; astrology_system: 'vedic' | 'western'; language: 'en' | 'ta'; title?: string }) {
   return request<AIConversation>('/ai/conversations', { method: 'POST', body: JSON.stringify(payload) }, token);
@@ -279,4 +417,135 @@ export async function streamAIMessage(token: string, conversationId: string, con
   } finally { reader.releaseLock(); }
   if (!completed) throw new ApiError('The AI stream ended before the response was saved.', 502);
   return completed;
+}
+// Simple bilingual horoscope content management (admin-only endpoints).
+export type HoroscopeAdminContent = {
+  scope_key: string;
+  system: 'vedic' | 'western';
+  period: 'daily' | 'weekly' | 'monthly';
+  sign: string;
+  category: 'overview' | 'career' | 'relationships' | 'finance' | 'personal_growth';
+  starts_on: string;
+  ends_on: string;
+  en_content: string;
+  ta_content: string;
+  languages_present: string[];
+  published: boolean;
+};
+export type HoroscopeAdminDraftInput = {
+  system: 'vedic' | 'western';
+  period: 'daily' | 'weekly' | 'monthly';
+  sign: string;
+  category: 'overview' | 'career' | 'relationships' | 'finance' | 'personal_growth';
+  starts_on: string;
+  ends_on: string;
+  en_content: string;
+  ta_content: string;
+};
+export type HoroscopeAdminDraftUpdate = Pick<HoroscopeAdminDraftInput, 'starts_on' | 'ends_on' | 'en_content' | 'ta_content'>;
+
+export function listAdminHoroscopeContent(token: string) {
+  return request<{ items: HoroscopeAdminContent[] }>('/admin/horoscope/content', { method: 'GET' }, token);
+}
+export function createAdminHoroscopeDraft(token: string, payload: HoroscopeAdminDraftInput) {
+  return request<{ scope_key: string; status: string }>('/admin/horoscope/content', { method: 'POST', body: JSON.stringify(payload) }, token);
+}
+export function updateAdminHoroscopeDraft(token: string, scopeKey: string, payload: HoroscopeAdminDraftUpdate) {
+  return request<{ scope_key: string; previous_scope_key: string; status: string }>(`/admin/horoscope/content/${encodeURIComponent(scopeKey)}`, { method: 'PUT', body: JSON.stringify(payload) }, token);
+}
+export function publishAdminHoroscopeContent(token: string, scopeKey: string) {
+  return request<HoroscopeAdminContent>(`/admin/horoscope/content/${encodeURIComponent(scopeKey)}/publish`, { method: 'POST' }, token);
+}
+export function unpublishAdminHoroscopeContent(token: string, scopeKey: string) {
+  return request<HoroscopeAdminContent>(`/admin/horoscope/content/${encodeURIComponent(scopeKey)}/unpublish`, { method: 'POST' }, token);
+}
+export function deleteAdminHoroscopeContent(token: string, scopeKey: string) {
+  return request<{ scope_key: string; status: string }>(`/admin/horoscope/content/${encodeURIComponent(scopeKey)}`, { method: 'DELETE' }, token);
+}
+
+
+export type HoroscopeBulkImportRow = {
+  system: 'vedic' | 'western';
+  period: 'daily' | 'weekly' | 'monthly';
+  sign: string;
+  category: 'overview' | 'career' | 'relationships' | 'finance' | 'personal_growth';
+  starts_on: string;
+  ends_on: string;
+  en_content: string;
+  ta_content: string;
+};
+
+export function bulkImportAdminHoroscopeContent(token: string, items: HoroscopeBulkImportRow[]) {
+  return request<{ created: number; skipped: number; status: string }>(
+    '/admin/horoscope/content/bulk-import',
+    { method: 'POST', body: JSON.stringify({ items }) },
+    token,
+  );
+}
+
+
+export function bulkPublishAdminHoroscopeContent(token: string) {
+  return request<{ published: number; skipped: number; status: string }>(
+    '/admin/horoscope/content/publish-all',
+    { method: 'POST' },
+    token,
+  );
+}
+
+export type VastuRoomInput = {
+  room_type: 'kitchen' | 'master_bedroom' | 'bedroom' | 'prayer_room' | 'bathroom' | 'living_room' | 'study_room' | 'dining_room' | 'other';
+  x: number;
+  y: number;
+};
+
+export type VastuRoomObservation = {
+  room_number: number;
+  room_type: VastuRoomInput['room_type'];
+  room_en: string;
+  room_ta: string;
+  direction: string;
+  direction_ta: string;
+  status: 'preferred' | 'alternative' | 'review' | 'varies' | 'not_assessed';
+  title_en: string;
+  title_ta: string;
+  detail_en: string;
+  detail_ta: string;
+};
+
+export type VastuAnalysis = {
+  room_count: number;
+  north_side: 'top' | 'right' | 'bottom' | 'left';
+  rooms: VastuRoomObservation[];
+  method_en: string;
+  method_ta: string;
+  caution_en: string;
+  caution_ta: string;
+};
+
+export type VastuBoundaryPoint = { x: number; y: number };
+
+export async function analyzeVastuFloorPlan(
+  token: string,
+  file: File,
+  northSide: 'top' | 'right' | 'bottom' | 'left',
+  rooms: VastuRoomInput[],
+  boundary: VastuBoundaryPoint[],
+): Promise<VastuAnalysis> {
+  const form = new FormData();
+  form.append('file', file, file.name);
+  form.append('north_side', northSide);
+  form.append('rooms', JSON.stringify(rooms));
+  form.append('boundary', JSON.stringify(boundary));
+  const response = await fetch(`${API_BASE}/vastu/analyze`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form,
+  });
+  let payload: unknown;
+  try { payload = await response.json(); } catch { payload = null; }
+  if (!response.ok) {
+    const detail = payload && typeof payload === 'object' && 'detail' in payload
+      ? String((payload as { detail: unknown }).detail)
+      : 'Unable to review this floor plan.';
+    throw new ApiError(detail, response.status);
+  }
+  return payload as VastuAnalysis;
 }

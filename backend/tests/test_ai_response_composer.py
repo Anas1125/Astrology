@@ -107,7 +107,10 @@ def test_english_vedic_d1_answer_contains_chart_facts_and_safety_but_no_unapprov
         _fact("Moon", "nakshatra.pada", 2),
         _fact("Mars", "sign", "Mesha"),
     ])
-    question = _question(entities=(MentionedEntity(kind="planet", name="Moon"),))
+    question = _question(
+        topic="general_overview",
+        entities=(MentionedEntity(kind="planet", name="Moon"),),
+    )
     unreviewed = _rule("test-only.never-output", "Moon.sign", "Vrishabha", status="test_only", text="TEST FIXTURE ONLY — not an astrology interpretation.")
     matches = match_interpretation_rules(question, chart, (unreviewed,), language=SupportedLanguage.EN)
     response = compose_response(question, chart, matches, language="en")
@@ -115,14 +118,19 @@ def test_english_vedic_d1_answer_contains_chart_facts_and_safety_but_no_unapprov
     assert response.metadata.system.value == "vedic"
     assert response.metadata.division == "D1"
     fact_sections = [section for section in response.sections if section.section_type is ResponseSectionType.CALCULATED_FACT]
-    assert [section.text for section in fact_sections] == [
+    assert len(fact_sections) == 1
+    for expected in (
         "Moon is recorded in house 4.", "Moon: Nakshatra — Rohini.",
         "Moon: Pada — 2.", "Moon is recorded in Vrishabha.",
-    ]
+    ):
+        assert expected in fact_sections[0].text
     assert len(response.answer_fact_ids) == 4
+    assert len(fact_sections[0].fact_references) == 4
+    assert "traditional Vedic astrology" in response.answer
+    assert "traditional symbolic associations" in response.answer
     assert not response.metadata.matched_rule_ids
     assert all("TEST FIXTURE" not in section.text for section in response.sections)
-    assert any("sourced traditional interpretation" in section.text for section in response.sections)
+    assert not any("sourced traditional interpretation" in section.text for section in response.sections)
     assert any("not scientific certainty" in section.text for section in response.sections)
 
 
@@ -131,8 +139,8 @@ def test_tamil_fact_and_missing_rule_templates_are_localized_without_translating
     question = _question(entities=(MentionedEntity(kind="planet", name="Moon"),))
     response = compose_response(question, chart, None, language="ta")
     texts = [section.text for section in response.sections]
-    assert "சந்திரன் ரிஷபம் ராசியில் உள்ளது." in texts
-    assert "சந்திரன் வக்கிர நிலையில் உள்ளது." in texts
+    assert any("சந்திரன் ரிஷபம் ராசியில் உள்ளது." in text for text in texts)
+    assert any("சந்திரன் வக்கிர நிலையில் உள்ளது." in text for text in texts)
     assert any("பாரம்பரிய விளக்கம் தற்போது கிடைக்கவில்லை" in text for text in texts)
     assert any("அறிவியல் உறுதி அல்ல" in text for text in texts)
     assert response.metadata.language is SupportedLanguage.TA
@@ -187,7 +195,8 @@ def test_vimshottari_period_facts_are_reported_without_claiming_current_status()
     ("question", "expected"),
     [
         ("What is today's weather?", ResponseStatus.UNSUPPORTED),
-        ("Tell me about my chart", ResponseStatus.NEEDS_CLARIFICATION),
+        ("Tell me about my chart", ResponseStatus.MISSING_CHART),
+        ("What can you tell me about my birth chart?", ResponseStatus.MISSING_CHART),
         ("Please explain my Vedic D1 chart", ResponseStatus.MISSING_CHART),
         ("வணக்கம்", ResponseStatus.NEEDS_CLARIFICATION),
         ("என் ஜாதகத்தில் சந்திரன் எந்த நட்சத்திரம்?", ResponseStatus.MISSING_CHART),
@@ -200,6 +209,16 @@ def test_non_chart_or_unavailable_context_statuses_are_localized(question, expec
     assert response.status is expected
     assert response.answer
     assert not response.answer_fact_ids and not response.answer_rule_ids
+
+
+def test_unavailable_chart_keeps_explicit_conversation_system_without_claiming_chart_facts():
+    chart = _chart([], system="western", division=None, available=False)
+    classification = classify_question("What can you tell me about my birth chart?", chart_available=False)
+    response = compose_response(classification, chart, None, language="en")
+    assert response.status is ResponseStatus.MISSING_CHART
+    assert response.metadata.system.value == "western"
+    assert response.metadata.division is None
+    assert not response.answer_fact_ids
 
 
 def test_approved_rule_provenance_and_exact_supporting_fact_are_preserved():

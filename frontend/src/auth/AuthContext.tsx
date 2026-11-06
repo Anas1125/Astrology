@@ -6,7 +6,7 @@ type AuthState = {
   account: Account | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -15,18 +15,25 @@ const AuthContext = createContext<AuthState | null>(null);
 const TOKEN_KEY = 'astroai_access_token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => sessionStorage.getItem(TOKEN_KEY));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY));
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
 
   const clearSession = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setAccount(null);
   }, []);
 
-  const acceptToken = useCallback(async (accessToken: string) => {
-    sessionStorage.setItem(TOKEN_KEY, accessToken);
+  const acceptToken = useCallback(async (accessToken: string, rememberMe = false) => {
+    if (rememberMe) {
+      localStorage.setItem(TOKEN_KEY, accessToken);
+      sessionStorage.removeItem(TOKEN_KEY);
+    } else {
+      sessionStorage.setItem(TOKEN_KEY, accessToken);
+      localStorage.removeItem(TOKEN_KEY);
+    }
     setToken(accessToken);
     try {
       const actualAccount = await getAccount(accessToken);
@@ -40,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     const restore = async () => {
-      const saved = sessionStorage.getItem(TOKEN_KEY);
+      const saved = localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
       if (!saved) {
         setLoading(false);
         return;
@@ -67,9 +74,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('astroai:unauthorized', onUnauthorized);
   }, [clearSession]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const response = await apiLogin(email, password);
-    await acceptToken(response.access_token);
+  const login = useCallback(async (email: string, password: string, rememberMe = false) => {
+    const response = await apiLogin(email, password, rememberMe);
+    await acceptToken(response.access_token, rememberMe);
   }, [acceptToken]);
 
   const register = useCallback(async (email: string, password: string) => {

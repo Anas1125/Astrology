@@ -222,10 +222,34 @@ def chart_facts_from_context(
                         continue
                     lord = _clean_scalar(period.get("lord"))
                     sub_lord = _clean_scalar(period.get("sub_lord"))
-                    subject = f"Dasha:{lord or period_index}" if period_key == "mahadashas" else f"Antardasha:{lord or period_index}/{sub_lord or 'unknown'}"
+
+                    valid_lords = {
+                        "Ketu", "Venus", "Sun", "Moon", "Mars",
+                        "Rahu", "Jupiter", "Saturn", "Mercury",
+                    }
+
+                    if not isinstance(lord, str) or lord not in valid_lords:
+                        missing.append(f"{period_key}[{period_index}].lord")
+                        continue
+
+                    if period_key == "antardashas":
+                        if not isinstance(sub_lord, str) or sub_lord not in valid_lords:
+                            missing.append(f"{period_key}[{period_index}].sub_lord")
+                            continue
+
+                        subject = f"Antardasha:{lord}/{sub_lord}"
+                    else:
+                        subject = f"Dasha:{lord}"
+
                     for key in ("lord", "sub_lord", "start", "end", "nominal_start", "nominal_end"):
                         if key in period:
-                            add(subject, key, period[key], f"vimshottari_dasha.{period_key}[{period_index}].{key}", validator=lambda item: isinstance(item, str))
+                            add(
+                                subject,
+                                key,
+                                period[key],
+                                f"vimshottari_dasha.{period_key}[{period_index}].{key}",
+                                validator=lambda item: isinstance(item, str),
+                            )
         else:
             missing.append("vimshottari_dasha")
 

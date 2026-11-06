@@ -27,4 +27,16 @@ class AstrologyEngine(ABC):
 
 
 class EngineUnavailable(RuntimeError):
-    pass
+    """A calculation was refused, with a safe diagnostic category for logs."""
+
+    def __init__(self, message: str, *, reason_code: str = "runtime_unavailable"):
+        super().__init__(message)
+        self.reason_code = reason_code
+
+
+def ephemeris_failure_code(message: str) -> str:
+    """Categorize native errors without copying paths or personal input into logs."""
+    text = message.casefold()
+    if "ephemeris" in text and any(marker in text for marker in ("file", "data", "coverage")):
+        return "ephemeris_data_unavailable"
+    return "native_runtime_unavailable"

@@ -1,4 +1,8 @@
-"""Atomic free-tier AI request reservations for supported SQL backends."""
+"""Legacy daily counter helpers retained for historical compatibility.
+
+The active deterministic chat route no longer calls these functions or enforces
+a daily quota. Existing counter rows are retained as historical records.
+"""
 from datetime import datetime
 from uuid import UUID
 

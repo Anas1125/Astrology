@@ -23,3 +23,11 @@ frontend/test-results/
 libswe.dylib
 libswe.so
 swe.dll
+# Local development artifacts
+.DS_Store
+venv/
+*.bak*
+*.backup-*
+__pycache__/
+.pytest_cache/
+.ruff_cache/

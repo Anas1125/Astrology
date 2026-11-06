@@ -1,0 +1,60 @@
+.vastu-page { display: grid; gap: 20px; color: #302b25; }
+.vastu-heading { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.vastu-heading h1 { margin:0 0 7px; font-size:clamp(24px,3vw,32px); color:#302b25; }
+.vastu-heading p { margin:0; max-width:720px; color:#766d60; line-height:1.6; }
+.vastu-grid { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr); gap:18px; align-items:start; }
+.vastu-card,.vastu-results { background:#fffdf8; border:1px solid #e7dcc4; border-radius:18px; padding:20px; box-shadow:0 8px 24px rgba(68,53,24,.04); min-width:0; }
+.vastu-section-title { display:flex; align-items:center; gap:9px; margin:0 0 16px; color:#9c752a; }
+.vastu-section-title h2 { margin:0; color:#302b25; font-size:17px; }
+.vastu-section-title:not(:first-child) { margin-top:24px; }
+.vastu-file-input { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+.vastu-upload-box { width:100%; min-height:210px; border:1px dashed #d9c69f; border-radius:14px; background:#fbf8f0; color:#745b2b; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; cursor:pointer; }
+.vastu-upload-box span { color:#8a8173; font-size:12px; }
+.vastu-plan-wrap { position:relative; width:100%; overflow:hidden; border-radius:12px; border:1px solid #e7dcc4; background:#f8f5ed; cursor:crosshair; }
+.vastu-plan-wrap img { display:block; width:100%; height:100%; object-fit:fill; pointer-events:none; }
+.vastu-room-pin { position:absolute; transform:translate(-50%,-50%); width:25px; height:25px; display:grid; place-items:center; border-radius:50%; background:#9c752a; color:white; border:2px solid white; box-shadow:0 2px 8px rgba(0,0,0,.23); font-size:11px; pointer-events:none; }
+.vastu-north-indicator { position:absolute; top:9px; right:9px; padding:5px 8px; border-radius:7px; background:rgba(255,253,248,.92); color:#8a6728; border:1px solid #e7dcc4; font-size:11px; font-weight:800; pointer-events:none; }
+.vastu-image-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:10px 0; color:#776d5f; font-size:12px; overflow-wrap:anywhere; }
+.vastu-image-actions .text-action { display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:#8c5b46; cursor:pointer; }
+.vastu-field { display:grid; gap:7px; margin:0 0 12px; color:#605648; font-size:13px; font-weight:600; }
+.vastu-field select { width:100%; min-height:42px; padding:9px 12px; border:1px solid #dfd3bb; border-radius:10px; background:#fffefa; color:#302b25; }
+.vastu-hint,.vastu-empty { color:#817767; font-size:12px; line-height:1.55; margin:10px 0 14px; }
+.vastu-marked-heading { display:flex; justify-content:space-between; align-items:center; margin:14px 0 8px; font-size:13px; color:#4c4337; }
+.vastu-marked-heading span { color:#94733c; font-variant-numeric:tabular-nums; }
+.vastu-room-list { list-style:none; display:grid; gap:6px; margin:0; padding:0; max-height:190px; overflow:auto; }
+.vastu-room-list li { display:flex; align-items:center; gap:9px; border:1px solid #eee5d5; border-radius:9px; padding:7px 9px; color:#51483d; font-size:12px; }
+.vastu-room-index { display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:#f1e5c8; color:#806020; font-weight:800; }
+.vastu-room-list li button { margin-left:auto; border:0; background:transparent; color:#987c6d; cursor:pointer; }
+.vastu-submit { width:100%; justify-content:center; margin-top:16px; }
+.vastu-alert { margin-top:12px; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.5; }
+.vastu-alert.error { background:#fff1ed; color:#963e2b; border:1px solid #ebc5b9; }
+.vastu-results { display:grid; gap:13px; }
+.vastu-results .vastu-section-title { margin:0; }
+.vastu-method { margin:0; color:#766d60; font-size:12px; line-height:1.55; }
+.vastu-result-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.vastu-result-card { border:1px solid #ece2d0; background:#fffefa; border-radius:12px; padding:13px; min-width:0; }
+.vastu-result-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.vastu-result-head > div { display:grid; gap:3px; }
+.vastu-result-head strong { color:#352e25; font-size:13px; }
+.vastu-result-head span { color:#897f70; font-size:11px; }
+.vastu-status { display:inline-flex; border-radius:20px; padding:4px 7px; background:#f5eddd; color:#7b612e; font-size:10px; line-height:1.3; }
+.vastu-status.preferred { background:#eaf4e9; color:#3e6c42; }
+.vastu-status.alternative { background:#f5f0df; color:#806021; }
+.vastu-status.review { background:#fbefea; color:#94503a; }
+.vastu-status.varies,.vastu-status.not_assessed { background:#f0eee9; color:#6d665b; }
+.vastu-result-card h3 { margin:11px 0 5px; color:#44382b; font-size:13px; }
+.vastu-result-card p { margin:0; color:#776d60; font-size:12px; line-height:1.55; }
+.vastu-caution,.vastu-limitation { margin:0; border:1px solid #eadfc9; border-radius:11px; padding:12px 14px; background:#faf6ec; color:#706452; font-size:12px; line-height:1.6; }
+.vastu-spin { animation:vastu-rotate 1s linear infinite; }
+@keyframes vastu-rotate { to { transform:rotate(360deg); } }
+@media(max-width:850px) { .vastu-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:620px) { .vastu-card,.vastu-results { padding:14px; } .vastu-result-list { grid-template-columns:minmax(0,1fr); } }
+
+.vastu-boundary-overlay { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+.vastu-boundary-overlay polygon { fill:rgba(212,175,99,.10); stroke:#9c752a; stroke-width:.55; stroke-dasharray:1.5 1; vector-effect:non-scaling-stroke; }
+.vastu-boundary-pin { position:absolute; z-index:3; transform:translate(-50%,-50%); width:24px; height:24px; display:grid; place-items:center; border-radius:50%; background:#fffdf8; color:#775515; border:2px solid #9c752a; box-shadow:0 2px 7px rgba(0,0,0,.2); font-size:10px; pointer-events:none; }
+.vastu-boundary-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
+.vastu-boundary-actions .text-action { border:0; background:transparent; color:#8c5b46; cursor:pointer; font:inherit; font-size:12px; }
+.vastu-boundary-progress { display:flex; gap:8px; margin:0 0 16px; }
+.vastu-boundary-progress span { width:25px; height:25px; display:grid; place-items:center; border-radius:50%; background:#f0eee9; color:#817767; font-size:11px; font-weight:700; }
+.vastu-boundary-progress span.complete { background:#f1e5c8; color:#775515; box-shadow:inset 0 0 0 1px #c6a55e; }

@@ -13,7 +13,7 @@ test('birth profile API exposes authenticated list/create/update/delete operatio
   assert.match(api, /Authorization: `Bearer \$\{token\}`/);
 });
 
-test('birth profile form captures birth and manual location fields and renders workflow states', async () => {
+test('birth profile form supports verified location suggestions, manual correction, and workflow states', async () => {
   const page = await read('../src/pages/ProfilesPage.tsx');
   for (const field of ['display_name', 'relationship', 'birth_date', 'birth_time', 'time_accuracy', 'birthplace', 'latitude', 'longitude', 'timezone']) {
     assert.match(page, new RegExp(field));
@@ -24,6 +24,12 @@ test('birth profile form captures birth and manual location fields and renders w
   assert.match(page, /Birth profile created/);
   assert.match(page, /Birth profile updated/);
   assert.match(page, /Birth profile deleted/);
+  assert.match(page, /role="combobox"/);
+  assert.match(page, /searchBirthplaces\(token, query, language/);
+  assert.match(page, /Coordinates not provided/);
+  assert.match(page, /Geoapify/);
+  assert.match(page, /IANA timezone/);
+  assert.match(page, /birth-time-selects/);
 });
 
 test('dashboard shows the live profiles module instead of the prior local-only form', async () => {

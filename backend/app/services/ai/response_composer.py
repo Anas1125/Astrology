@@ -219,14 +219,90 @@ def _fact_is_relevant(fact: ChartFact, classification: QuestionClassification) -
     return True
 
 
+
+_HOUSE_THEMES_EN = {
+    1: "self and body", 2: "resources and speech", 3: "communication and effort",
+    4: "home and roots", 5: "learning and creativity", 6: "daily responsibilities, service and challenges",
+    7: "partnership", 8: "shared matters and change", 9: "belief and higher learning",
+    10: "public role and work", 11: "groups and gains", 12: "retreat and release",
+}
+_HOUSE_THEMES_TA = {
+    1: "சுயம் மற்றும் உடல்", 2: "வளங்கள் மற்றும் பேச்சு", 3: "தொடர்பு மற்றும் முயற்சி",
+    4: "வீடு மற்றும் வேர்கள்", 5: "கற்றல் மற்றும் படைப்பாற்றல்", 6: "அன்றாடப் பொறுப்புகள், சேவை மற்றும் சவால்கள்",
+    7: "கூட்டுறவு", 8: "பகிரப்பட்ட விடயங்கள் மற்றும் மாற்றம்", 9: "நம்பிக்கை மற்றும் உயர்கல்வி",
+    10: "பொதுப் பங்கு மற்றும் தொழில்", 11: "குழுக்கள் மற்றும் ஆதாயங்கள்", 12: "ஓய்வு மற்றும் விடுவித்தல்",
+}
+_SIGN_EN_SIMPLE = {
+    "mesha": "Aries", "vrishabha": "Taurus", "mithuna": "Gemini", "karka": "Cancer",
+    "simha": "Leo", "kanya": "Virgo", "tula": "Libra", "vrischika": "Scorpio",
+    "dhanu": "Sagittarius", "makara": "Capricorn", "kumbha": "Aquarius", "meena": "Pisces",
+}
+
+
+def _simple_moon_overview(
+    chart: ChartFacts,
+    relevant_facts: tuple[ChartFact, ...],
+    classification: QuestionClassification,
+    language: SupportedLanguage,
+) -> str | None:
+    """Compose a modest, non-predictive overview from an explicitly selected Vedic D1 Moon."""
+    if chart.system is not AstrologySystem.VEDIC or chart.division != "D1":
+        return None
+    if classification.intent is not UserIntent.CHART_QUESTION:
+        return None
+    if classification.topic is not QuestionTopic.GENERAL_OVERVIEW:
+        return None
+    if not any(entity.kind == "planet" and entity.name.casefold() == "moon" for entity in classification.entities):
+        return None
+
+    facts = {
+        fact.predicate: fact.value
+        for fact in relevant_facts
+        if fact.subject.casefold() == "moon"
+    }
+    sign = facts.get("sign")
+    house = facts.get("house")
+    nakshatra = facts.get("nakshatra.name")
+    pada = facts.get("nakshatra.pada")
+    if not isinstance(sign, str) or not isinstance(house, int) or isinstance(house, bool) or not 1 <= house <= 12:
+        return None
+
+    if language is SupportedLanguage.TA:
+        sign_label = _SIGN_TA.get(sign.casefold(), sign)
+        nakshatra_label = _NAKSHATRA_TA.get(nakshatra, nakshatra) if isinstance(nakshatra, str) else None
+        placement = f"உங்கள் சந்திரன் {sign_label} ராசியில், {house}ஆம் பாவத்தில்"
+        if nakshatra_label and isinstance(pada, int) and not isinstance(pada, bool):
+            placement += f", {nakshatra_label} நட்சத்திரம் {pada}ஆம் பாதத்தில்"
+        placement += "."
+        theme = _HOUSE_THEMES_TA[house]
+        detail = "பாரம்பரிய வேத ஜோதிடத்தில் சந்திரன் பொதுவாக மனம் மற்றும் உணர்வுகளுடன் தொடர்புபடுத்தப்படுகிறார்."
+        caveat = "இவை பாரம்பரிய குறியீட்டு அர்த்தங்கள் மட்டுமே; நிரூபிக்கப்பட்ட குணநலன்களோ எதிர்காலக் கணிப்புகளோ அல்ல."
+        nak_note = " நட்சத்திரத்தின் விரிவான தனிப்பட்ட விளக்கம் தற்போது சரிபார்க்கப்பட்ட உள்ளடக்கத்தில் இல்லை." if nakshatra_label else ""
+        return f"{placement} {detail} {house}ஆம் பாவம் {theme} தொடர்பானதாகப் பாரம்பரியமாகக் கருதப்படுகிறது. {caveat}{nak_note}"
+
+    sign_label = f"{sign} ({_SIGN_EN_SIMPLE[sign.casefold()]})" if sign.casefold() in _SIGN_EN_SIMPLE else sign
+    suffix = "th" if 10 <= house % 100 <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(house % 10, "th")
+    placement = f"Your Moon is in {sign_label}, in the {house}{suffix} house"
+    if isinstance(nakshatra, str) and isinstance(pada, int) and not isinstance(pada, bool):
+        placement += f", in {nakshatra} Nakshatra, Pada {pada}"
+    placement += "."
+    detail = "In traditional Vedic astrology, the Moon is commonly associated with the mind and feelings."
+    theme = _HOUSE_THEMES_EN[house]
+    caveat = "These are traditional symbolic associations, not scientifically established personality traits or predictions."
+    nak_note = f" A detailed, independently source-verified interpretation for {nakshatra} is not currently available in AstroAI." if isinstance(nakshatra, str) else ""
+    return f"{placement} {detail} The {house}{suffix} house is traditionally associated with {theme}. {caveat}{nak_note}"
+
 def _localized(language: SupportedLanguage, key: str, **values: object) -> str:
     templates = {
         "en": {
             "greeting": "Hello. Ask about a saved Vedic or Western chart, or choose a chart first.",
             "unsupported": "I can help with supported questions about saved Vedic or Western astrology charts. This request is outside that scope.",
             "general_unavailable": "There is no approved, sourced general astrology explanation for this topic yet. I will not invent one.",
+            "education_unavailable": "I do not have a general educational overview for this topic yet.",
+            "education_intro": "General educational overview:",
+            "education_limit": "This is an editorial overview of common astrological conventions; it has not been independently source-verified and includes no classical citations. Astrology is a traditional belief system, not scientifically established, and this is not a personal chart reading.",
             "clarification": "Please clarify which astrology system, chart division, or chart detail you want to ask about.",
-            "missing": "A completed saved chart for this profile and system is not available. No chart facts have been inferred.",
+            "missing": "A completed saved chart is required before personalized interpretation is possible. Visit Birth chart to calculate and save one first. No chart placements were inferred.",
             "no_fact": "The requested detail is not present in the saved chart data.",
             "fact_summary": "I found {count} relevant calculated chart fact(s) in the saved chart.",
             "no_rule": "A sourced traditional interpretation is not currently available for this question.",
@@ -237,8 +313,11 @@ def _localized(language: SupportedLanguage, key: str, **values: object) -> str:
             "greeting": "வணக்கம். சேமிக்கப்பட்ட வேத அல்லது மேற்கத்திய ஜாதகம் குறித்து கேளுங்கள்; அல்லது முதலில் ஒரு ஜாதகத்தைத் தேர்ந்தெடுக்கவும்.",
             "unsupported": "சேமிக்கப்பட்ட வேத அல்லது மேற்கத்திய ஜாதகத் தகவல்கள் தொடர்பான கேள்விகளில் உதவ முடியும். இந்தக் கோரிக்கை அந்த வரம்பிற்கு வெளியே உள்ளது.",
             "general_unavailable": "இந்தத் தலைப்பிற்கான அங்கீகரிக்கப்பட்ட, ஆதாரமுள்ள பொதுவான ஜோதிட விளக்கம் இன்னும் இல்லை. ஊகித்து விளக்கம் வழங்கப்படாது.",
+            "education_unavailable": "இந்தத் தலைப்பிற்கான பொதுக் கல்வி விளக்கம் தற்போது இல்லை.",
+            "education_intro": "பொதுக் கல்வி விளக்கம்:",
+            "education_limit": "இது பொதுவான ஜோதிட மரபுகளைப் பற்றிய ஆசிரியர் தொகுத்த விளக்கம்; இதன் ஆதாரங்கள் தனியாகச் சரிபார்க்கப்படவில்லை, மேலும் பாரம்பரிய நூல் மேற்கோள்களும் இதில் இல்லை. ஜோதிடம் பாரம்பரிய நம்பிக்கை முறை; அறிவியல் ரீதியாக நிறுவப்படவில்லை. இது தனிப்பட்ட ஜாதக வாசிப்பு அல்ல.",
             "clarification": "நீங்கள் கேட்க விரும்பும் ஜோதிட முறை, ஜாதகப் பிரிவு அல்லது விவரத்தைத் தெளிவுபடுத்துங்கள்.",
-            "missing": "இந்த சுயவிவரம் மற்றும் முறைக்கான முழுமையான சேமிக்கப்பட்ட ஜாதகம் இல்லை. ஜாதகத் தகவல்கள் ஊகிக்கப்படவில்லை.",
+            "missing": "தனிப்பட்ட விளக்கத்திற்கு முன் முடிக்கப்பட்ட சேமித்த ஜாதகம் தேவை. முதலில் ‘ஜாதகம்’ பகுதிக்குச் சென்று கணக்கிட்டு சேமிக்கவும். எந்த கிரக நிலையையும் ஊகிக்கவில்லை.",
             "no_fact": "கேட்ட விவரம் சேமிக்கப்பட்ட ஜாதகத் தரவில் இல்லை.",
             "fact_summary": "சேமிக்கப்பட்ட ஜாதகத்தில் {count} தொடர்புடைய கணக்கிடப்பட்ட தகவல்(கள்) கிடைத்தன.",
             "no_rule": "இந்தக் கேள்விக்கான ஆதாரமுள்ள பாரம்பரிய விளக்கம் தற்போது கிடைக்கவில்லை.",
@@ -445,6 +524,23 @@ def validate_intelligence_response(
                 raise InvalidIntelligenceResponse("Response fact belongs to another chart or profile")
             if reference.system is not chart.system or reference.division != chart.division:
                 raise InvalidIntelligenceResponse("Response fact system or division does not match the chart")
+    if response.status is ResponseStatus.ANSWERED and response.metadata.content_classification == "general_education":
+        education_sections = [section for section in response.sections if section.section_type is ResponseSectionType.GENERAL_EDUCATION]
+        if (
+            len(education_sections) != 1
+            or education_sections[0].fact_references
+            or education_sections[0].rule_references
+            or response.answer_fact_ids
+            or response.answer_rule_ids
+            or response.metadata.matched_rule_ids
+            or response.metadata.system is not None
+            or response.metadata.division is not None
+            or response.metadata.source_verification_status != "not_independently_verified"
+            or not response.metadata.education_topic
+        ):
+            raise InvalidIntelligenceResponse("General education response must be unpersonalized and carry no source or chart claims")
+        if not any(section.section_type is ResponseSectionType.LIMITATION and _is_education_limitation(section.text) for section in response.sections):
+            raise InvalidIntelligenceResponse("General education response lacks its verification limitation")
     if response.status is ResponseStatus.ANSWERED and not any(
         section.section_type is ResponseSectionType.LIMITATION and _is_safety_limitation(section.text)
         for section in response.sections
@@ -454,7 +550,16 @@ def validate_intelligence_response(
 
 
 def _is_safety_limitation(text: str) -> bool:
-    return "scientific certainty" in text.casefold() or "அறிவியல் உறுதி அல்ல" in text
+    return (
+        "scientific certainty" in text.casefold()
+        or "not scientifically established" in text.casefold()
+        or "அறிவியல் உறுதி அல்ல" in text
+    )
+
+
+def _is_education_limitation(text: str) -> bool:
+    normalized = text.casefold()
+    return "not been independently source-verified" in normalized or "ஆதாரங்கள் தனியாகச் சரிபார்க்கப்படவில்லை" in text
 
 
 def compose_response(
@@ -465,6 +570,7 @@ def compose_response(
     language: SupportedLanguage | str,
     knowledge_base_version: str = DEFAULT_KNOWLEDGE_BASE_VERSION,
     engine_version: str = ENGINE_VERSION,
+    general_education_text: str | None = None,
 ) -> IntelligenceResponse:
     """Compose an answer using fixed localized templates, saved facts and approved rules."""
     language = SupportedLanguage(language)
@@ -472,18 +578,42 @@ def compose_response(
         raise InvalidIntelligenceResponse("Invalid knowledge-base version")
     if not re.fullmatch(r"\d+\.\d+\.\d+", engine_version):
         raise InvalidIntelligenceResponse("Invalid intelligence engine version")
-    system = chart.system if chart and chart.available and chart.system else classification.system
+    # An unavailable ChartFacts may still carry the explicitly selected system
+    # from the conversation. Preserve that context in the missing-chart response
+    # without treating the chart as calculated or exposing any placements.
+    system = chart.system if chart and chart.system else classification.system
     division = chart.division if chart and chart.available and chart.division else classification.division
+    if classification.intent is UserIntent.GENERAL_EDUCATION:
+        # Education is deliberately independent of a selected profile, system,
+        # division, and any (possibly unavailable) chart context.
+        system = None
+        division = None
     sections: list[ResponseSection] = []
     status: ResponseStatus
     answer_fact_ids: tuple[str, ...] = ()
     answer_rule_ids: tuple[str, ...] = ()
 
-    if classification.intent in {UserIntent.UNSUPPORTED}:
+    if classification.intent is UserIntent.GENERAL_EDUCATION:
+        if not general_education_text or not classification.education_topic:
+            status = ResponseStatus.UNSUPPORTED
+            answer = _localized(language, "education_unavailable")
+            sections.append(ResponseSection(section_type=ResponseSectionType.LIMITATION, text=answer))
+        else:
+            status = ResponseStatus.ANSWERED
+            answer = _localized(language, "education_intro")
+            sections.append(ResponseSection(
+                section_type=ResponseSectionType.GENERAL_EDUCATION,
+                text=general_education_text,
+            ))
+            sections.append(ResponseSection(
+                section_type=ResponseSectionType.LIMITATION,
+                text=_localized(language, "education_limit"),
+            ))
+    elif classification.intent in {UserIntent.UNSUPPORTED}:
         status = ResponseStatus.UNSUPPORTED
         answer = _localized(
             language,
-            "general_unavailable" if classification.clarification_reason == "general_knowledge_not_approved" else "unsupported",
+            "unsupported",
         )
         sections.append(ResponseSection(section_type=ResponseSectionType.LIMITATION, text=answer))
     elif classification.intent in {UserIntent.CLARIFICATION, UserIntent.GREETING} or classification.needs_clarification:
@@ -532,8 +662,28 @@ def compose_response(
             (fact for fact in chart.facts if _fact_is_relevant(fact, classification)),
             key=lambda fact: (fact.subject, fact.predicate, fact_identifier(chart.chart_id or "", fact)),
         ))
+        # Keep the chart evidence together instead of rendering one card per fact.
+        # Raw longitude and Nakshatra remaining-fraction values are technical details,
+        # so omit them from the simple display while retaining the saved fact references.
+        simple_overview = _simple_moon_overview(
+            chart, relevant_facts, classification, language
+        )
+
+        if simple_overview:
+            display_facts = tuple(
+                fact for fact in relevant_facts
+                if fact.subject.casefold() == "moon"
+                and fact.predicate in {
+                    "sign", "house", "nakshatra.name", "nakshatra.pada"
+                }
+            )
+        else:
+            display_facts = tuple(
+        fact for fact in relevant_facts
+        if fact.predicate not in {"longitude", "nakshatra.remaining_fraction"}
+    ) or relevant_facts
         fact_refs_by_key: dict[tuple[str, str], MatchedFactReference] = {}
-        for fact in relevant_facts:
+        for fact in display_facts:
             reference = MatchedFactReference(
                 fact_id=fact_identifier(chart.chart_id, fact),
                 subject=fact.subject,
@@ -546,15 +696,18 @@ def compose_response(
                 provenance=fact.provenance,
             )
             fact_refs_by_key[(fact.subject, fact.predicate)] = reference
+        answer_fact_ids = tuple(ref.fact_id for ref in fact_refs_by_key.values())
+        if display_facts:
+            fact_lines = [_fact_text(fact, language) for fact in display_facts]
+
             sections.append(ResponseSection(
                 section_type=ResponseSectionType.CALCULATED_FACT,
-                text=_fact_text(fact, language),
-                fact_ids=(reference.fact_id,),
-                fact_references=(reference,),
+                text="\n".join(fact_lines),
+                fact_ids=tuple(ref.fact_id for ref in fact_refs_by_key.values()),
+                fact_references=tuple(fact_refs_by_key.values()),
             ))
-        answer_fact_ids = tuple(ref.fact_id for ref in fact_refs_by_key.values())
         if relevant_facts:
-            answer = _localized(language, "fact_summary", count=len(relevant_facts))
+            answer = simple_overview or _localized(language, "fact_summary", count=len(relevant_facts))
         else:
             answer = _localized(language, "no_fact")
             sections.append(ResponseSection(section_type=ResponseSectionType.LIMITATION, text=answer))
@@ -580,7 +733,7 @@ def compose_response(
         )
         answer_rule_ids = included_rule_ids
         matched_conflicts = bool(rule_matches and rule_matches.conflicts)
-        if not included_rule_ids:
+        if not included_rule_ids and (simple_overview is None or matched_conflicts):
             sections.append(ResponseSection(
                 section_type=ResponseSectionType.LIMITATION,
                 text=_localized(language, "no_rule"),
@@ -609,6 +762,16 @@ def compose_response(
             division=division,
             language=language,
             matched_rule_ids=answer_rule_ids,
+            content_classification=(
+                "general_education" if classification.intent is UserIntent.GENERAL_EDUCATION and general_education_text
+                else "personal_chart_response" if status is ResponseStatus.ANSWERED and classification.intent is UserIntent.CHART_QUESTION
+                else None
+            ),
+            source_verification_status=(
+                "not_independently_verified" if classification.intent is UserIntent.GENERAL_EDUCATION and general_education_text
+                else "not_applicable"
+            ),
+            education_topic=classification.education_topic if general_education_text else None,
         ),
     )
     return validate_intelligence_response(response, chart=chart)

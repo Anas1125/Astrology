@@ -17,6 +17,7 @@ from app.services.astrology.vedic import (
     rashi_index,
     vimshottari_dasha,
 )
+from app.services.astrology.base import ephemeris_failure_code
 
 
 def test_julian_day_j2000_noon_reference():
@@ -29,6 +30,12 @@ def test_iana_timezone_uses_historical_daylight_saving_rules():
     winter = local_birth_time_to_utc(date(2000, 1, 1), time(12), "America/New_York")
     assert summer == datetime(2000, 7, 1, 16, tzinfo=timezone.utc)
     assert winter == datetime(2000, 1, 1, 17, tzinfo=timezone.utc)
+
+
+def test_historical_new_york_local_mean_time_is_applied():
+    # IANA tzdb records New York's pre-standard-time offset as local mean time.
+    utc = local_birth_time_to_utc(date(1883, 11, 17), time(12), "America/New_York")
+    assert utc == datetime(1883, 11, 17, 16, 56, 2, tzinfo=timezone.utc)
 
 
 def test_nonexistent_and_ambiguous_local_times_are_rejected():
@@ -106,6 +113,10 @@ def test_vimshottari_sequence_duration_and_birth_balance():
     first_md_ads = [item for item in result["antardashas"] if item["mahadasha_lord"] == "Ketu"]
     assert [item["lord"] for item in first_md_ads] == ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
     assert first_md_ads[0]["start"] == birth.isoformat()
+    first_md_pds = [item for item in result["pratyantardashas"] if item["mahadasha_lord"] == "Ketu" and item["antardasha_lord"] == "Ketu"]
+    assert [item["lord"] for item in first_md_pds] == ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+    assert first_md_pds[0]["start"] == birth.isoformat()
+    assert first_md_pds[0]["full_duration_days"] == pytest.approx(7 * 360 * 7 / 120 * 7 / 120)
 
 
 def test_vimshottari_partial_antardasha_and_invalid_convention():
@@ -117,6 +128,9 @@ def test_vimshottari_partial_antardasha_and_invalid_convention():
     first_ad = result["antardashas"][0]
     assert first_ad["elapsed_days_at_birth"] > 0
     assert first_ad["remaining_days_at_birth"] < first_ad["full_duration_days"]
+    first_pd = result["pratyantardashas"][0]
+    assert first_pd["elapsed_days_at_birth"] > 0
+    assert first_pd["remaining_days_at_birth"] < first_pd["full_duration_days"]
     with pytest.raises(InvalidBirthData, match="Only the explicitly configured"):
         vimshottari_dasha(0, birth, "365_day")
 
@@ -130,6 +144,12 @@ def test_nakshatra_rejects_invalid_longitudes(value):
 def test_ephemeris_directory_is_required(tmp_path):
     with pytest.raises(EphemerisUnavailable, match="files are missing"):
         SwissEphemerisProvider(str(tmp_path))
+
+
+def test_runtime_diagnostic_categories_distinguish_files_from_native_loader():
+    assert ephemeris_failure_code("Swiss Ephemeris data files are missing") == "ephemeris_data_unavailable"
+    assert ephemeris_failure_code("Swiss Ephemeris files unavailable; fallback refused") == "ephemeris_data_unavailable"
+    assert ephemeris_failure_code("Install optional extra and ensure native library loads") == "native_runtime_unavailable"
 
 
 class FakeSwiss:

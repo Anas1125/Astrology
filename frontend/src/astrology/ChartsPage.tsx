@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { ApiError, calculateVedicChart, calculateWesternChart, getSavedChart, listBirthProfiles, listChartHistory } from '../auth/api';
-import type { BirthProfile, ChartCalculationResponse, ChartHistoryItem, ChartHistoryPage, WesternHouseSystem } from '../auth/api';
+import { ApiError, calculateVedicChart, calculateWesternChart, getSavedChart, getVedicDignity, listBirthProfiles, listChartHistory } from '../auth/api';
+import type { BirthProfile, ChartCalculationResponse, ChartHistoryItem, ChartHistoryPage, VedicDignityAnalysis, WesternHouseSystem } from '../auth/api';
 import { astroLabel } from './i18n';
 import type { AstroLanguage } from './i18n';
 import { isAstrologyResult } from './types';
 import type { AstrologyResult } from './types';
 import { VedicChartView } from './VedicChartView';
 import WesternChartView from './WesternChartView';
+import { VedicDignitySection } from './VedicDignitySection';
 import { chooseProfileId } from './chartUtils';
 import { ChartEmptyState, ChartErrorState, ChartLoadingState } from './ChartFeedback';
 import { ArrowUpRight, RefreshCw, Sparkles } from 'lucide-react';
@@ -50,6 +51,9 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState('');
   const [historyOffset, setHistoryOffset] = useState(0);
+  const [dignity, setDignity] = useState<VedicDignityAnalysis | null>(null);
+  const [dignityLoading, setDignityLoading] = useState(false);
+  const [dignityError, setDignityError] = useState('');
   const t = useCallback((key: Parameters<typeof astroLabel>[1]) => astroLabel(language, key), [language]);
 
   const loadProfiles = useCallback(async () => {
@@ -79,6 +83,21 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
     setChart(null); setChartError(null);
     setChartLoading(false);
   }, [selectedId, system]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDignity(null); setDignityError('');
+    if (!token || !chart || system !== 'vedic' || division !== 'D1' || chart.status !== 'complete' || chart.result?.division !== 'D1') {
+      setDignityLoading(false);
+      return () => { cancelled = true; };
+    }
+    setDignityLoading(true);
+    void getVedicDignity(token, chart.chart_id)
+      .then(value => { if (!cancelled) setDignity(value); })
+      .catch(reason => { if (!cancelled) setDignityError(reason instanceof Error ? reason.message : t('errorTitle')); })
+      .finally(() => { if (!cancelled) setDignityLoading(false); });
+    return () => { cancelled = true; };
+  }, [token, chart, system, division, t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -139,6 +158,7 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
 
   const hasRequiredBirthData = Boolean(selectedProfile?.birth_time && selectedProfile.time_accuracy !== 'unknown' && selectedProfile.timezone && selectedProfile.latitude !== null && selectedProfile.latitude !== undefined && selectedProfile.longitude !== null && selectedProfile.longitude !== undefined);
   const isUnavailable = chartError?.status === 503;
+  const canRetryChartRequest = chartError?.status === undefined || (chartError.status >= 500 && chartError.status !== 503);
   const result = chart ? selectedChartResponse(chart, system) : null;
 
   return <section className="charts-page">
@@ -167,12 +187,12 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
     </section>}
     {!profilesLoading && !profilesError && profiles.length === 0 && <ChartEmptyState language={language} noProfiles onManageProfiles={onManageProfiles}/>}
     {selectedProfile && !hasRequiredBirthData && <div className="chart-alert" role="status">{t('missingBirthData')} <button className="text-button" onClick={onManageProfiles}>{t('manageProfiles')}</button></div>}
-    {chartError && <ChartErrorState language={language} message={chartError.message} unavailable={isUnavailable} onRetry={!hasRequiredBirthData || calculating ? undefined : () => void calculate()}/>}
+    {chartError && <ChartErrorState language={language} message={chartError.message} unavailable={isUnavailable} onRetry={!canRetryChartRequest || !hasRequiredBirthData || calculating ? undefined : () => void calculate()}/>}
     {chartLoading && <ChartLoadingState language={language} saved/>}
     {!chartLoading && !chartError && !chart && profiles.length > 0 && <ChartEmptyState language={language}/>}
     {result && chart && <div className="chart-result" key={`${system}-${division}-${chart.chart_id}`}>
       <div className="chart-result-meta"><span>{selectedProfile?.display_name}</span><span>{chart.calculated_at ? new Date(chart.calculated_at).toLocaleString(language === 'ta' ? 'ta-IN' : 'en', { dateStyle: 'medium', timeStyle: 'short' }) : ''}</span><button className="icon-btn" aria-label={language === 'ta' ? 'ஜாதகத்தை மீண்டும் ஏற்று' : 'Reload saved chart'} onClick={() => void openHistory({ id: chart.chart_id, profile_id: chart.profile_id, profile_name: selectedProfile?.display_name ?? '', system: chart.calculation_system, division: division, status: chart.status, created_at: chart.calculated_at, configuration: chart.configuration, unavailable_reason: null })}><RefreshCw size={15}/></button></div>
-      {system === 'vedic' && result.calculation_system === 'vedic' ? <VedicChartView data={result} division={division} language={language}/> : system === 'western' && result.calculation_system === 'western' ? <WesternChartView data={result} language={language}/> : <div className="chart-alert error" role="alert">{t('systemError')}</div>}
+      {system === 'vedic' && result.calculation_system === 'vedic' ? <><VedicChartView data={result} division={division} language={language}/>{division === 'D1' && result.division === 'D1' && <VedicDignitySection analysis={dignity} loading={dignityLoading} error={dignityError} language={language}/>}</> : system === 'western' && result.calculation_system === 'western' ? <WesternChartView data={result} language={language}/> : <div className="chart-alert error" role="alert">{t('systemError')}</div>}
     </div>}
   </section>;
 }
