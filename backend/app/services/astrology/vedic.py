@@ -182,21 +182,33 @@ class VedicAstrologyEngine(AstrologyEngine):
         return self._provider()
 
     def calculate_chart(self, birth_data: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
-        if birth_data.get("time_accuracy") == "unknown" or birth_data.get("birth_time") is None:
-            raise InvalidBirthData("A known local birth time is required; missing time is never assumed")
+        limited_chart = birth_data.get("time_accuracy") == "unknown" or birth_data.get("birth_time") is None
         provider = self._provider()
-        birth_date = birth_data["birth_date"]
-        birth_time = birth_data["birth_time"]
+        birth_date = birth_data.get("birth_date")
         if isinstance(birth_date, str):
-            birth_date = date.fromisoformat(birth_date)
-        if isinstance(birth_time, str):
-            birth_time = time.fromisoformat(birth_time)
-        utc = local_birth_time_to_utc(birth_date, birth_time, birth_data.get("timezone"))
+            try:
+                birth_date = date.fromisoformat(birth_date)
+            except ValueError as exc:
+                raise InvalidBirthData("Birth date has an invalid format") from exc
+        if not isinstance(birth_date, date):
+            raise InvalidBirthData("A valid birth date is required")
+        if limited_chart:
+            if config.get("division", "D1") != "D1":
+                raise InvalidBirthData("D9 Navamsa requires a known birth time; use D1 Rashi for a date-only chart")
+            utc = local_birth_time_to_utc(birth_date, time(12, 0), birth_data.get("timezone"))
+        else:
+            birth_time = birth_data["birth_time"]
+            if isinstance(birth_time, str):
+                try:
+                    birth_time = time.fromisoformat(birth_time)
+                except ValueError as exc:
+                    raise InvalidBirthData("Birth time has an invalid format") from exc
+            utc = local_birth_time_to_utc(birth_date, birth_time, birth_data.get("timezone"))
         house_system = config.get("house_system", "P")
         division = config.get("division", "D1")
         if division not in {"D1", "D9"}:
             raise InvalidBirthData("Supported Vedic divisions are D1 and D9")
-        if "latitude" not in birth_data or "longitude" not in birth_data or birth_data["latitude"] is None or birth_data["longitude"] is None:
+        if birth_data.get("latitude") is None or birth_data.get("longitude") is None:
             raise InvalidBirthData("Birth latitude and longitude are required")
         try:
             result = provider.calculate(utc, float(birth_data["latitude"]), float(birth_data["longitude"]), "sidereal", house_system, "lahiri")
@@ -228,47 +240,71 @@ class VedicAstrologyEngine(AstrologyEngine):
             planet["rashi"] = nakshatra["rashi"]
             planet["degrees_in_rashi"] = nakshatra["degrees_in_rashi"]
             planet["rashi_index"] = _RASHI_INDEX[planet["rashi"]]
-            planet["house"] = house_for_longitude(planet["longitude"], result["houses"])
-            planet["d9"] = navamsa_details(planet["longitude"])
-        asc = {"longitude": result["ascendant_longitude"], **nakshatra_details(result["ascendant_longitude"])}
-        asc["rashi_index"] = _RASHI_INDEX[asc["rashi"]]
-        asc["d9"] = navamsa_details(result["ascendant_longitude"])
-        result["ascendant"] = asc
-        result["midheaven"] = {"longitude": result["midheaven_longitude"], **nakshatra_details(result["midheaven_longitude"])}
+            if not limited_chart:
+                planet["house"] = house_for_longitude(planet["longitude"], result["houses"])
+                planet["d9"] = navamsa_details(planet["longitude"])
+            else:
+                planet["position_time_assumption"] = "local_noon_estimate"
         result["planets"] = planets
-        if division == "D9":
-            d9_cusps = [dict(cusp, cusp_longitude=navamsa_details(cusp["cusp_longitude"])["longitude"]) for cusp in result["houses"]]
-            for planet in planets:
-                planet["division_longitude"] = planet["d9"]["longitude"]
-                planet["division_rashi"] = planet["d9"]["rashi"]
-                planet["division_rashi_index"] = planet["d9"]["rashi_index"]
-                planet["division_house"] = house_for_longitude(planet["division_longitude"], d9_cusps)
-            asc["division_longitude"] = asc["d9"]["longitude"]
-            asc["division_rashi"] = asc["d9"]["rashi"]
-            asc["division_house"] = house_for_longitude(asc["division_longitude"], d9_cusps)
-            result["division_houses"] = [{**cusp, "rashi": RASHIS[int(cusp["cusp_longitude"] / 30.0)]} for cusp in d9_cusps]
-        else:
+
+        if limited_chart:
+            # No Ascendant, house cusps, divisional chart or birth-time-based dasha is inferred.
+            result["houses"] = []
+            result["division_houses"] = []
+            result["ascendant"] = None
+            result["midheaven"] = None
+            result.pop("ascendant_longitude", None)
+            result.pop("midheaven_longitude", None)
             for planet in planets:
                 planet["division_longitude"] = planet["longitude"]
                 planet["division_rashi"] = planet["rashi"]
                 planet["division_rashi_index"] = planet["rashi_index"]
-                planet["division_house"] = planet["house"]
-            asc["division_longitude"] = asc["longitude"]
-            asc["division_rashi"] = asc["rashi"]
-            asc["division_house"] = house_for_longitude(asc["longitude"], result["houses"])
-            result["division_houses"] = result["houses"]
+        else:
+            asc = {"longitude": result["ascendant_longitude"], **nakshatra_details(result["ascendant_longitude"])}
+            asc["rashi_index"] = _RASHI_INDEX[asc["rashi"]]
+            asc["d9"] = navamsa_details(result["ascendant_longitude"])
+            result["ascendant"] = asc
+            result["midheaven"] = {"longitude": result["midheaven_longitude"], **nakshatra_details(result["midheaven_longitude"])}
+            if division == "D9":
+                d9_cusps = [dict(cusp, cusp_longitude=navamsa_details(cusp["cusp_longitude"])["longitude"]) for cusp in result["houses"]]
+                for planet in planets:
+                    planet["division_longitude"] = planet["d9"]["longitude"]
+                    planet["division_rashi"] = planet["d9"]["rashi"]
+                    planet["division_rashi_index"] = planet["d9"]["rashi_index"]
+                    planet["division_house"] = house_for_longitude(planet["division_longitude"], d9_cusps)
+                asc["division_longitude"] = asc["d9"]["longitude"]
+                asc["division_rashi"] = asc["d9"]["rashi"]
+                asc["division_house"] = house_for_longitude(asc["division_longitude"], d9_cusps)
+                result["division_houses"] = [{**cusp, "rashi": RASHIS[int(cusp["cusp_longitude"] / 30.0)]} for cusp in d9_cusps]
+            else:
+                for planet in planets:
+                    planet["division_longitude"] = planet["longitude"]
+                    planet["division_rashi"] = planet["rashi"]
+                    planet["division_rashi_index"] = planet["rashi_index"]
+                    planet["division_house"] = planet["house"]
+                asc["division_longitude"] = asc["longitude"]
+                asc["division_rashi"] = asc["rashi"]
+                asc["division_house"] = house_for_longitude(asc["longitude"], result["houses"])
+                result["division_houses"] = result["houses"]
 
         result["calculation_system"] = "vedic"
         result["division"] = division
         result["ayanamsa_name"] = "Lahiri"
         result["time_accuracy"] = birth_data.get("time_accuracy")
-        result["precision_note"] = "Approximate birth time; angles and house cusps inherit the supplied time uncertainty." if birth_data.get("time_accuracy") == "approximate" else None
-        year_convention = config.get("dasha_year_convention", "savana_360_day")
-        result["vimshottari_dasha"] = vimshottari_dasha(next(p["longitude"] for p in planets if p["name"] == "Moon"), utc, year_convention)
+        result["calculation_mode"] = "limited_date_only" if limited_chart else "full_timed"
+        result["precision_note"] = (
+            "Birth time unknown: planetary positions are estimated for local noon on the recorded date. "
+            "Sign and nakshatra details near a transition may differ; Ascendant, houses, D9 and Vimshottari dasha are omitted."
+            if limited_chart else
+            "Approximate birth time; angles and house cusps inherit the supplied time uncertainty." if birth_data.get("time_accuracy") == "approximate" else None
+        )
+        if not limited_chart:
+            year_convention = config.get("dasha_year_convention", "savana_360_day")
+            result["vimshottari_dasha"] = vimshottari_dasha(next(p["longitude"] for p in planets if p["name"] == "Moon"), utc, year_convention)
         result["configuration"] = {
-            "zodiac": "sidereal", "ayanamsa": "lahiri", "house_system": house_system,
-            "division": division, "node_model": "mean", "dasha_year_convention": year_convention,
-            "d9_house_convention": "configured house cusps transformed into navamsa",
+            "zodiac": "sidereal", "ayanamsa": "lahiri", "house_system": None if limited_chart else house_system,
+            "division": division, "node_model": "mean",
+            **({"time_assumption": "local_noon_estimate"} if limited_chart else {"dasha_year_convention": config.get("dasha_year_convention", "savana_360_day"), "d9_house_convention": "configured house cusps transformed into navamsa"}),
         }
         result["vedic_engine_version"] = VEDIC_ENGINE_VERSION
         return result

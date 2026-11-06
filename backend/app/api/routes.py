@@ -291,17 +291,18 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
     profile = db.scalar(select(BirthProfile).where(BirthProfile.id == payload.profile_id, BirthProfile.owner_id == user.id))
     if profile is None:
         raise HTTPException(404, "Profile not found")
-    if profile.birth_time is None or profile.time_accuracy == "unknown":
-        raise HTTPException(422, "A known birth time is required for houses and angles")
-    if profile.latitude is None or profile.longitude is None:
-        raise HTTPException(422, "Birth latitude and longitude are required")
+    limited_chart = profile.birth_time is None or profile.time_accuracy == "unknown"
+    if profile.latitude is None or profile.longitude is None or not profile.timezone:
+        raise HTTPException(422, "Select a birthplace from the location suggestions so coordinates and an IANA timezone are saved")
+    if limited_chart and system == "vedic" and payload.division != "D1":
+        raise HTTPException(422, "D9 Navamsa requires a known birth time; use D1 Rashi for a date-only chart")
     engine = VedicAstrologyEngine() if system == "vedic" else WesternAstrologyEngine()
     division = payload.division if system == "vedic" else "D1"
     try:
         provider = engine.get_provider()
     except EngineUnavailable as exc:
         raise _calculation_unavailable(exc.reason_code, system) from exc
-    calculation_config = {"house_system": payload.house_system}
+    calculation_config = {"house_system": payload.house_system, "chart_mode": "limited_date_only" if limited_chart else "full_timed"}
     if system == "vedic":
         calculation_config.update({"zodiac": "sidereal", "ayanamsa": "lahiri", "division": payload.division,
                                    "dasha_year_convention": payload.dasha_year_convention})
@@ -364,7 +365,7 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
         result=result,
         engine_version=engine_version,
         ephemeris_version=result["ephemeris_version"],
-        timezone_assumption=f"{profile.timezone}: local wall time converted using system IANA timezone data",
+        timezone_assumption=(f"{profile.timezone}: local noon estimate used because birth time is unknown" if limited_chart else f"{profile.timezone}: local wall time converted using system IANA timezone data"),
         created_at=calculated_at,
     )
     db.add(run)

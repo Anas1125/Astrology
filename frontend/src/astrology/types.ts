@@ -24,6 +24,8 @@ export type ChartAspect = { planet_a: string; planet_b: string; aspect: string; 
 export type DashaPeriod = { lord: string; start: string; end: string; full_duration_days: number; full_duration_years?: number; balance_days_at_birth?: number | null; elapsed_days_at_birth?: number; remaining_days_at_birth?: number | null; mahadasha_lord?: string; antardasha_lord?: string };
 export type AstrologyResult = {
   calculation_system: 'vedic' | 'western';
+  calculation_mode?: 'full_timed' | 'limited_date_only';
+  precision_note?: string | null;
   division?: 'D1' | 'D9';
   calculated_at?: string;
   engine_version?: string;

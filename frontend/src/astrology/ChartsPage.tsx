@@ -74,6 +74,8 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
   useEffect(() => { void loadProfiles(); }, [loadProfiles]);
 
   const selectedProfile = useMemo(() => profiles.find(profile => profile.id === selectedId) ?? null, [profiles, selectedId]);
+  const isLimitedProfile = Boolean(selectedProfile && (!selectedProfile.birth_time || selectedProfile.time_accuracy === 'unknown'));
+  useEffect(() => { if (isLimitedProfile && division !== 'D1') setDivision('D1'); }, [isLimitedProfile, division]);
   useEffect(() => {
     if (!account || !selectedId) return;
     sessionStorage.setItem(`astroai_selected_profile:${account.id}`, selectedId);
@@ -87,7 +89,7 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
   useEffect(() => {
     let cancelled = false;
     setDignity(null); setDignityError('');
-    if (!token || !chart || system !== 'vedic' || division !== 'D1' || chart.status !== 'complete' || chart.result?.division !== 'D1') {
+    if (!token || !chart || system !== 'vedic' || division !== 'D1' || chart.status !== 'complete' || chart.result?.division !== 'D1' || chart.result?.calculation_mode === 'limited_date_only') {
       setDignityLoading(false);
       return () => { cancelled = true; };
     }
@@ -156,7 +158,8 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
     } finally { setCalculating(false); }
   }
 
-  const hasRequiredBirthData = Boolean(selectedProfile?.birth_time && selectedProfile.time_accuracy !== 'unknown' && selectedProfile.timezone && selectedProfile.latitude !== null && selectedProfile.latitude !== undefined && selectedProfile.longitude !== null && selectedProfile.longitude !== undefined);
+  const hasRequiredLocation = Boolean(selectedProfile?.timezone && selectedProfile.latitude !== null && selectedProfile.latitude !== undefined && selectedProfile.longitude !== null && selectedProfile.longitude !== undefined);
+  const hasRequiredBirthData = Boolean(selectedProfile && hasRequiredLocation && (isLimitedProfile || (selectedProfile.birth_time && selectedProfile.time_accuracy !== 'unknown')));
   const isUnavailable = chartError?.status === 503;
   const canRetryChartRequest = chartError?.status === undefined || (chartError.status >= 500 && chartError.status !== 503);
   const result = chart ? selectedChartResponse(chart, system) : null;
@@ -167,11 +170,14 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
     <div className="chart-request-panel">
       <label className="chart-select-field"><span>{t('system')}</span><select aria-label={t('system')} value={system} onChange={event => { setHistoryOffset(0); onSystemChange(event.target.value as System); }}><option value="vedic">{t('vedic')}</option><option value="western">{t('western')}</option></select></label>
       <label className="chart-select-field profile-select"><span>{t('profile')}</span><select aria-label={t('profile')} value={selectedId} onChange={updateSelected} disabled={profilesLoading || profiles.length === 0}><option value="">{profilesLoading ? t('loadingProfiles') : t('profileRequired')}</option>{profiles.map(profile => <option value={profile.id} key={profile.id}>{profile.display_name} · {profile.birthplace}</option>)}</select></label>
-      {system === 'vedic' && <label className="chart-select-field"><span>{t('division')}</span><select aria-label={t('division')} value={division} onChange={event => { setDivision(event.target.value as Division); setChart(null); setChartError(null); }}><option value="D1">{t('d1')}</option><option value="D9">{t('d9')}</option></select></label>}
+      {system === 'vedic' && <label className="chart-select-field"><span>{t('division')}</span><select aria-label={t('division')} value={division} onChange={event => { setDivision(event.target.value as Division); setChart(null); setChartError(null); }}><option value="D1">{t('d1')}</option><option value="D9" disabled={isLimitedProfile}>{t('d9')}</option></select></label>}
+{!isLimitedProfile && (
       <label className="chart-select-field"><span>{t('houseSystem')}</span><select aria-label={t('houseSystem')} value={houseSystem} onChange={event => { setHouseSystem(event.target.value as WesternHouseSystem); setChart(null); setChartError(null); }}>{HOUSE_OPTIONS.map(option => <option key={option.code} value={option.code}>{language === 'ta' ? option.code === 'P' ? t('plSystem') : option.code === 'W' ? t('wholeSign') : option.code === 'E' ? t('equal') : option.label : option.label}</option>)}</select></label>
+      )}
       <button className="primary-btn chart-calculate-btn" onClick={() => void calculate()} disabled={profilesLoading || calculating || chartLoading || !selectedProfile || !hasRequiredBirthData}>{calculating ? t('calculating') : <>{t('calculate')} <ArrowUpRight size={15}/></>}</button>
     </div>
 
+    {isLimitedProfile && hasRequiredLocation && <div className="chart-alert" role="status">{t('limitedChartNote')}</div>}
     {profilesError && <div className="chart-alert error" role="alert"><span>{profilesError}</span><button onClick={() => void loadProfiles()}>{t('retry')}</button></div>}
     {selectedProfile && <section className="chart-history" aria-labelledby="chart-history-title">
       <div className="chart-history-heading"><h2 id="chart-history-title">{t('history')}</h2><span>{history?.total ?? 0}</span></div>
@@ -192,7 +198,7 @@ export default function ChartsPage({ system, language, onSystemChange, onManageP
     {!chartLoading && !chartError && !chart && profiles.length > 0 && <ChartEmptyState language={language}/>}
     {result && chart && <div className="chart-result" key={`${system}-${division}-${chart.chart_id}`}>
       <div className="chart-result-meta"><span>{selectedProfile?.display_name}</span><span>{chart.calculated_at ? new Date(chart.calculated_at).toLocaleString(language === 'ta' ? 'ta-IN' : 'en', { dateStyle: 'medium', timeStyle: 'short' }) : ''}</span><button className="icon-btn" aria-label={language === 'ta' ? 'ஜாதகத்தை மீண்டும் ஏற்று' : 'Reload saved chart'} onClick={() => void openHistory({ id: chart.chart_id, profile_id: chart.profile_id, profile_name: selectedProfile?.display_name ?? '', system: chart.calculation_system, division: division, status: chart.status, created_at: chart.calculated_at, configuration: chart.configuration, unavailable_reason: null })}><RefreshCw size={15}/></button></div>
-      {system === 'vedic' && result.calculation_system === 'vedic' ? <><VedicChartView data={result} division={division} language={language}/>{division === 'D1' && result.division === 'D1' && <VedicDignitySection analysis={dignity} loading={dignityLoading} error={dignityError} language={language}/>}</> : system === 'western' && result.calculation_system === 'western' ? <WesternChartView data={result} language={language}/> : <div className="chart-alert error" role="alert">{t('systemError')}</div>}
+      {system === 'vedic' && result.calculation_system === 'vedic' ? <><VedicChartView data={result} division={division} language={language}/>{division === 'D1' && result.division === 'D1' && result.calculation_mode !== 'limited_date_only' && <VedicDignitySection analysis={dignity} loading={dignityLoading} error={dignityError} language={language}/>}</> : system === 'western' && result.calculation_system === 'western' ? <WesternChartView data={result} language={language}/> : <div className="chart-alert error" role="alert">{t('systemError')}</div>}
     </div>}
   </section>;
 }

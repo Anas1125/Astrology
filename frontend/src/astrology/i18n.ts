@@ -3,8 +3,8 @@ export type AstroLanguage = 'en' | 'ta';
 export const astrologyText = {
   en: {
     title: 'Birth chart', system: 'Astrology system', vedic: 'Vedic', western: 'Western', profile: 'Birth profile',
-    manageProfiles: 'Manage birth profiles', noProfiles: 'Add a birth profile to begin', noProfilesDescription: 'A chart needs a saved birth date, exact time, IANA timezone and verified coordinates.',
-    profileRequired: 'Select a birth profile.', missingBirthData: 'This profile needs a known birth time, IANA timezone, latitude and longitude before a chart can be calculated.',
+    manageProfiles: 'Manage birth profiles', noProfiles: 'Add a birth profile to begin', noProfilesDescription: 'A chart needs a saved birth date, selected birthplace, IANA timezone and verified coordinates. A known birth time unlocks houses and angles.',
+    profileRequired: 'Select a birth profile.', missingBirthData: 'Select a birthplace from the suggestions so its IANA timezone and coordinates are saved. A known birth time is optional for a limited date-only chart.', limitedChartNote: 'Limited date-only chart: planetary placements use a local-noon estimate for the recorded date. Sign or nakshatra details near a transition may differ. Ascendant, houses, D9 and Vimshottari dasha are not included.',
     houseSystem: 'House system', calculate: 'Calculate chart', calculating: 'Calculating…', loadingProfiles: 'Loading birth profiles…', loadingChart: 'Loading saved chart…',
     unavailableTitle: 'Chart calculation unavailable', unavailableDescription: 'Chart calculations are currently disabled intentionally. No chart was calculated or saved. This feature requires verified runtime setup and Swiss Ephemeris licensing approval.',
     errorTitle: 'Could not load chart', retry: 'Try again', noChart: 'Choose a profile and calculate a chart to see its placements.',
@@ -22,8 +22,8 @@ export const astrologyText = {
   },
   ta: {
     title: 'பிறப்பு ஜாதகம்', system: 'ஜோதிட முறை', vedic: 'வேத ஜோதிடம்', western: 'மேற்கத்திய ஜோதிடம்', profile: 'பிறப்பு விவரம்',
-    manageProfiles: 'பிறப்பு விவரங்களை நிர்வகிக்க', noProfiles: 'தொடங்க பிறப்பு விவரத்தைச் சேர்க்கவும்', noProfilesDescription: 'ஜாதகக் கணக்கீட்டுக்கு பிறந்த தேதி, துல்லியமான நேரம், IANA நேர மண்டலம் மற்றும் சரிபார்க்கப்பட்ட ஆயத்தொலைவுகள் தேவை.',
-    profileRequired: 'பிறப்பு விவரத்தைத் தேர்ந்தெடுக்கவும்.', missingBirthData: 'ஜாதகக் கணக்கீட்டுக்கு தெரிந்த பிறந்த நேரம், IANA நேர மண்டலம், அட்சரேகை மற்றும் தீர்க்கரேகை தேவை.',
+    manageProfiles: 'பிறப்பு விவரங்களை நிர்வகிக்க', noProfiles: 'தொடங்க பிறப்பு விவரத்தைச் சேர்க்கவும்', noProfilesDescription: 'ஜாதகத்திற்கு பிறந்த தேதி, தேர்ந்தெடுக்கப்பட்ட பிறந்த இடம், IANA நேர மண்டலம் மற்றும் சரிபார்க்கப்பட்ட ஆயத்தொலைவுகள் தேவை. தெரிந்த பிறந்த நேரம் பாவங்களையும் லக்னத்தையும் கணக்கிட உதவும்.',
+    profileRequired: 'பிறப்பு விவரத்தைத் தேர்ந்தெடுக்கவும்.', missingBirthData: 'இடத் தேடல் பரிந்துரைகளிலிருந்து பிறந்த இடத்தைத் தேர்ந்தெடுக்கவும்; அதன் நேர மண்டலமும் ஆயத்தொலைவுகளும் தானாகச் சேமிக்கப்படும். வரையறுக்கப்பட்ட தேதி-மட்டும் ஜாதகத்திற்கு பிறந்த நேரம் கட்டாயமில்லை.', limitedChartNote: 'வரையறுக்கப்பட்ட தேதி-மட்டும் ஜாதகம்: பதிவுசெய்த தேதியின் உள்ளூர் நண்பகல் நேரத்தை மதிப்பீடாகப் பயன்படுத்தி கிரக நிலைகள் கணக்கிடப்படுகின்றன. ராசி அல்லது நட்சத்திர எல்லைக்கு அருகிலுள்ள விவரங்கள் மாறலாம். லக்னம், பாவங்கள், D9 மற்றும் விம்சோத்தரி தசை இதில் இல்லை.',
     houseSystem: 'பாவ முறை', calculate: 'ஜாதகத்தைக் கணக்கிடு', calculating: 'கணக்கிடுகிறது…', loadingProfiles: 'பிறப்பு விவரங்கள் ஏற்றப்படுகின்றன…', loadingChart: 'சேமித்த ஜாதகம் ஏற்றப்படுகிறது…',
     unavailableTitle: 'ஜாதகக் கணக்கீடு கிடைக்கவில்லை', unavailableDescription: 'ஜாதகக் கணக்கீடு தற்போது திட்டமிட்டே முடக்கப்பட்டுள்ளது. ஜாதகம் கணக்கிடப்படவோ சேமிக்கப்படவோ இல்லை. சரிபார்க்கப்பட்ட கணக்கீட்டு சூழலும் Swiss Ephemeris உரிம ஒப்புதலும் தேவை.',
     errorTitle: 'ஜாதகத்தை ஏற்ற முடியவில்லை', retry: 'மீண்டும் முயற்சி', noChart: 'நிலைகளைக் காண விவரத்தைத் தேர்ந்தெடுத்து ஜாதகத்தைக் கணக்கிடவும்.',

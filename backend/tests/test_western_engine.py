@@ -117,10 +117,35 @@ def test_invalid_coordinates_are_rejected(western, latitude, longitude):
         western.calculate_chart(_birth(latitude=latitude, longitude=longitude), {})
 
 
-@pytest.mark.parametrize("birth_time,time_accuracy", [(None, "unknown"), ("bad-time", "exact")])
-def test_missing_or_invalid_birth_time_is_rejected(western, birth_time, time_accuracy):
+def test_unknown_birth_time_returns_limited_date_only_chart(western):
+    result = western.calculate_chart(
+        _birth(birth_time=None, time_accuracy="unknown"),
+        {},
+    )
+
+    assert result["calculation_mode"] == "limited_date_only"
+    assert result["configuration"]["time_assumption"] == "local_noon_estimate"
+
+    assert result["houses"] == []
+    assert result["ascendant"] is None
+    assert result["midheaven"] is None
+
+    assert "ascendant_longitude" not in result
+    assert "midheaven_longitude" not in result
+
+    assert all("house" not in planet for planet in result["planets"])
+    assert all(
+        planet["position_time_assumption"] == "local_noon_estimate"
+        for planet in result["planets"]
+    )
+
+
+def test_invalid_birth_time_is_still_rejected(western):
     with pytest.raises(InvalidBirthData):
-        western.calculate_chart(_birth(birth_time=birth_time, time_accuracy=time_accuracy), {})
+        western.calculate_chart(
+            _birth(birth_time="bad-time", time_accuracy="exact"),
+            {},
+        )
 
 
 def test_unsupported_house_system_and_polar_placidus_have_clear_errors(western):

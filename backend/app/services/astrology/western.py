@@ -139,20 +139,24 @@ class WesternAstrologyEngine(AstrologyEngine):
         return self._provider()
 
     def calculate_chart(self, birth_data: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
-        if birth_data.get("time_accuracy") == "unknown" or birth_data.get("birth_time") is None:
-            raise InvalidBirthData("A known local birth time is required; missing time is never assumed")
+        limited_chart = birth_data.get("time_accuracy") == "unknown" or birth_data.get("birth_time") is None
         birth_date = birth_data.get("birth_date")
         birth_time = birth_data.get("birth_time")
         try:
             if isinstance(birth_date, str):
                 birth_date = date.fromisoformat(birth_date)
             if isinstance(birth_time, str):
-                birth_time = time.fromisoformat(birth_time)
+                birth_time = time.fromisoformat(birth_time) if birth_time else None
         except ValueError as exc:
             raise InvalidBirthData("Birth date or local birth time has an invalid format") from exc
-        if not isinstance(birth_date, date) or not isinstance(birth_time, time):
-            raise InvalidBirthData("A valid birth date and exact local birth time are required")
-        utc = local_birth_time_to_utc(birth_date, birth_time, birth_data.get("timezone"))
+        if not isinstance(birth_date, date):
+            raise InvalidBirthData("A valid birth date is required")
+        if limited_chart:
+            utc = local_birth_time_to_utc(birth_date, time(12, 0), birth_data.get("timezone"))
+        else:
+            if not isinstance(birth_time, time):
+                raise InvalidBirthData("A valid local birth time is required")
+            utc = local_birth_time_to_utc(birth_date, birth_time, birth_data.get("timezone"))
         latitude = birth_data.get("latitude")
         longitude = birth_data.get("longitude")
         try:
@@ -174,31 +178,47 @@ class WesternAstrologyEngine(AstrologyEngine):
         planets = [dict(planet) for planet in result["planets"]]
         for planet in planets:
             planet.update(_position_details(float(planet["longitude"])))
-            planet["house"] = _house_for_longitude(planet["longitude"], result["houses"])
-        ascendant = _position_details(float(result["ascendant_longitude"]))
-        ascendant["house"] = _house_for_longitude(ascendant["longitude"], result["houses"])
-        midheaven = _position_details(float(result["midheaven_longitude"]))
+            if not limited_chart:
+                planet["house"] = _house_for_longitude(planet["longitude"], result["houses"])
+            else:
+                planet["position_time_assumption"] = "local_noon_estimate"
         aspect_orbs = dict(DEFAULT_ASPECT_ORBS)
         aspect_orbs.update(config.get("aspect_orbs") or {})
         aspects = calculate_aspects(planets, aspect_orbs)
         result["planets"] = planets
-        result["houses"] = [
-            {**house, **_position_details(float(house["cusp_longitude"]))}
-            for house in result["houses"]
-        ]
-        result["ascendant"] = ascendant
-        result["midheaven"] = midheaven
+        if limited_chart:
+            result["houses"] = []
+            result["ascendant"] = None
+            result["midheaven"] = None
+            result.pop("ascendant_longitude", None)
+            result.pop("midheaven_longitude", None)
+        else:
+            ascendant = _position_details(float(result["ascendant_longitude"]))
+            ascendant["house"] = _house_for_longitude(ascendant["longitude"], result["houses"])
+            midheaven = _position_details(float(result["midheaven_longitude"]))
+            result["houses"] = [
+                {**house, **_position_details(float(house["cusp_longitude"]))}
+                for house in result["houses"]
+            ]
+            result["ascendant"] = ascendant
+            result["midheaven"] = midheaven
         result["aspects"] = aspects
         result["calculation_system"] = "western"
         result["western_engine_version"] = WESTERN_ENGINE_VERSION
         result["time_accuracy"] = birth_data.get("time_accuracy")
-        result["precision_note"] = "Approximate birth time; angles and house cusps inherit the supplied time uncertainty." if birth_data.get("time_accuracy") == "approximate" else None
+        result["calculation_mode"] = "limited_date_only" if limited_chart else "full_timed"
+        result["precision_note"] = (
+            "Birth time unknown: planetary positions and aspects are estimated for local noon on the recorded date. "
+            "Houses, Ascendant and Midheaven are omitted."
+            if limited_chart else
+            "Approximate birth time; angles and house cusps inherit the supplied time uncertainty." if birth_data.get("time_accuracy") == "approximate" else None
+        )
         result["configuration"] = {
             "zodiac": "tropical",
-            "house_system": house_system,
-            "house_system_name": HOUSE_SYSTEM_NAMES[house_system],
+            "house_system": None if limited_chart else house_system,
             "aspect_orbs": aspect_orbs,
             "aspect_motion_method": "relative geocentric ecliptic longitude speed",
+            **({"time_assumption": "local_noon_estimate"} if limited_chart else {"house_system_name": HOUSE_SYSTEM_NAMES[house_system]}),
         }
         return result
 
