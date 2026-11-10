@@ -1,0 +1,91 @@
+name: Build Swiss Ephemeris Linux runtime
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-linux-x64:
+    name: Build glibc 2.17-compatible Linux x86-64 library
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check Docker on GitHub runner
+        run: docker version
+
+      - name: Build and verify official Swiss Ephemeris library
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUTPUT_DIR="$RUNNER_TEMP/sweph-out"
+          mkdir -p "$OUTPUT_DIR"
+
+          docker run --rm --platform linux/amd64 \
+            -v "$OUTPUT_DIR:/out" \
+            quay.io/pypa/manylinux2014_x86_64:latest \
+            /bin/bash -euo pipefail -c '
+              set -euo pipefail
+              command -v gcc
+              command -v make
+              command -v curl
+              command -v readelf
+              command -v objdump
+              command -v nm
+              command -v file
+
+              SOURCE_COMMIT="af9823fe7b06ffefe3d3968fdc5680be8b5eec5f"
+              curl --fail --location --retry 3 \
+                "https://github.com/aloistr/swisseph/archive/${SOURCE_COMMIT}.tar.gz" \
+                --output /tmp/swisseph-source.tar.gz
+
+              mkdir -p /tmp/swisseph-source
+              tar -xzf /tmp/swisseph-source.tar.gz \
+                --strip-components=1 -C /tmp/swisseph-source
+              cd /tmp/swisseph-source
+
+              OBJECTS="swedate.o swehouse.o swejpl.o swemmoon.o swemplan.o sweph.o swephlib.o swecl.o swehel.o"
+              make -j2 CFLAGS="-O2 -Wall -fPIC" $OBJECTS
+
+              gcc -shared -Wl,--no-undefined \
+                -Wl,-soname,libastroai-swe.so \
+                -o /out/libastroai-swe.so \
+                $OBJECTS -lm -ldl
+
+              chmod 755 /out/libastroai-swe.so
+              file /out/libastroai-swe.so
+              readelf -h /out/libastroai-swe.so | grep -E "Class:|Machine:"
+              ldd -r /out/libastroai-swe.so
+
+              for symbol in swe_version swe_calc_ut swe_houses_ex swe_rise_trans swe_set_ephe_path; do
+                if ! nm -D --defined-only /out/libastroai-swe.so | grep -Eq "[[:space:]]${symbol}$"; then
+                  echo "Missing required Swiss Ephemeris symbol: ${symbol}" >&2
+                  exit 1
+                fi
+              done
+
+              MAX_GLIBC="$(objdump -T /out/libastroai-swe.so | grep -oE "GLIBC_[0-9]+(\\.[0-9]+)+" | sort -Vu | tail -n 1 || true)"
+              echo "Maximum required GLIBC symbol version: ${MAX_GLIBC:-none}"
+              if [ -n "$MAX_GLIBC" ]; then
+                LATEST="$(printf "%s\\n" "$MAX_GLIBC" "GLIBC_2.17" | sort -V | tail -n 1)"
+                if [ "$LATEST" != "GLIBC_2.17" ]; then
+                  echo "Built library exceeds the manylinux2014 GLIBC_2.17 baseline." >&2
+                  exit 1
+                fi
+              fi
+              sha256sum /out/libastroai-swe.so
+            '
+
+          mkdir -p backend/native/linux-x64
+          cp "$OUTPUT_DIR/libastroai-swe.so" backend/native/linux-x64/libastroai-swe.so
+
+      - name: Upload verified native library
+        uses: actions/upload-artifact@v4
+        with:
+          name: swisseph-linux-x64-glibc217
+          path: backend/native/linux-x64/libastroai-swe.so
+          if-no-files-found: error
+          retention-days: 7
