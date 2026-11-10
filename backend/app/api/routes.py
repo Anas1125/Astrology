@@ -29,15 +29,41 @@ from app.services.geocoding import GeocodingUnavailable, search_places
 router = APIRouter()
 logger = logging.getLogger(__name__)
 oauth = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-def _calculation_unavailable(reason_code: str, system: str) -> HTTPException:
+def _calculation_unavailable(
+    reason_code: str,
+    system: str,
+    error: Exception | None = None,
+) -> HTTPException:
     messages = {
         "feature_disabled": "Astrology calculations are currently disabled intentionally while verified runtime setup and Swiss Ephemeris licensing approval are pending. No calculation was performed and no chart was saved.",
         "license_unconfirmed": "Astrology calculations are blocked pending Swiss Ephemeris licensing approval. No calculation was performed and no chart was saved.",
         "ephemeris_data_unavailable": "Swiss Ephemeris data is unavailable for this calculation. No calculation was performed and no chart was saved.",
         "native_runtime_unavailable": "The Swiss Ephemeris native runtime is unavailable. No calculation was performed and no chart was saved.",
     }
-    logger.warning("astrology calculation unavailable", extra={"reason_code": reason_code, "calculation_system": system})
-    return HTTPException(503, messages.get(reason_code, messages["native_runtime_unavailable"]))
+
+    exception_chain = []
+    current = error
+
+    for _ in range(4):
+        if current is None:
+            break
+
+        message = " ".join(str(current).split())[:240]
+        exception_chain.append(f"{type(current).__name__}: {message}")
+
+        current = current.__cause__ or current.__context__
+
+    logger.warning(
+        "astrology calculation unavailable reason_code=%s system=%s exception_chain=%s",
+        reason_code,
+        system,
+        " <- ".join(exception_chain) or "not available",
+    )
+
+    return HTTPException(
+        503,
+        messages.get(reason_code, messages["native_runtime_unavailable"]),
+    )
 
 
 def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> User:
@@ -301,7 +327,7 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
     try:
         provider = engine.get_provider()
     except EngineUnavailable as exc:
-        raise _calculation_unavailable(exc.reason_code, system) from exc
+        raise _calculation_unavailable(exc.reason_code, system, exc) from exc
     calculation_config = {"house_system": payload.house_system, "chart_mode": "limited_date_only" if limited_chart else "full_timed"}
     if system == "vedic":
         calculation_config.update({"zodiac": "sidereal", "ayanamsa": "lahiri", "division": payload.division,
@@ -332,7 +358,7 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
     except InvalidBirthData as exc:
         raise HTTPException(422, str(exc)) from exc
     except EngineUnavailable as exc:
-        raise _calculation_unavailable(exc.reason_code, system) from exc
+        raise _calculation_unavailable(exc.reason_code, system, exc) from exc
     calculated_at = datetime.now(timezone.utc)
     result["calculated_at"] = calculated_at.isoformat()
     config_snapshot = {
@@ -392,7 +418,7 @@ def calculate_daily_panchang(payload: PanchangRequest, user: User = Depends(curr
     try:
         provider = VedicAstrologyEngine().get_provider()
     except EngineUnavailable as exc:
-        raise _calculation_unavailable(exc.reason_code, "panchang") from exc
+        raise _calculation_unavailable(exc.reason_code, "panchang", exc) from exc
     try:
         return calculate_panchang_day(
             payload.local_date,
