@@ -135,21 +135,43 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await selectBirthTime(page, '08', '30', 'PM');
   await page.getByLabel('Birthplace').fill('Nagercoil');
   const suggestions = page.getByRole('listbox', { name: 'Place suggestions' });
+
   await expect(suggestions.getByRole('option')).toHaveCount(2);
-  await expect(suggestions.getByRole('option').first()).toContainText('Tamil Nadu, India');
-  await expect(suggestions.getByRole('option').nth(1)).toContainText('Other State, Other Country');
-  await expect(page.getByLabel('Latitude')).toHaveValue('');
+  await expect(suggestions.getByRole('option').first())
+    .toContainText('Tamil Nadu, India');
+  await expect(suggestions.getByRole('option').nth(1))
+    .toContainText('Other State, Other Country');
+
   await suggestions.getByRole('option').first().click();
-  await expect(page.getByLabel('Country')).toHaveValue('India');
-  await expect(page.getByLabel('Latitude')).toHaveValue('8.1833');
-  await expect(page.getByLabel('IANA timezone')).toHaveValue('Asia/Kolkata');
-  await page.getByLabel('Longitude').fill('77.4120');
-  const profileResponse = page.waitForResponse(response => response.url().endsWith('/api/v1/profiles') && response.request().method() === 'POST');
+
+  await expect(page.getByLabel('Birthplace')).toHaveValue('Nagercoil');
+
+  const profileRequestPromise = page.waitForRequest(
+    request => request.url().endsWith('/api/v1/profiles')
+      && request.method() === 'POST'
+  );
+
+  const profileResponsePromise = page.waitForResponse(
+    response => response.url().endsWith('/api/v1/profiles')
+      && response.request().method() === 'POST'
+  );
+
   await page.getByRole('button', { name: 'Save profile' }).click();
-  const profile = await (await profileResponse).json();
+
+  const profileRequest = await profileRequestPromise;
+  const submittedProfile = profileRequest.postDataJSON();
+
+  expect(submittedProfile.country).toBe('India');
+  expect(submittedProfile.latitude).toBe(8.1833);
+  expect(submittedProfile.longitude).toBe(77.4119);
+  expect(submittedProfile.timezone).toBe('Asia/Kolkata');
+
+  const profile = await (await profileResponsePromise).json();
+
   expect(profile.birth_time).toBe('20:30:00');
   expect(profile.latitude).toBe(8.1833);
-  expect(profile.longitude).toBe(77.412);
+  expect(profile.longitude).toBe(77.4119);
+  expect(profile.timezone).toBe('Asia/Kolkata');
   await page.getByRole('button', { name: 'Edit E2E profile' }).click();
   await expect(page.getByLabel('Hour')).toHaveValue('08');
   await expect(page.getByLabel('Minute')).toHaveValue('30');
@@ -174,7 +196,7 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await expect(page.getByRole('alert')).toContainText(/No calculation was performed and no chart was saved/i);
   await page.getByRole('link', { name: 'Compatibility' }).click();
   await expect(page.getByRole('heading', { name: 'Compatibility' })).toBeVisible();
-  await expect(page.getByText(/never estimates a score from names or birth details/)).toBeVisible();
+  await expect(page.getByText(/Both profiles and charts must belong to your account/)).toBeVisible();
 
   await page.getByRole('link', { name: 'Birth chart' }).click();
   await expect(page.getByLabel('Birth profile')).toHaveValue(profile.id);
@@ -245,7 +267,9 @@ test('signup, create profile, chart gates and history persist across logout/logi
   await expect(page.locator('.ai-conversation-select')).toContainText('What can you tell me about my birth chart?');
   await page.locator('.ai-conversation-select').click();
   await expect(page.getByText(/completed saved chart is required before personalized interpretation/i)).toBeVisible();
-  await page.getByRole('button', { name: 'தமிழுக்கு மாற்று' }).click();
+  await page.getByRole('button', { name: 'Choose language' }).click();
+  await page.getByRole('menuitemradio', { name: /தமிழ்/ }).click();
+
   await expect(page.getByRole('heading', { name: 'AI ஜோதிடர்' })).toBeVisible();
 
   const secondEmail = `astroai-e2e-isolation-${Date.now()}@example.com`;

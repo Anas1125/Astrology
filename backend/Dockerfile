@@ -4,6 +4,7 @@ WORKDIR /app
 COPY pyproject.toml alembic.ini ./
 COPY app ./app
 COPY alembic ./alembic
+COPY ephe ./ephe
 RUN pip install --no-cache-dir . \
     && useradd --create-home --uid 10001 --shell /usr/sbin/nologin astroai \
     && chown -R astroai:astroai /app

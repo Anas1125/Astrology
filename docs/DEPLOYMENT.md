@@ -39,6 +39,26 @@ Password reset uses 32-byte cryptographic tokens, stores only SHA-256 token hash
 
 For local testing only, set `APP_ENV=development`, `PASSWORD_RESET_DEV_TOKEN_FILE=/absolute/private/path/astroai-reset-link.txt`, and `PASSWORD_RESET_FRONTEND_URL=http://localhost:5173`. The server writes only the latest link to a file created with mode 0600; the API response and logs do not contain the token. Keep this file outside Git, delete it after testing, and never set `PASSWORD_RESET_DEV_TOKEN_FILE` in staging or production. The Playwright journey uses an isolated temporary SQLite database and temporary local file in this mode. This development path verifies token handling/UI but is not email-delivery verification.
 
+## Vercel deployment (FastAPI backend)
+
+The production backend can run as a Vercel Python Function. In the Vercel backend project, keep **Root Directory** set to `backend`. `backend/pyproject.toml` declares `app.main:app` as the FastAPI entrypoint, and `backend/vercel.json` explicitly includes `ephe/*.se1` in the function bundle. The `swisseph-ffi` package is a runtime dependency and provides the platform-specific shared library.
+
+Add the official Swiss Ephemeris data files under `backend/ephe/` before deploying. See [backend/ephe/README.md](../backend/ephe/README.md) for the official sources and the modern-date files. Configure `SWISSEPH_EPHE_PATH=ephe`; relative paths resolve against the backend project root. The currently documented `sepl_18.se1`/`semo_18.se1` pair covers 1800–2399 only. Add other official date-range pairs for profiles outside that range.
+
+The database setting uses `DATABASE_URL` when provided and falls back to the Neon integration variable `POSTGRES_PRISMA_URL`. Prefer adding an explicit `DATABASE_URL` in Vercel when you have a reason to select a particular Neon connection string; never expose its value in logs or client-side `VITE_*` variables.
+
+After the AGPL license file, source-code notice, matching public source, and ephemeris files are committed and live, set these Vercel variables for a Preview deployment first:
+
+```dotenv
+APP_ENV=production
+ASTROLOGY_CALCULATIONS_ENABLED=true
+SWISSEPH_LICENSE_CONFIRMED=true
+ASTROLOGY_LOCAL_AGPL_DEVELOPMENT_ENABLED=false
+SWISSEPH_EPHE_PATH=ephe
+```
+
+Also configure the existing production `SECRET_KEY`, Neon connection variable (`DATABASE_URL` or `POSTGRES_PRISMA_URL`), exact HTTPS `CORS_ORIGINS`, and `PASSWORD_RESET_FRONTEND_URL` with your HTTPS frontend origin (the production settings validator rejects its localhost default). Do not enable the two calculation flags before the AGPL source offer and the corresponding source are actually available to remote users. The local-only development switch must remain false on Vercel. Redeploy after changing variables. Verify `/health`, `/ready`, Vedic and Western calculations, and reference-chart parity in Preview before promoting to Production.
+
 ## Build and run the API image
 
 From the repository root:
@@ -48,7 +68,7 @@ docker build -t astroai-api:release-candidate ./backend
 docker run --rm --env-file /secure/path/astroai-api.env -p 8000:8000 astroai-api:release-candidate
 ```
 
-The container runs as an unprivileged `astroai` user. Its `.dockerignore` excludes environment files, databases, test files, ephemeris data, and native Swiss Ephemeris libraries. The image contains the Alembic configuration and migration scripts and installs only the core backend package; the optional `astrology` extra is not installed.
+The container runs as an unprivileged `astroai` user. It includes the tracked `ephe/` data directory and installs the pinned `swisseph-ffi` runtime dependency; the wrapper supplies the platform-specific shared library. Its `.dockerignore` excludes environment files, databases, and test files. The image contains the Alembic configuration and migration scripts.
 
 Build the static client separately:
 
@@ -109,7 +129,7 @@ Store backups outside the application host with encryption, retention, and acces
 
 ## Release blockers
 
-- Swiss Ephemeris and `swisseph-ffi` commercial/network-use licensing requires professional review. Calculation flags stay off until approval and independent reference testing are signed off.
+- AstroAI elects the Swiss Ephemeris AGPL-3.0-or-later route. Keep calculation flags off until the entire project and required notices are published under AGPL, corresponding source is available to remote users, and independent reference testing is signed off. Obtain legal review if ownership or third-party compatibility is uncertain.
 - There are 81 research topics in the catalogue but zero source-verified substantive rules and zero approved production interpretation rules. Chat can return saved calculated facts but cannot provide sourced traditional interpretations.
 - Daily horoscope, Panchang, compatibility, report generation, and administrative knowledge management have no production-ready API workflow; the frontend presents explicit unavailable states where linked.
 - Authentication now supports forgot/reset-password endpoints and revokes all existing access JWTs after a reset through the account auth-version claim. It still has no refresh-token rotation or email verification. SMTP credentials and sender-domain deliverability must be configured and tested by the deployer before claiming recovery email delivery works end-to-end.

@@ -2,7 +2,6 @@ import pytest
 
 from app.services.astrology.compatibility.bhakoot import (
     BHAKOOT_CONVENTION,
-    BHAKOOT_DOSHA_PAIRS,
     calculate_bhakoot_compatibility,
     calculate_bhakoot_score,
 )

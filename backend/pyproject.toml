@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "astroai-api"
 version = "0.1.0"
+license = "AGPL-3.0-or-later"
 requires-python = ">=3.11"
-dependencies = ["fastapi==0.115.12", "uvicorn[standard]==0.34.0", "sqlalchemy==2.0.55", "psycopg[binary]==3.2.13", "pydantic-settings==2.8.1", "email-validator==2.2.0", "pwdlib[argon2]==0.2.1", "PyJWT==2.10.1", "alembic==1.15.2", "python-multipart==0.0.20"]
+dependencies = ["fastapi==0.115.12", "uvicorn[standard]==0.34.0", "sqlalchemy==2.0.55", "psycopg[binary]==3.2.13", "pydantic-settings==2.8.1", "email-validator==2.2.0", "pwdlib[argon2]==0.2.1", "PyJWT==2.10.1", "alembic==1.15.2", "python-multipart==0.0.20", "swisseph-ffi==1.0.0"]
 [project.optional-dependencies]
 dev = ["pytest==8.3.5", "httpx==0.28.1", "ruff==0.11.5"]
 astrology = ["swisseph-ffi==1.0.0"]
@@ -19,3 +20,6 @@ markers = ["integration: requires installed Swiss Ephemeris binding and ephemeri
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.vercel]
+entrypoint = "app.main:app"

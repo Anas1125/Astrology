@@ -9,6 +9,7 @@ import PanchangPage from '../astrology/PanchangPage';
 import HoroscopePage from '../astrology/HoroscopePage';
 import CompatibilityPage from '../astrology/CompatibilityPage';
 import VastuPage from '../astrology/VastuPage';
+import SourceLicenseNotice from '../components/SourceLicenseNotice';
 import HoroscopeAdminPage from '../astrology/HoroscopeAdminPage';
 import { ArrowUpRight, BookOpen, CalendarDays, ChevronDown, Check, Compass, Globe2, LayoutDashboard, MoonStar, Orbit, Sparkles, Stars, ShieldCheck, UserRound, UsersRound } from 'lucide-react';
 
@@ -73,6 +74,7 @@ export default function App() {
       <section className="system-grid"><button className="system-card system-card-button vedic" onClick={() => setPage('vedic')}><div className="card-icon"><Compass size={20}/></div><div className="card-tag">SIDEREAL · LAHIRI</div><h3>{labels.vedic}</h3><p>{labels.vedicDesc}</p><div className="card-foot"><span>{labels.janma}</span><span className="round-arrow"><ArrowUpRight size={16}/></span></div></button><button className="system-card system-card-button western" onClick={() => setPage('western')}><div className="card-icon"><Orbit size={20}/></div><div className="card-tag">TROPICAL · PLACIDUS</div><h3>{labels.western}</h3><p>{labels.westernDesc}</p><div className="card-foot"><span>{labels.natal}</span><span className="round-arrow"><ArrowUpRight size={16}/></span></div></button><article className="notice-card"><div className="notice-head"><span className="notice-icon"><Sparkles size={17}/></span><span className="notice-label">{tamil ? 'கிடைக்கும் போது' : 'SERVER CONTROLLED'}</span></div><h3>{labels.chartName}</h3><p>{labels.chartDesc}</p><div className="notice-foot"><span className="status-dot"/>{labels.unavailable}</div></article></section>
       <footer>{labels.disclaimer}</footer>
       </>}
+      <SourceLicenseNotice />
     </main>
   </div>;
 }

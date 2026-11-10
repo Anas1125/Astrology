@@ -3,6 +3,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { ArrowLeft, ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Brand from '../components/Brand';
+import SourceLicenseNotice from '../components/SourceLicenseNotice';
 import { useAuth } from '../auth/AuthContext';
 import { useAstroLanguage } from '../auth/language';
 
@@ -38,5 +39,5 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: { eyebrow: st
   const [language, setLanguage] = useAstroLanguage();
   const home = language === 'ta' ? 'முகப்பு' : 'Home';
   const privacy = language === 'ta' ? 'உங்கள் கணக்கு விவரங்கள் தனிப்பட்டும் பாதுகாப்பாகவும் இருக்கும்.' : 'Your account details stay private and secure.';
-  return <div className="auth-page"><header className="auth-header"><Link to="/" aria-label={language === 'ta' ? 'AstroAI முகப்புக்குத் திரும்பு' : 'Back to AstroAI home'}><ArrowLeft size={17}/><span>{home}</span></Link><Brand/><button className="auth-language" onClick={() => setLanguage(language === 'en' ? 'ta' : 'en')} aria-label={language === 'en' ? 'தமிழுக்கு மாற்று' : 'Switch to English'}>{language === 'en' ? 'தமிழ்' : 'EN'}</button></header><main className="auth-card"><div className="auth-symbol"><LockKeyhole size={19}/></div><div className="eyebrow gold-text">{eyebrow}</div><h1>{title}</h1><p className="auth-subtitle">{subtitle}</p>{children}<div className="auth-privacy">{privacy}</div></main></div>;
+  return <div className="auth-page"><header className="auth-header"><Link to="/" aria-label={language === 'ta' ? 'AstroAI முகப்புக்குத் திரும்பு' : 'Back to AstroAI home'}><ArrowLeft size={17}/><span>{home}</span></Link><Brand/><button className="auth-language" onClick={() => setLanguage(language === 'en' ? 'ta' : 'en')} aria-label={language === 'en' ? 'தமிழுக்கு மாற்று' : 'Switch to English'}>{language === 'en' ? 'தமிழ்' : 'EN'}</button></header><main className="auth-card"><div className="auth-symbol"><LockKeyhole size={19}/></div><div className="eyebrow gold-text">{eyebrow}</div><h1>{title}</h1><p className="auth-subtitle">{subtitle}</p>{children}<div className="auth-privacy">{privacy}</div></main><SourceLicenseNotice /></div>;
 }
