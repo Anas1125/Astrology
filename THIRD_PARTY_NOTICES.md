@@ -7,6 +7,7 @@ AstroAI uses the following software in its astrology-calculation runtime. This f
 Swiss Ephemeris is a third-party astronomy library and ephemeris-data set under a dual-licensing model. AstroAI elects the AGPL route for its use of Swiss Ephemeris. The upstream copyright and licensing notice is preserved verbatim in [`THIRD_PARTY_LICENSES/Swiss-Ephemeris-LICENSE.txt`](THIRD_PARTY_LICENSES/Swiss-Ephemeris-LICENSE.txt).
 
 - Official project and source repository: <https://github.com/aloistr/swisseph>
+- Pinned Swiss Ephemeris 2.10.03 C source commit used to build the Vercel-compatible Linux runtime: <https://github.com/aloistr/swisseph/tree/af9823fe7b06ffefe3d3968fdc5680be8b5eec5f>
 - Official licensing information: <https://www.astro.com/swisseph/swephinfo_e.htm>
 - Official code/data download information: <https://www.astro.com/swisseph/swedownload_e.htm>
 - Ephemeris data source directory: <https://github.com/aloistr/swisseph/tree/master/ephe>

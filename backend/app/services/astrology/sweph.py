@@ -55,6 +55,15 @@ def resolve_ephemeris_path(ephemeris_path: str) -> Path:
     return configured_path.resolve()
 
 
+def resolve_native_library_path(library_path: str) -> Path:
+    """Resolve relative native-library paths from the backend project root."""
+    configured_path = Path(library_path).expanduser()
+    if not configured_path.is_absolute():
+        backend_root = Path(__file__).resolve().parents[3]
+        configured_path = backend_root / configured_path
+    return configured_path.resolve()
+
+
 def local_birth_time_to_utc(birth_date: date, birth_time: time | None, timezone_name: str | None) -> datetime:
     if birth_time is None:
         raise InvalidBirthData("Birth time is missing; chart angles and houses cannot be calculated")
@@ -133,7 +142,7 @@ class SwissEphemerisProvider:
         if not path.is_dir() or not any(path.glob("*.se1")):
             raise EphemerisUnavailable(f"Swiss Ephemeris data files are missing from {path}")
         resolved_library_path = (
-            str(Path(library_path).expanduser().resolve()) if library_path else None
+            str(resolve_native_library_path(library_path)) if library_path else None
         )
         try:
             self.ffi = ffi_module or import_module("swisseph_ffi")

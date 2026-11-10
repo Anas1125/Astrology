@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "app/main.py": {
-      "includeFiles": "ephe/*.se1"
+      "includeFiles": "{ephe/*.se1,native/linux-x64/libastroai-swe.so}"
     }
   }
 }

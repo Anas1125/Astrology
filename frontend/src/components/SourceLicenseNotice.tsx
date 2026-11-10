@@ -1,4 +1,4 @@
-const SOURCE_TAG = 'astroai-agpl-release-2026-11-10';
+const SOURCE_TAG = 'astroai-agpl-release-2026-11-10-runtimefix';
 
 const SOURCE_URL = `https://github.com/Anas1125/Astrology/tree/${SOURCE_TAG}`;
 const LICENSE_URL = `https://github.com/Anas1125/Astrology/blob/${SOURCE_TAG}/LICENSE`;
