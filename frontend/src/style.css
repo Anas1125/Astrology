@@ -603,3 +603,23 @@ p{font-size:var(--type-description);line-height:var(--line-readable)}
   }
 }
 /* ASTROAI_MOBILE_RESPONSIVE_FIX_END */
+
+.source-license-notice {
+  width: 100%;
+  max-width: 1040px;
+  margin: 1.25rem auto 0;
+  padding: 0.9rem 1rem 1.1rem;
+  border-top: 1px solid rgba(160, 146, 116, 0.2);
+  color: #a99f8d;
+  font-size: 0.76rem;
+  line-height: 1.65;
+  text-align: center;
+}
+.source-license-notice a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.source-license-notice a:hover {
+  color: #d9bd83;
+}

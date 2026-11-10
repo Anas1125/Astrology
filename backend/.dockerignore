@@ -5,11 +5,9 @@ __pycache__
 *.py[cod]
 *.db
 *.sqlite*
-*.se1
 libswe.dylib
 libswe.so
 swe.dll
-ephe/
 .env
 .env.*
 !.env.example

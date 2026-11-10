@@ -1,15 +1,26 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field, field_validator, model_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pathlib import Path
 from urllib.parse import urlsplit
 
 
 class Settings(BaseSettings):
     # Resolve the backend-local environment file independent of the shell's CWD.
-    model_config = SettingsConfigDict(env_file=Path(__file__).resolve().parents[2] / ".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).resolve().parents[2] / ".env",
+        extra="ignore",
+        populate_by_name=True,
+    )
     app_env: str = "development"
     secret_key: str = "development-only-change-me"
-    database_url: str = "sqlite:///./astroai.db"
+    database_url: str = Field(
+    default="sqlite:///./astroai.db",
+        validation_alias=AliasChoices(
+            "DATABASE_URL",
+            "POSTGRES_PRISMA_URL",
+            "database_url",
+        ),
+    )
     redis_url: str = "redis://localhost:6379/0"
     cors_origins: str = "http://localhost:5173"
     trusted_proxy_ips: str = ""
@@ -69,7 +80,7 @@ class Settings(BaseSettings):
             raise ValueError("Staging and production password reset frontend URLs must use HTTPS")
         if self.secret_key == "development-only-change-me" or len(self.secret_key) < 32:
             raise ValueError("Production requires a unique SECRET_KEY of at least 32 characters")
-        if not self.database_url.startswith(("postgresql://", "postgresql+psycopg://")):
+        if not self.database_url.startswith(("postgresql://", "postgresql+psycopg://", "postgres://")):
             raise ValueError("Production requires PostgreSQL; SQLite is only supported for local testing")
         origins = self.cors_origin_list
         parsed_origins = [urlsplit(origin) for origin in origins]

@@ -1,11 +1,48 @@
 import pytest
 
+from app.services.astrology.compatibility.gana import (
+    DEVA,
+    MANUSHYA,
+    RAKSHASA,
+    GANA_BY_NAKSHATRA,
+    get_gana,
+)
+from app.services.astrology.compatibility.gana_scoring import (
+    calculate_gana_compatibility,
+    calculate_gana_score,
+)
+from app.services.astrology.compatibility.graha_maitri import (
+    FRIEND,
+    NEUTRAL,
+    ENEMY,
+    RASHI_LORDS,
+    PLANETARY_RELATIONSHIPS,
+    get_rashi_lord,
+    get_planetary_relationship,
+)
+from app.services.astrology.compatibility.nadi import (
+    ADI,
+    MADHYA,
+    ANTYA,
+    NADI_BY_NAKSHATRA,
+    get_nadi,
+)
+from app.services.astrology.compatibility.nadi_scoring import (
+    calculate_nadi_score,
+    calculate_nadi_compatibility,
+)
+from app.services.astrology.compatibility.nakshatra import (
+    calculate_moon_nakshatra,
+)
 from app.services.astrology.compatibility.nakshatra_data import (
     get_all_nakshatras,
     get_nakshatra_metadata,
-
 )
-
+from app.services.astrology.compatibility.tara import (
+    calculate_tara_direction,
+    calculate_tara_score,
+    calculate_tara_compatibility,
+)
 
 def test_catalogue_contains_27_nakshatras():
     assert len(get_all_nakshatras()) == 27
@@ -50,10 +87,6 @@ def test_non_integer_nakshatra_index(index):
     with pytest.raises(ValueError):
         get_nakshatra_metadata(index)
 
-from app.services.astrology.compatibility.nakshatra import (
-    calculate_moon_nakshatra,
-)
-
 
 def test_calculate_ashwini_nakshatra():
     result = calculate_moon_nakshatra(0.0)
@@ -86,15 +119,6 @@ def test_nakshatra_has_four_padas():
     assert 1 <= result["pada"] <= 4
 
 
-from app.services.astrology.compatibility.gana import (
-    DEVA,
-    MANUSHYA,
-    RAKSHASA,
-    GANA_BY_NAKSHATRA,
-    get_gana,
-)
-
-
 def test_gana_mapping_contains_all_27_nakshatras():
     assert len(GANA_BY_NAKSHATRA) == 27
 
@@ -118,12 +142,6 @@ def test_gana_rejects_invalid_index():
     for value in (0, 28, -1, 1.5, "1", True):
         with pytest.raises(ValueError):
             get_gana(value)
-
-
-from app.services.astrology.compatibility.gana_scoring import (
-    calculate_gana_compatibility,
-    calculate_gana_score,
-)
 
 def test_same_gana_scores_six():
     for gana in (DEVA, MANUSHYA, RAKSHASA):
@@ -170,15 +188,6 @@ def test_gana_compatibility_from_moon_longitudes():
     assert result["score"] == 6
 
 
-from app.services.astrology.compatibility.nadi import (
-    ADI,
-    MADHYA,
-    ANTYA,
-    NADI_BY_NAKSHATRA,
-    get_nadi,
-)
-
-
 def test_nadi_mapping_contains_all_27_nakshatras():
     assert len(NADI_BY_NAKSHATRA) == 27
 
@@ -204,13 +213,6 @@ def test_nadi_rejects_invalid_index():
     for value in (0, 28, -1, 1.5, "1", True):
         with pytest.raises(ValueError):
             get_nadi(value)
-
-
-from app.services.astrology.compatibility.nadi_scoring import (
-    calculate_nadi_score,
-    calculate_nadi_compatibility,
-)
-
 
 def test_same_nadi_scores_zero():
     for nadi in (ADI, MADHYA, ANTYA):
@@ -254,13 +256,6 @@ def test_nadi_compatibility_from_moon_longitudes():
     assert result["groom_nadi"] == MADHYA
 
     assert result["score"] == 8
-
-
-from app.services.astrology.compatibility.tara import (
-    calculate_tara_direction,
-    calculate_tara_score,
-    calculate_tara_compatibility,
-)
 
 
 def test_same_nakshatra_scores_three():
@@ -319,17 +314,6 @@ def test_tara_compatibility_from_moon_longitudes():
     assert result["bride_nakshatra"]["name"] == "Ashwini"
     assert result["groom_nakshatra"]["name"] == "Bharani"
     assert result["score"] == 3.0
-
-
-from app.services.astrology.compatibility.graha_maitri import (
-    FRIEND,
-    NEUTRAL,
-    ENEMY,
-    RASHI_LORDS,
-    PLANETARY_RELATIONSHIPS,
-    get_rashi_lord,
-    get_planetary_relationship,
-)
 
 
 def test_all_twelve_rashis_have_lords():

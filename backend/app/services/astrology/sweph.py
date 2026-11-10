@@ -46,6 +46,15 @@ class UnsupportedHouseSystem(InvalidBirthData):
     """The requested house system cannot be calculated for this input."""
 
 
+def resolve_ephemeris_path(ephemeris_path: str) -> Path:
+    """Resolve relative ephemeris paths from the backend project root."""
+    configured_path = Path(ephemeris_path).expanduser()
+    if not configured_path.is_absolute():
+        backend_root = Path(__file__).resolve().parents[3]
+        configured_path = backend_root / configured_path
+    return configured_path.resolve()
+
+
 def local_birth_time_to_utc(birth_date: date, birth_time: time | None, timezone_name: str | None) -> datetime:
     if birth_time is None:
         raise InvalidBirthData("Birth time is missing; chart angles and houses cannot be calculated")
@@ -120,7 +129,7 @@ class SwissEphemerisProvider:
     def __init__(self, ephemeris_path: str | None, library_path: str | None = None, ffi_module=None):
         if not ephemeris_path:
             raise EphemerisUnavailable("Set SWISSEPH_EPHE_PATH to a directory containing Swiss Ephemeris files")
-        path = Path(ephemeris_path).expanduser().resolve()
+        path = resolve_ephemeris_path(ephemeris_path)
         if not path.is_dir() or not any(path.glob("*.se1")):
             raise EphemerisUnavailable(f"Swiss Ephemeris data files are missing from {path}")
         resolved_library_path = (

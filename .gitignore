@@ -20,6 +20,9 @@ frontend/test-results/
 *.egg-info/
 .coverage
 *.se1
+# The Vercel AGPL deployment bundles official data only from this directory.
+!backend/ephe/
+!backend/ephe/*.se1
 libswe.dylib
 libswe.so
 swe.dll

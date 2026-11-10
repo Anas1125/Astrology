@@ -11,6 +11,10 @@ AstroAI is a bilingual astrology application with a React/Vite frontend and a Fa
 
 Without Docker, run the backend with `cd backend && python -m venv .venv && .venv/bin/pip install -e '.[dev]' && .venv/bin/alembic upgrade head && .venv/bin/uvicorn app.main:app --reload`; frontend with `cd frontend && npm ci && npm run dev`.
 
+## License and source
+
+AstroAI is licensed under the GNU Affero General Public License, version 3 or (at your option) any later version (`AGPL-3.0-or-later`). See [LICENSE](LICENSE). This project elects the AGPL licensing route for its use of Swiss Ephemeris. The application provides a visible source-code and license notice for remote users; the corresponding source is available from this public repository.
+
 ## Status
 
-See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for verified functionality and blockers. Public astrology chart calculations remain gated pending Swiss Ephemeris accuracy and commercial licensing review. No substantive astrology interpretation rules are approved yet, so chat reports calculated saved-chart facts when present and states that sourced interpretations are unavailable.
+See [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for verified functionality and blockers. Public chart calculations remain disabled until the Vercel runtime, official ephemeris data, AGPL source offer, and independent calculation reference checks are verified. No substantive astrology interpretation rules are approved yet, so chat reports calculated saved-chart facts when present and states that sourced interpretations are unavailable.

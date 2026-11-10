@@ -118,8 +118,11 @@ def _boundary_transform(boundary: list[dict[str, Any]]) -> list[float]:
     matrix: list[list[float]]=[]
     values: list[float]=[]
     for (x,y),(u,v) in zip(points, targets):
-        matrix.append([x,y,1.0,0.0,0.0,0.0,-u*x,-u*y]); values.append(u)
-        matrix.append([0.0,0.0,0.0,x,y,1.0,-v*x,-v*y]); values.append(v)
+        matrix.append([x, y, 1.0, 0.0, 0.0, 0.0, -u*x, -u*y])
+        values.append(u)
+
+        matrix.append([0.0, 0.0, 0.0, x, y, 1.0, -v*x, -v*y])
+        values.append(v)
     return _solve_linear_system(matrix, values)
 
 
