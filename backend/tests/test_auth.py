@@ -1565,3 +1565,85 @@ def test_profile_mass_assignment_cannot_change_owner():
         stored = session.get(BirthProfile, UUID(profile["id"]))
         assert str(stored.owner_id) != other_id
     assert client.get("/api/v1/profiles/" + profile["id"], headers=other_headers).status_code == 404
+
+
+@pytest.mark.parametrize("missing_claim", ["sub", "ver", "iat", "exp"])
+def test_access_token_requires_all_claims(missing_claim, monkeypatch):
+    import jwt
+    import secrets
+
+    monkeypatch.setattr(settings, "secret_key", secrets.token_hex(32))
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        uid = str(user.id)
+    now = int(datetime.now(timezone.utc).timestamp())
+    claims = {"sub": uid, "ver": 0, "iat": now, "exp": now + 600}
+    claims.pop(missing_claim)
+    token = jwt.encode(claims, settings.secret_key, algorithm="HS256")
+    response = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + token})
+    assert response.status_code == 401
+
+
+@pytest.mark.parametrize("case", ["expired", "wrong_key", "wrong_algorithm", "bad_subject",
+                                  "boolean_version", "string_version", "negative_version",
+                                  "string_iat", "string_exp"])
+def test_invalid_access_tokens_are_rejected(case, monkeypatch):
+    import jwt
+    import secrets
+
+    monkeypatch.setattr(settings, "secret_key", secrets.token_hex(32))
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        uid = str(user.id)
+    now = int(datetime.now(timezone.utc).timestamp())
+    claims = {"sub": uid, "ver": 0, "iat": now, "exp": now + 600}
+    key = settings.secret_key
+    algorithm = "HS256"
+    if case == "expired":
+        claims.update(iat=now - 120, exp=now - 60)
+    elif case == "wrong_key":
+        key = secrets.token_hex(32)
+    elif case == "wrong_algorithm":
+        algorithm = "HS384"
+        key = secrets.token_hex(48)
+    elif case == "bad_subject":
+        claims["sub"] = "not-a-uuid"
+    elif case == "boolean_version":
+        claims["ver"] = False
+    elif case == "string_version":
+        claims["ver"] = "0"
+    elif case == "negative_version":
+        claims["ver"] = -1
+    elif case == "string_iat":
+        claims["iat"] = str(now)
+    elif case == "string_exp":
+        claims["exp"] = str(now + 600)
+    token = jwt.encode(claims, key, algorithm=algorithm)
+    assert client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + token}).status_code == 401
+
+
+@pytest.mark.parametrize("role,remember,minutes", [
+    ("USER", False, 480), ("USER", True, 10080),
+    ("ADMIN", False, 60), ("ADMIN", True, 60),
+])
+def test_login_token_lifetime_and_no_store(role, remember, minutes, monkeypatch):
+    import jwt
+    import secrets
+
+    monkeypatch.setattr(settings, "secret_key", secrets.token_hex(32))
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        user.role = role
+        session.commit()
+    response = client.post("/api/v1/auth/login", data={
+        "username": "member@example.com", "password": "correct-password",
+        "remember_me": str(remember).lower(),
+    })
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    token = response.json()["access_token"]
+    claims = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+    assert claims["exp"] - claims["iat"] == minutes * 60
+    account = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + token})
+    assert account.status_code == 200
+    assert account.headers["cache-control"] == "no-store"

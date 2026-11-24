@@ -78,8 +78,12 @@ class Settings(BaseSettings):
         reset_url = urlsplit(self.password_reset_frontend_url)
         if reset_url.scheme != "https":
             raise ValueError("Staging and production password reset frontend URLs must use HTTPS")
-        if self.secret_key == "development-only-change-me" or len(self.secret_key) < 32:
-            raise ValueError("Production requires a unique SECRET_KEY of at least 32 characters")
+        if (len(self.secret_key.strip().encode("utf-8")) < 32
+                or self.secret_key.strip().casefold() in {
+                    "development-only-change-me", "replace-with-long-random-secret",
+                }
+                or len(set(self.secret_key.strip())) < 8):
+            raise ValueError("Production requires a unique random SECRET_KEY of at least 32 bytes")
         if not self.database_url.startswith(("postgresql://", "postgresql+psycopg://", "postgres://")):
             raise ValueError("Production requires PostgreSQL; SQLite is only supported for local testing")
         origins = self.cors_origin_list
