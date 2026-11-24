@@ -137,3 +137,7 @@ Store backups outside the application host with encryption, retention, and acces
 - Human legal review, privacy/data-retention decisions, production Postgres exercise, staging release sign-off, restore rehearsal, monitoring thresholds, and support ownership remain outstanding.
 
 AstroAI has not been deployed by this task and is not declared production-ready.
+
+## Public frontend SEO
+
+Set `VITE_SITE_URL` to the exact public HTTPS frontend origin in the production build environment (not the backend URL). Run `npm run build` from `frontend` and deploy `dist`. The postbuild generates the homepage-only sitemap, robots.txt, canonical URL and WebSite structured data. Without the variable, builds intentionally emit noindex and disallow crawling, and omit the sitemap. Use the variable only on the canonical public production deployment. The login, registration, password reset and app entry documents are noindex; Cloudflare Pages also receives route-specific X-Robots-Tag headers via `_headers`. Other hosting providers should configure equivalent headers for `/app/*` and authentication routes and preserve SPA fallback for nested routes. Robots.txt allows crawling configured production routes so crawlers can read noindex; it does not secure personal data. Existing authentication and licensing gates remain unchanged. Verify production HTML, response headers, robots.txt and sitemap.xml before submitting the sitemap to Search Console. No unapproved horoscope content or private profile URLs are included.

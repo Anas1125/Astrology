@@ -1,0 +1,20 @@
+/login
+  X-Robots-Tag: noindex, nofollow
+/login/*
+  X-Robots-Tag: noindex, nofollow
+/register
+  X-Robots-Tag: noindex, nofollow
+/register/*
+  X-Robots-Tag: noindex, nofollow
+/forgot-password
+  X-Robots-Tag: noindex, nofollow
+/forgot-password/*
+  X-Robots-Tag: noindex, nofollow
+/reset-password
+  X-Robots-Tag: noindex, nofollow
+/reset-password/*
+  X-Robots-Tag: noindex, nofollow
+/app
+  X-Robots-Tag: noindex, nofollow
+/app/*
+  X-Robots-Tag: noindex, nofollow
