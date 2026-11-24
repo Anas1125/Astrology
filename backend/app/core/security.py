@@ -14,6 +14,9 @@ def verify_password(password: str, hashed: str) -> bool:
     return password_hash.verify(password, hashed)
 
 
-def create_access_token(subject: str, auth_version: int = 0, expires_minutes: int = 20) -> str:
+def create_access_token(subject: str, auth_version: int = 0, expires_minutes: int = 20, *, cookie: bool = False) -> str:
     now = datetime.now(timezone.utc)
-    return jwt.encode({"sub": subject, "ver": auth_version, "iat": now, "exp": now + timedelta(minutes=expires_minutes)}, settings.secret_key, algorithm="HS256")
+    claims = {"sub": subject, "ver": auth_version, "iat": now, "exp": now + timedelta(minutes=expires_minutes)}
+    if cookie:
+        claims["transport"] = "cookie"
+    return jwt.encode(claims, settings.secret_key, algorithm="HS256")

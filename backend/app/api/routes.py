@@ -5,12 +5,13 @@ import json
 import logging
 import secrets
 import jwt
-from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Query, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Query, Request, Response, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.security import create_access_token, hash_password, verify_password
+from app.core.session_proxy import COOKIE_NAME, require_session_proxy, trusted_session_proxy
 from app.db.base import get_db
 from app.models.entities import BirthChart, BirthProfile, ChartCalculationRun, CompatibilityReport, PasswordResetToken, SecurityAuditEvent, User
 from app.schemas.api import AccountResponse, AstrologyChartRequest, VedicChartRequest, CalculationResultResponse, VedicDignityResponse, ChartCreate, ChartResponse, ChartHistoryItem, ChartHistoryPage, PanchangRequest, HoroscopeRequest, HoroscopeAvailabilityResponse, LocationSuggestion, CompatibilityRequest, ProfileCreate, ProfilePatch, ProfileResponse, RegisterRequest, TokenResponse, ForgotPasswordRequest, PasswordResetRequest, PasswordResetRequestResponse, PasswordResetResponse
@@ -28,7 +29,7 @@ from app.services.geocoding import GeocodingUnavailable, search_places
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-oauth = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 def _calculation_unavailable(
     reason_code: str,
     system: str,
@@ -66,12 +67,25 @@ def _calculation_unavailable(
     )
 
 
-def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> User:
+def current_user(request: Request, token: str | None = Depends(oauth), db: Session = Depends(get_db)) -> User:
+    cookie_token = request.cookies.get(COOKIE_NAME)
+    using_cookie = bool(cookie_token and trusted_session_proxy(request))
+    if using_cookie:
+        require_session_proxy(request)
+        token = cookie_token
+    elif settings.disable_bearer_auth:
+        token = None
+    if not token:
+        raise HTTPException(401, "Authentication required", headers={"WWW-Authenticate": "Bearer"})
     try:
         claims = jwt.decode(
             token, settings.secret_key, algorithms=["HS256"],
             options={"require": ["sub", "ver", "iat", "exp"]},
         )
+        if (using_cookie and claims.get("transport") != "cookie") or (
+            not using_cookie and claims.get("transport") is not None
+        ):
+            raise ValueError("Invalid token transport")
         uid = claims["sub"]
         auth_version = claims["ver"]
         if (
@@ -90,24 +104,89 @@ def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> 
     return user
 
 
-@router.post("/auth/register", response_model=TokenResponse, status_code=201)
-def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+def _register_user(payload: RegisterRequest, db: Session) -> User:
     if db.scalar(select(User).where(User.email == payload.email)):
         raise HTTPException(409, "An account with this email already exists")
     user = User(email=payload.email, password_hash=hash_password(payload.password), role="USER")
     db.add(user)
     db.commit()
     db.refresh(user)
+    return user
+
+
+def _login_user(form_data: OAuth2PasswordRequestForm, db: Session) -> User:
+    user = db.scalar(select(User).where(User.email == form_data.username))
+    if not user or not user.is_active or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect")
+    return user
+
+
+def _login_minutes(user: User, remember_me: bool) -> int:
+    return 60 if user.role.strip().upper() == "ADMIN" else (7 * 24 * 60 if remember_me else 8 * 60)
+
+
+@router.post("/auth/register", response_model=TokenResponse, status_code=201)
+def register(payload: RegisterRequest, db: Session = Depends(get_db)):
+    if settings.disable_bearer_auth:
+        raise HTTPException(403, "Use browser session registration")
+    user = _register_user(payload, db)
     return TokenResponse(access_token=create_access_token(str(user.id), user.auth_version))
 
 
 @router.post("/auth/login", response_model=TokenResponse)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = Form(False), db: Session = Depends(get_db)):
-    user = db.scalar(select(User).where(User.email == form_data.username))
-    if not user or not user.is_active or not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect")
-    token_minutes = 60 if user.role.strip().upper() == "ADMIN" else (7 * 24 * 60 if remember_me else 8 * 60)
-    return TokenResponse(access_token=create_access_token(str(user.id), user.auth_version, expires_minutes=token_minutes))
+    if settings.disable_bearer_auth:
+        raise HTTPException(403, "Use browser session login")
+    user = _login_user(form_data, db)
+    return TokenResponse(access_token=create_access_token(
+        str(user.id), user.auth_version, expires_minutes=_login_minutes(user, remember_me)
+    ))
+
+
+def _set_session_cookie(response: Response, user: User, minutes: int, remember_me: bool) -> AccountResponse:
+    response.set_cookie(
+        COOKIE_NAME, create_access_token(str(user.id), user.auth_version, minutes, cookie=True),
+        httponly=True, secure=True, samesite="lax", path="/",
+        max_age=minutes * 60 if remember_me and user.role.strip().upper() != "ADMIN" else None,
+    )
+    return AccountResponse(id=user.id, email=user.email, role=user.role)
+
+
+@router.post("/auth/session/register", response_model=AccountResponse, status_code=201)
+def session_register(payload: RegisterRequest, request: Request, response: Response,
+                     db: Session = Depends(get_db)):
+    require_session_proxy(request)
+    user = _register_user(payload, db)
+    return _set_session_cookie(response, user, 480, False)
+
+
+@router.post("/auth/session/login", response_model=AccountResponse)
+def session_login(request: Request, response: Response, form_data: OAuth2PasswordRequestForm = Depends(),
+                  remember_me: bool = Form(False), db: Session = Depends(get_db)):
+    require_session_proxy(request)
+    user = _login_user(form_data, db)
+    return _set_session_cookie(response, user, _login_minutes(user, remember_me), remember_me)
+
+
+@router.post("/auth/session/logout", status_code=204)
+def session_logout(request: Request, db: Session = Depends(get_db)):
+    require_session_proxy(request)
+    token = request.cookies.get(COOKIE_NAME)
+    if token:
+        try:
+            user = current_user(request, None, db)
+        except HTTPException as exc:
+            if exc.status_code != 401:
+                raise
+        else:
+            # Account-wide revocation, including any previously issued bearer tokens.
+            db.execute(update(User).where(User.id == user.id).values(
+                auth_version=User.auth_version + 1
+            ))
+            db.commit()
+    response = Response(status_code=204)
+    response.delete_cookie(COOKIE_NAME, path="/", secure=True, httponly=True, samesite="lax")
+    return response
 
 
 def _reset_service_configured() -> bool:
