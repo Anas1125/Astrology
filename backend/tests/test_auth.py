@@ -1647,3 +1647,104 @@ def test_login_token_lifetime_and_no_store(role, remember, minutes, monkeypatch)
     account = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + token})
     assert account.status_code == 200
     assert account.headers["cache-control"] == "no-store"
+
+
+@pytest.fixture
+def cookie_client(monkeypatch):
+    import secrets
+
+    origin = "https://astroai.example"
+    proxy_secret = secrets.token_hex(32)
+    monkeypatch.setattr(settings, "secret_key", secrets.token_hex(32))
+    monkeypatch.setattr(settings, "session_proxy_secret", proxy_secret)
+    monkeypatch.setattr(settings, "cookie_auth_origins", origin)
+    headers = {"X-Astro-Proxy-Secret": proxy_secret, "X-Astro-Proxy-Origin": origin,
+               "Origin": origin, "X-Astro-CSRF": "1"}
+    with TestClient(app, base_url=origin, headers=headers) as browser:
+        yield browser
+
+
+def test_cookie_session_login_restore_and_logout_revoke_all_tokens(cookie_client):
+    legacy = login_token()
+    response = cookie_client.post("/api/v1/auth/session/login", data={
+        "username": "member@example.com", "password": "correct-password", "remember_me": "true",
+    })
+    assert response.status_code == 200
+    assert response.json()["role"] == "USER"
+    assert "access_token" not in response.json()
+    header = response.headers["set-cookie"].lower()
+    assert "__host-astroai-session=" in header
+    assert all(flag in header for flag in ("httponly", "secure", "samesite=lax", "path=/", "max-age=604800"))
+    assert "domain=" not in header
+    cookie = cookie_client.cookies.get("__Host-astroai-session")
+    assert cookie_client.get("/api/v1/auth/me").status_code == 200
+    assert client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + cookie}).status_code == 401
+    assert cookie_client.post("/api/v1/auth/session/logout").status_code == 204
+    assert cookie_client.get("/api/v1/auth/me").status_code == 401
+    assert client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + legacy}).status_code == 401
+    cookie_client.cookies.set("__Host-astroai-session", cookie)
+    assert cookie_client.get("/api/v1/auth/me").status_code == 401
+
+
+def test_cookie_registration_no_jwt_body_and_csrf(cookie_client):
+    data = {"email": "cookie-member@example.com", "password": "valid-password-long", "role": "ADMIN"}
+    assert cookie_client.post("/api/v1/auth/session/register", json=data,
+                              headers={"Origin": "https://evil.example"}).status_code == 403
+    response = cookie_client.post("/api/v1/auth/session/register", json=data)
+    assert response.status_code == 201
+    assert response.json()["role"] == "USER"
+    assert "access_token" not in response.json()
+    assert "max-age" not in response.headers["set-cookie"].lower()
+    assert cookie_client.post("/api/v1/auth/session/logout",
+                              headers={"X-Astro-CSRF": ""}).status_code == 403
+    assert cookie_client.get("/api/v1/auth/me").status_code == 200
+
+
+def test_cookie_auth_requires_verified_proxy_and_csrf(cookie_client):
+    login = cookie_client.post("/api/v1/auth/session/login", data={
+        "username": "member@example.com", "password": "correct-password",
+    })
+    assert login.status_code == 200
+    assert cookie_client.get("/api/v1/auth/me",
+                             headers={"X-Astro-Proxy-Secret": "incorrect"}).status_code == 401
+    payload = {"display_name": "Cookie profile", "birth_date": "1990-01-01", "birthplace": "Chennai"}
+    for headers in ({"Origin": "null"}, {"X-Astro-CSRF": ""}, {"Origin": ""}):
+        assert cookie_client.post("/api/v1/profiles", json=payload, headers=headers).status_code == 403
+    assert cookie_client.post("/api/v1/profiles", json=payload).status_code == 201
+    assert client.post("/api/v1/auth/session/login", data={
+        "username": "member@example.com", "password": "correct-password",
+    }).status_code == 403
+
+
+def test_cookie_mode_can_disable_legacy_bearer(cookie_client, monkeypatch):
+    legacy = login_token()
+    monkeypatch.setattr(settings, "disable_bearer_auth", True)
+    assert client.get("/api/v1/auth/me", headers={"Authorization": "Bearer " + legacy}).status_code == 401
+    assert client.post("/api/v1/auth/login", data={
+        "username": "member@example.com", "password": "correct-password",
+    }).status_code == 403
+    assert client.post("/api/v1/auth/register", json={
+        "email": "legacy@example.com", "password": "valid-password-long",
+    }).status_code == 403
+    assert cookie_client.post("/api/v1/auth/session/login", data={
+        "username": "member@example.com", "password": "correct-password",
+    }).status_code == 200
+    assert cookie_client.get("/api/v1/auth/me").status_code == 200
+
+
+def test_admin_cookie_is_session_only_and_expires_after_hour(cookie_client):
+    import jwt
+
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        user.role = "ADMIN"
+        session.commit()
+    response = cookie_client.post("/api/v1/auth/session/login", data={
+        "username": "member@example.com", "password": "correct-password", "remember_me": "true",
+    })
+    assert response.status_code == 200
+    assert "max-age" not in response.headers["set-cookie"].lower()
+    token = cookie_client.cookies.get("__Host-astroai-session")
+    claims = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+    assert claims["exp"] - claims["iat"] == 3600
+    assert cookie_client.get("/api/v1/admin/horoscope/content").status_code == 200
