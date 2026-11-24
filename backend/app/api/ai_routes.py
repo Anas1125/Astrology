@@ -143,9 +143,11 @@ def _reserve_request(db: Session, user: User, chat: ChatSession, content: str, r
             AIUsageLog.request_key == request_key,
             AIUsageLog.feature == "ai_chat",
         ))
-        if duplicate and duplicate.status == "completed" and duplicate.message_id:
+        if (duplicate and duplicate.status == "completed" and duplicate.message_id
+                and duplicate.request_hash == hashlib.sha256(content.encode()).hexdigest()):
             duplicate_message = db.get(ChatMessage, duplicate.message_id) if duplicate.message_id else None
-            if duplicate_message is not None and duplicate_message.session_id == chat.id:
+            if (duplicate_message is not None and duplicate_message.session_id == chat.id
+                    and duplicate_message.role == "assistant"):
                 return duplicate, duplicate.period_key, duplicate_message
         raise HTTPException(409, "A duplicate request is already being processed") from exc
     return usage_row, day_key, None
