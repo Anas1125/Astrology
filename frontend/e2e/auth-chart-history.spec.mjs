@@ -242,7 +242,10 @@ test('signup, create profile, chart gates and history persist across logout/logi
   const sentRequest = await chatRequest;
   expect(sentRequest.postDataJSON()).toEqual({ content: 'What can you tell me about my birth chart?' });
   const stream = await chatResponse;
-  expect(await stream.text()).toContain('"status": "missing_chart"');
+  expect(stream.status()).toBe(200);
+  expect(stream.headers()['content-type']).toContain('text/event-stream');
+  // Chromium may discard no-store response bodies after the stream is consumed.
+  // Verify the rendered stream and persisted structured response independently.
   await expect(page.getByText(/completed saved chart is required before personalized interpretation/i)).toBeVisible();
   await expect(page.getByText(/Visit Birth chart to calculate and save one first/i)).toBeVisible();
   await expect(page.locator('.ai-message.user p')).toHaveText('What can you tell me about my birth chart?');
@@ -252,6 +255,14 @@ test('signup, create profile, chart gates and history persist across logout/logi
   });
   const firstConversation = (await firstConversations.json()).items[0];
   expect(firstConversation).toBeTruthy();
+  await expect.poll(async () => {
+    const history = await page.request.get(`${apiBase}/ai/conversations/${firstConversation.id}`, {
+      headers: { Authorization: `Bearer ${firstUserToken}` },
+    });
+    expect(history.status()).toBe(200);
+    const { messages } = await history.json();
+    return messages.find(message => message.role === 'assistant')?.structured_response?.status;
+  }).toBe('missing_chart');
 
   await page.getByRole('button', { name: 'Log out' }).click();
   await expect(page).toHaveURL(/\/login$/);

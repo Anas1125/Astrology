@@ -1,5 +1,6 @@
 import { defineConfig } from '@playwright/test';
 import { tmpdir } from 'node:os';
+import { randomBytes } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -40,7 +41,7 @@ export default defineConfig({
       env: {
         APP_ENV: 'development',
         DATABASE_URL: databaseUrl,
-        SECRET_KEY: 'astroai-e2e-only-secret-key',
+        SECRET_KEY: randomBytes(32).toString('hex'),
         CORS_ORIGINS: frontendUrl,
         ASTROLOGY_CALCULATIONS_ENABLED: 'false',
         SWISSEPH_LICENSE_CONFIRMED: 'false',

@@ -35,6 +35,8 @@ async def local_calculation_loopback_only(request: Request, call_next):
 @app.middleware("http")
 async def security_headers(request, call_next):
     response = await call_next(request)
+    if request.url.path.startswith("/api/v1/"):
+        response.headers["Cache-Control"] = "no-store"
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("X-Frame-Options", "DENY")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")

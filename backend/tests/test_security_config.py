@@ -10,6 +10,8 @@ from app.main import app
     [
         {"secret_key": "development-only-change-me"},
         {"secret_key": "short"},
+        {"secret_key": "a" * 64},
+        {"secret_key": " " * 64},
         {"database_url": "sqlite:///prod.db"},
         {"cors_origins": "*"},
         {"cors_origins": "http://example.com"},

@@ -68,11 +68,21 @@ def _calculation_unavailable(
 
 def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> User:
     try:
-        claims = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+        claims = jwt.decode(
+            token, settings.secret_key, algorithms=["HS256"],
+            options={"require": ["sub", "ver", "iat", "exp"]},
+        )
         uid = claims["sub"]
-        auth_version = claims.get("ver", 0)
+        auth_version = claims["ver"]
+        if (
+            type(auth_version) is not int or auth_version < 0
+            or type(claims["iat"]) is not int or type(claims["exp"]) is not int
+            or claims["exp"] <= claims["iat"]
+            or not isinstance(uid, str)
+        ):
+            raise ValueError("Invalid access token claims")
         user = db.get(User, UUID(uid))
-    except (jwt.PyJWTError, ValueError, KeyError):
+    except (jwt.PyJWTError, ValueError, TypeError, KeyError, OverflowError):
         user = None
         auth_version = None
     if user is None or not user.is_active or auth_version != user.auth_version:
@@ -96,7 +106,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), remember_me: bool = 
     user = db.scalar(select(User).where(User.email == form_data.username))
     if not user or not user.is_active or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email or password is incorrect")
-    token_minutes = 30 * 24 * 60 if remember_me else 8 * 60
+    token_minutes = 60 if user.role.strip().upper() == "ADMIN" else (7 * 24 * 60 if remember_me else 8 * 60)
     return TokenResponse(access_token=create_access_token(str(user.id), user.auth_version, expires_minutes=token_minutes))
 
 
