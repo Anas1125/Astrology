@@ -21,6 +21,20 @@ export default function App() {
   const [language, setLanguage] = useAstroLanguage();
   const [page, setPage] = useState<Page>('overview');
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
+  const handleLogout = async () => {
+    setLogoutPending(true);
+    setLogoutError(false);
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch {
+      setLogoutError(true);
+    } finally {
+      setLogoutPending(false);
+    }
+  };
   const languageMenuRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!languageMenuOpen) return;
@@ -56,7 +70,7 @@ export default function App() {
         <a href="#overview" className={page === 'overview' ? 'active' : ''} onClick={() => setPage('overview')}><LayoutDashboard size={17}/>{labels.overview}</a><a href="#profiles" className={page === 'profiles' ? 'active' : ''} onClick={() => setPage('profiles')}><UserRound size={17}/>{labels.profiles}</a><a href="#vedic" className={page === 'vedic' || page === 'western' ? 'active' : ''} onClick={() => setPage('vedic')}><Orbit size={17}/>{labels.chart}</a><a href="#astrologer" className={page === 'astrologer' ? 'active' : ''} onClick={() => setPage('astrologer')}><MoonStar size={17}/>{labels.astrologer}</a><a href="#panchang" className={page === 'panchang' ? 'active' : ''} onClick={() => setPage('panchang')}><CalendarDays size={17}/>{labels.panchang}</a><a href="#horoscope" className={page === 'horoscope' ? 'active' : ''} onClick={() => setPage('horoscope')}><BookOpen size={17}/>{labels.horoscope}</a><a href="#compatibility" className={page === 'compatibility' ? 'active' : ''} onClick={() => setPage('compatibility')}><UsersRound size={17}/>{tamil ? 'பொருத்தம்' : 'Compatibility'}</a><a href="#vastu" className={page === 'vastu' ? 'active' : ''} onClick={() => setPage('vastu')}><Compass size={17}/>{tamil ? 'வாஸ்து' : 'Vastu'}</a>
         {account?.role?.toUpperCase() === 'ADMIN' && <a href="#admin-horoscope" className={page === 'admin-horoscope' ? 'active' : ''} onClick={() => setPage('admin-horoscope')}><ShieldCheck size={17}/>{labels.adminHoroscope}</a>}
       </nav>
-      <div className="sidebar-bottom"><div className="account"><div className="avatar">{account?.email.charAt(0).toUpperCase()}</div><div><b>{account?.email}</b><small>{account?.role}</small></div><button className="logout-button" onClick={() => { logout(); navigate('/login', { replace: true }); }} aria-label="Log out">Log out</button></div></div>
+      <div className="sidebar-bottom"><div className="account"><div className="avatar">{account?.email.charAt(0).toUpperCase()}</div><div><b>{account?.email}</b><small>{account?.role}</small></div><button className="logout-button" disabled={logoutPending} onClick={() => void handleLogout()} aria-label="Log out">Log out</button></div>{logoutError && <p role="alert">{tamil ? 'வெளியேற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.' : 'Logout failed. Please try again.'}</p>}</div>
     </aside>
     <main className="main-content">
       <header className="topbar"><div className="crumb">{labels.yourSpace} <span>/</span> <b>{page === 'astrologer' ? labels.astrologer : page === 'profiles' ? labels.profiles : page === 'vedic' || page === 'western' ? labels.chart : page === 'panchang' ? labels.panchang : page === 'horoscope' ? labels.horoscope : page === 'compatibility' ? (tamil ? 'பொருத்தம்' : 'Compatibility') : page === 'vastu' ? (tamil ? 'வாஸ்து' : 'Vastu') : page === 'admin-horoscope' ? labels.adminHoroscope : labels.overview}</b></div><div className="top-actions"><div className="language-picker" ref={languageMenuRef}>

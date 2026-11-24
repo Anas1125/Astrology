@@ -12,6 +12,7 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.session_proxy import trusted_session_proxy
 from app.models.entities import SecurityRateLimitBucket
 
 _cleanup_lock = Lock()
@@ -71,6 +72,11 @@ def bucket_window_start(now: datetime, window_seconds: int) -> datetime:
 def client_ip_for_rate_limit(request) -> str:
     """Use forwarded client IP only when the direct peer is explicitly trusted."""
     peer = request.client.host if request.client else "unknown"
+    if trusted_session_proxy(request):
+        try:
+            return str(ipaddress.ip_address(request.headers.get("x-astro-client-ip", "")))
+        except ValueError:
+            return peer
     if peer not in settings.trusted_proxy_ip_list:
         return peer
     forwarded = request.headers.get("x-forwarded-for", "").split(",", 1)[0].strip()

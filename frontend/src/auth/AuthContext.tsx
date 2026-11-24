@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Account, getAccount, login as apiLogin, register as apiRegister } from './api';
+import { Account, getAccount, login as apiLogin, register as apiRegister, COOKIE_AUTH, COOKIE_SESSION, loginSession, registerSession, logoutSession } from './api';
 
 type AuthState = {
   account: Account | null;
@@ -8,14 +8,14 @@ type AuthState = {
   loading: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 const TOKEN_KEY = 'astroai_access_token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY));
+  const [token, setToken] = useState<string | null>(() => COOKIE_AUTH ? null : (localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY)));
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     const restore = async () => {
-      const saved = localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
+      if (COOKIE_AUTH) {
+        localStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(TOKEN_KEY);
+      }
+      const saved = COOKIE_AUTH ? COOKIE_SESSION : (localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY));
       if (!saved) {
         setLoading(false);
         return;
@@ -75,16 +79,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearSession]);
 
   const login = useCallback(async (email: string, password: string, rememberMe = false) => {
+    if (COOKIE_AUTH) {
+      const actualAccount = await loginSession(email, password, rememberMe);
+      clearSession();
+      setToken(COOKIE_SESSION);
+      setAccount(actualAccount);
+      return;
+    }
     const response = await apiLogin(email, password, rememberMe);
     await acceptToken(response.access_token, rememberMe);
-  }, [acceptToken]);
+  }, [acceptToken, clearSession]);
 
   const register = useCallback(async (email: string, password: string) => {
+    if (COOKIE_AUTH) {
+      const actualAccount = await registerSession(email, password);
+      clearSession();
+      setToken(COOKIE_SESSION);
+      setAccount(actualAccount);
+      return;
+    }
     const response = await apiRegister(email, password);
     await acceptToken(response.access_token);
-  }, [acceptToken]);
+  }, [acceptToken, clearSession]);
 
-  const logout = useCallback(() => clearSession(), [clearSession]);
+  const logout = useCallback(async () => {
+    if (COOKIE_AUTH) await logoutSession();
+    clearSession();
+  }, [clearSession]);
   const value = useMemo(() => ({ account, token, loading, login, register, logout }), [account, token, loading, login, register, logout]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

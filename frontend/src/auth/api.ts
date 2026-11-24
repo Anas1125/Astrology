@@ -1,7 +1,13 @@
 export type Account = { id: string; email: string; role: string };
 export type TokenResponse = { access_token: string; token_type: string };
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1').replace(/\/$/, '');
+export const COOKIE_AUTH = import.meta.env.VITE_COOKIE_AUTH === 'true';
+// UI components still receive a non-secret authenticated-state marker, never the JWT.
+export const COOKIE_SESSION = 'cookie-session';
+const API_BASE = COOKIE_AUTH ? '/api/v1' : (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1').replace(/\/$/, '');
+function authHeaders(token?: string): Record<string, string> {
+  return COOKIE_AUTH ? { 'X-Astro-CSRF': '1' } : token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export class ApiError extends Error {
   constructor(message: string, readonly status: number) { super(message); this.name = 'ApiError'; }
@@ -10,9 +16,10 @@ export class ApiError extends Error {
 async function request<T>(path: string, init: RequestInit = {}, token?: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
+    ...(COOKIE_AUTH ? { credentials: 'same-origin' as const } : {}),
     headers: {
       ...(init.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...authHeaders(token),
       ...init.headers,
     },
   });
@@ -36,6 +43,17 @@ export function login(email: string, password: string, rememberMe = false) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form,
   });
+}
+
+export function loginSession(email: string, password: string, rememberMe: boolean) {
+  const form = new URLSearchParams({ username: email, password, remember_me: String(rememberMe) });
+  return request<Account>('/auth/session/login', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form });
+}
+export function registerSession(email: string, password: string) {
+  return request<Account>('/auth/session/register', { method: 'POST', body: JSON.stringify({ email, password }) });
+}
+export function logoutSession() {
+  return request<void>('/auth/session/logout', { method: 'POST' });
 }
 
 export function getAccount(token: string) {
@@ -374,7 +392,8 @@ export function deleteAIConversation(token: string, id: string) {
 export async function streamAIMessage(token: string, conversationId: string, content: string, onDelta: (content: string) => void, requestKey: string = crypto.randomUUID()): Promise<AIChatResponse> {
   const response = await fetch(`${API_BASE}/ai/conversations/${encodeURIComponent(conversationId)}/messages/stream`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, Accept: 'text/event-stream', 'Idempotency-Key': requestKey },
+    ...(COOKIE_AUTH ? { credentials: 'same-origin' as const } : {}),
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token), Accept: 'text/event-stream', 'Idempotency-Key': requestKey },
     body: JSON.stringify({ content }),
   });
   if (!response.ok) {
@@ -537,7 +556,7 @@ export async function analyzeVastuFloorPlan(
   form.append('rooms', JSON.stringify(rooms));
   form.append('boundary', JSON.stringify(boundary));
   const response = await fetch(`${API_BASE}/vastu/analyze`, {
-    method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form,
+    method: 'POST', ...(COOKIE_AUTH ? { credentials: 'same-origin' as const } : {}), headers: authHeaders(token), body: form,
   });
   let payload: unknown;
   try { payload = await response.json(); } catch { payload = null; }

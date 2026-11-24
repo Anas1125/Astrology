@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
     cors_origins: str = "http://localhost:5173"
     trusted_proxy_ips: str = ""
+    session_proxy_secret: str = ""
+    cookie_auth_origins: str = ""
+    disable_bearer_auth: bool = False
     ai_chat_rate_limit_per_minute: int = Field(default=30, gt=0)
     password_reset_rate_limit_per_hour: int = Field(default=5, gt=0)
     password_reset_ip_rate_limit_per_hour: int = Field(default=20, gt=0)
@@ -73,6 +76,18 @@ class Settings(BaseSettings):
             raise ValueError("Password reset SMTP username and password must be configured together")
         if self.app_env in {"production", "prod", "staging"} and self.password_reset_email_configured and not self.password_reset_smtp_starttls:
             raise ValueError("Password reset SMTP must use STARTTLS in staging and production")
+        if self.session_proxy_secret or self.cookie_auth_origins or self.disable_bearer_auth:
+            origins = self.cookie_origin_list
+            if (len(self.session_proxy_secret.encode("utf-8")) < 32
+                    or len(set(self.session_proxy_secret)) < 8
+                    or self.session_proxy_secret == self.secret_key
+                    or not origins or any(
+                        urlsplit(origin).scheme != "https" or not urlsplit(origin).hostname
+                        or urlsplit(origin).username or urlsplit(origin).password
+                        or urlsplit(origin).path or urlsplit(origin).query
+                        or urlsplit(origin).fragment for origin in origins
+                    )):
+                raise ValueError("Cookie authentication needs a separate random SESSION_PROXY_SECRET and explicit HTTPS COOKIE_AUTH_ORIGINS")
         if self.app_env not in {"production", "prod", "staging"}:
             return self
         reset_url = urlsplit(self.password_reset_frontend_url)
@@ -95,6 +110,10 @@ class Settings(BaseSettings):
         ):
             raise ValueError("Production CORS_ORIGINS must contain explicit HTTPS origins")
         return self
+
+    @property
+    def cookie_origin_list(self) -> list[str]:
+        return [item.strip() for item in self.cookie_auth_origins.split(",") if item.strip()]
 
     @property
     def password_reset_email_configured(self) -> bool:
