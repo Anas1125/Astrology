@@ -15,7 +15,7 @@ from app.api.ai_routes import router as ai_router
 
 from app.api.vastu_routes import router as vastu_router
 app = FastAPI(title="AstroAI API", version="0.1.0", description="Multilingual astrology SaaS API")
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list, allow_credentials=True, allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key"])
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key"])
 
 
 @app.middleware("http")

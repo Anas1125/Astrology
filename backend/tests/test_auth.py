@@ -1455,3 +1455,113 @@ def test_vedic_compatibility_rejects_non_lahiri_result():
     assert response.json()["status"] == "unavailable"
     assert response.json()["reason"] == "d1_lahiri_moon_data_required"
     assert response.json()["score"] is None
+
+
+def test_registration_cannot_assign_admin_role():
+    response = client.post("/api/v1/auth/register", json={
+        "email": "role-test@example.com", "password": "valid-password-long",
+        "role": "ADMIN", "is_active": True,
+    })
+    assert response.status_code == 201
+    headers = {"Authorization": "Bearer " + response.json()["access_token"]}
+    assert client.get("/api/v1/auth/me", headers=headers).json()["role"] == "USER"
+    assert client.get("/api/v1/admin/horoscope/content", headers=headers).status_code == 403
+
+
+@pytest.mark.parametrize("method,path,body", [
+    ("GET", "", None),
+    ("POST", "", {"system": "vedic", "period": "daily", "sign": "Mesha",
+                  "category": "overview", "starts_on": "2026-01-01", "ends_on": "2026-01-01",
+                  "en_content": "Test English content", "ta_content": "Test Tamil content"}),
+    ("POST", "/bulk-import", {"items": [{"system": "vedic", "period": "daily",
+                  "sign": "Mesha", "category": "overview", "starts_on": "2026-01-01",
+                  "ends_on": "2026-01-01", "en_content": "Test English content",
+                  "ta_content": "Test Tamil content"}]}),
+    ("POST", "/publish-all", None),
+    ("PUT", "/unknown", {"starts_on": "2026-01-01", "ends_on": "2026-01-01",
+                         "en_content": "Test English content", "ta_content": "Test Tamil content"}),
+    ("POST", "/unknown/publish", None),
+    ("POST", "/unknown/unpublish", None),
+    ("DELETE", "/unknown", None),
+])
+def test_every_admin_horoscope_route_requires_database_admin_role(method, path, body):
+    url = "/api/v1/admin/horoscope/content" + path
+    kwargs = {"json": body} if body is not None else {}
+    assert client.request(method, url, **kwargs).status_code == 401
+    headers = {"Authorization": "Bearer " + login_token()}
+    assert client.request(method, url, headers=headers, **kwargs).status_code == 403
+
+
+def test_admin_permissions_follow_current_database_role():
+    token = login_token()
+    headers = {"Authorization": "Bearer " + token}
+    url = "/api/v1/admin/horoscope/content"
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        user.role = "ADMIN"
+        session.commit()
+    assert client.get(url, headers=headers).status_code == 200
+    with TestSession() as session:
+        user = session.scalar(select(User).where(User.email == "member@example.com"))
+        user.role = "USER"
+        session.commit()
+    assert client.get(url, headers=headers).status_code == 403
+
+
+def test_admin_edit_cors_preflight_allows_put():
+    response = client.options("/api/v1/admin/horoscope/content/test", headers={
+        "Origin": "http://localhost:5173",
+        "Access-Control-Request-Method": "PUT",
+        "Access-Control-Request-Headers": "authorization,content-type",
+    })
+    assert response.status_code == 200
+    assert "PUT" in response.headers["access-control-allow-methods"]
+
+
+def test_cross_user_chat_read_write_stream_and_delete_denied():
+    owner = login_token()
+    profile = create_profile(token=owner).json()
+    conversation = _create_ai_conversation(owner, profile["id"])
+    path = "/api/v1/ai/conversations/" + conversation["id"]
+    owner_headers = {"Authorization": "Bearer " + owner, "Idempotency-Key": "private-chat-test"}
+    assert client.post(path + "/messages", json={"content": "Hi"}, headers=owner_headers).status_code == 200
+    registered = client.post("/api/v1/auth/register", json={
+        "email": "other-chat@example.com", "password": "valid-password-long",
+    })
+    assert registered.status_code == 201
+    other = {"Authorization": "Bearer " + registered.json()["access_token"],
+             "Idempotency-Key": "private-chat-test"}
+    for method, suffix, body in [
+        ("GET", "", None), ("DELETE", "", None),
+        ("POST", "/messages", {"content": "Hi"}),
+        ("POST", "/messages/stream", {"content": "Hi"}),
+    ]:
+        kwargs = {"json": body} if body is not None else {}
+        assert client.request(method, path + suffix, headers=other, **kwargs).status_code == 404
+    assert client.get("/api/v1/ai/conversations", headers=other).json()["total"] == 0
+    assert client.post("/api/v1/ai/conversations", headers=other, json={
+        "profile_id": profile["id"], "astrology_system": "vedic",
+    }).status_code == 404
+    history = client.get(path, headers=owner_headers)
+    assert history.status_code == 200
+    assert len(history.json()["messages"]) == 2
+
+
+def test_profile_mass_assignment_cannot_change_owner():
+    from app.models.entities import BirthProfile
+
+    token = login_token()
+    profile = create_profile(token=token).json()
+    registered = client.post("/api/v1/auth/register", json={
+        "email": "other-owner@example.com", "password": "valid-password-long",
+    })
+    other_headers = {"Authorization": "Bearer " + registered.json()["access_token"]}
+    other_id = client.get("/api/v1/auth/me", headers=other_headers).json()["id"]
+    owner_headers = {"Authorization": "Bearer " + token}
+    response = client.patch("/api/v1/profiles/" + profile["id"], headers=owner_headers,
+                            json={"display_name": "Updated name", "owner_id": other_id})
+    assert response.status_code == 200
+    with TestSession() as session:
+        stored = session.get(BirthProfile, UUID(profile["id"]))
+        assert str(stored.owner_id) != other_id
+    assert client.get("/api/v1/profiles/" + profile["id"], headers=other_headers).status_code == 404

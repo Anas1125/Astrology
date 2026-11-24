@@ -33,9 +33,10 @@ def _scope_key(system: str, period: str, sign: str, category: str, starts_on: da
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def _require_admin(user: User) -> None:
+def _require_admin(user: User = Depends(current_user)) -> User:
     if (user.role or "").strip().upper() != "ADMIN":
         raise HTTPException(status_code=403, detail="Administrator access is required")
+    return user
 
 
 class HoroscopeDraftCreate(BaseModel):
@@ -147,11 +148,10 @@ class HoroscopeBulkImport(BaseModel):
 @router.post("/admin/horoscope/content/bulk-import")
 def bulk_import_horoscope_content(
     payload: HoroscopeBulkImport,
-    user: User = Depends(current_user),
+    user: User = Depends(_require_admin),
     db: Session = Depends(get_db),
 ):
     """Create bilingual drafts from one validated CSV upload. Nothing is published."""
-    _require_admin(user)
 
     dates = {item.starts_on for item in payload.items}
     systems = {item.system for item in payload.items}
@@ -224,11 +224,10 @@ def bulk_import_horoscope_content(
 
 @router.post("/admin/horoscope/content/publish-all")
 def publish_all_horoscope_content(
-    user: User = Depends(current_user),
+    user: User = Depends(_require_admin),
     db: Session = Depends(get_db),
 ):
     """Publish every complete bilingual horoscope draft in one transaction."""
-    _require_admin(user)
 
     rows = list(db.scalars(select(HoroscopeContent).where(
         HoroscopeContent.system.is_not(None),
@@ -273,8 +272,7 @@ def publish_all_horoscope_content(
 
 
 @router.get("/admin/horoscope/content")
-def list_horoscope_content(user: User = Depends(current_user), db: Session = Depends(get_db)):
-    _require_admin(user)
+def list_horoscope_content(user: User = Depends(_require_admin), db: Session = Depends(get_db)):
     rows = list(db.scalars(select(HoroscopeContent).order_by(HoroscopeContent.starts_on.desc(), HoroscopeContent.sign.asc())))
     groups: dict[str, list[HoroscopeContent]] = {}
     for row in rows:
@@ -288,8 +286,7 @@ def list_horoscope_content(user: User = Depends(current_user), db: Session = Dep
 
 
 @router.post("/admin/horoscope/content", status_code=status.HTTP_201_CREATED)
-def create_horoscope_draft(payload: HoroscopeDraftCreate, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    _require_admin(user)
+def create_horoscope_draft(payload: HoroscopeDraftCreate, user: User = Depends(_require_admin), db: Session = Depends(get_db)):
     duplicate = db.scalar(select(HoroscopeContent.id).where(
         HoroscopeContent.system == payload.system,
         HoroscopeContent.period == payload.period,
@@ -328,8 +325,7 @@ def create_horoscope_draft(payload: HoroscopeDraftCreate, user: User = Depends(c
 
 
 @router.put("/admin/horoscope/content/{scope_key}")
-def update_horoscope_content(scope_key: str, payload: HoroscopeDraftUpdate, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    _require_admin(user)
+def update_horoscope_content(scope_key: str, payload: HoroscopeDraftUpdate, user: User = Depends(_require_admin), db: Session = Depends(get_db)):
     en, ta = _get_complete_pair(db, scope_key)
     old_key = scope_key
     try:
@@ -357,8 +353,7 @@ def update_horoscope_content(scope_key: str, payload: HoroscopeDraftUpdate, user
 
 
 @router.post("/admin/horoscope/content/{scope_key}/publish")
-def publish_horoscope_content(scope_key: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    _require_admin(user)
+def publish_horoscope_content(scope_key: str, user: User = Depends(_require_admin), db: Session = Depends(get_db)):
     en, ta = _get_complete_pair(db, scope_key)
     en.approved = True
     ta.approved = True
@@ -367,8 +362,7 @@ def publish_horoscope_content(scope_key: str, user: User = Depends(current_user)
 
 
 @router.post("/admin/horoscope/content/{scope_key}/unpublish")
-def unpublish_horoscope_content(scope_key: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    _require_admin(user)
+def unpublish_horoscope_content(scope_key: str, user: User = Depends(_require_admin), db: Session = Depends(get_db)):
     en, ta = _get_complete_pair(db, scope_key)
     en.approved = False
     ta.approved = False
@@ -377,8 +371,7 @@ def unpublish_horoscope_content(scope_key: str, user: User = Depends(current_use
 
 
 @router.delete("/admin/horoscope/content/{scope_key}")
-def delete_horoscope_content(scope_key: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    _require_admin(user)
+def delete_horoscope_content(scope_key: str, user: User = Depends(_require_admin), db: Session = Depends(get_db)):
     en, ta = _get_complete_pair(db, scope_key)
     db.delete(en)
     db.delete(ta)

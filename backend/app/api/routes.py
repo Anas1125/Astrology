@@ -84,7 +84,7 @@ def current_user(token: str = Depends(oauth), db: Session = Depends(get_db)) -> 
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     if db.scalar(select(User).where(User.email == payload.email)):
         raise HTTPException(409, "An account with this email already exists")
-    user = User(email=payload.email, password_hash=hash_password(payload.password))
+    user = User(email=payload.email, password_hash=hash_password(payload.password), role="USER")
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -340,11 +340,26 @@ def _calculate_owned_profile(payload: AstrologyChartRequest | VedicChartRequest,
     engine_version = f"{ENGINE_VERSION}+{VEDIC_ENGINE_VERSION}" if system == "vedic" else f"{ENGINE_VERSION}+{WESTERN_ENGINE_VERSION}"
     key_payload = {"input": snapshot, "system": system, "configuration": calculation_config, "engine": engine_version, "ephemeris": provider.ephemeris_version}
     calculation_key = hashlib.sha256(json.dumps(key_payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    existing_run = db.scalar(select(ChartCalculationRun).where(ChartCalculationRun.calculation_key == calculation_key))
-    if existing_run:
-        existing_chart = db.get(BirthChart, existing_run.chart_id)
-        if existing_chart:
-            return _calculation_response(existing_chart, existing_run)
+    cached = db.execute(
+        select(BirthChart, ChartCalculationRun)
+        .join(ChartCalculationRun, ChartCalculationRun.chart_id == BirthChart.id)
+        .join(BirthProfile, BirthProfile.id == BirthChart.profile_id)
+        .where(
+            ChartCalculationRun.calculation_key == calculation_key,
+            BirthChart.profile_id == profile.id,
+            BirthProfile.owner_id == user.id,
+            BirthChart.system == system,
+            BirthChart.division == division,
+        )
+    ).first()
+    if cached:
+        existing_chart, existing_run = cached
+        return _calculation_response(existing_chart, existing_run)
+    # A conflicting key must never return another profile's cached result.
+    if db.scalar(select(ChartCalculationRun.id).where(
+        ChartCalculationRun.calculation_key == calculation_key
+    )) is not None:
+        raise HTTPException(409, "Chart calculation cache conflict")
     birth_data = {
         "birth_date": profile.birth_date,
         "birth_time": profile.birth_time,
